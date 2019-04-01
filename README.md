@@ -1,4 +1,4 @@
-# ZzFX - A zuper zmall open zource zound fx zynth for java zcript gamez
+# ZzFX - A zuper zmall open zource zound fx zynth
 By Frank Force - 2019
 
 ZzFX Features
