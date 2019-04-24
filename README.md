@@ -5,7 +5,7 @@ ZzFX Features
 - Micro synth engine with 6 controllable parameters, you can add more.
 - Seeded sounds can also be played using as few as 4 bytes, ex: z(3)
 - Able to produce a wide variety of sound effect types.
-- Tiny footprint, after being minified with closure ZzFX lib is 429 bytes.
+- Tiny footprint, after being minified with closure ZzFX lib is 375 bytes!
 - Compresses well with JSCrush (alongside the rest of your game)
 - You can include just the Z function by itself if you don't want seeds.
 
@@ -27,3 +27,11 @@ Additional notes...
 - Try using any repeated numbers in your code as seeds, maybe you'll get lucky.
 - There is built in 5% frequency randomness in z(), you can change it.
 - You can also add parameters to z(), like a float to scale volume by, etc.
+
+**Here's the latest version of the minfied code you can use directly!**
+
+// Minified ZzFX Code (375 bytes) - MIT License - Copyright (c) 2019 - Frank Force
+Z=(e,l,m,g,n,p)=>{X=[];for(F=f=0;++F<l;f+=1+R(m))X[F]=Math.cos(f*e*Math.cos(f*n+p))*(F<g?F/g:1-(F-g)/(l-g));F=h.createBuffer(1,1E5,1E5);F.getChannelData(0).set(X);X=h.createBufferSource();X.buffer=F;X.connect(h.destination);X.start()}
+z=e=>{X=R(5E3);s=r;r=e;R();R();Z((R(1E5)+X)/1E6,f=R(1E5),R(9),R(f),R(1E5)/1E9,R(1E5));r=s}
+R=e=>(r^=r<<3,r^=r>>2,r%e)
+h=new AudioContext;r=0
