@@ -145,11 +145,12 @@ R=max=>                              // random numbers, beween 0, and 1 less the
 var ZzFX_context = new AudioContext, // shared audio context (prevents running out)
 r = Date.now();                      // starting used by random number generator
 /* 
-// Minified ZzFX Code (375 bytes)
-Z=(e,l,m,g,n,p)=>{X=[];for(F=f=0;++F<l;f+=1+R(m))X[F]=Math.cos(f*e*Math.cos(f*n+p))*(F<g?F/g:1-(F-g)/(l-g));F=h.createBuffer(1,1E5,1E5);F.getChannelData(0).set(X);X=h.createBufferSource();X.buffer=F;X.connect(h.destination);X.start()}
-z=e=>{X=R(5E3);s=r;r=e;R();R();Z((R(1E5)+X)/1E6,f=R(1E5),R(9),R(f),R(1E5)/1E9,R(1E5));r=s}
+// ZzFX - Minified Code (375 bytes) - MIT License - Copyright (c) 2019 - Frank Force
+z=e=>{h=R(5E3);s=r;r=e;R();R();Z((R(1E5)+h)/1E6,f=R(1E5),R(9),R(f),R(1E5)/1E9,R(1E5));r=s}
+Z=(e,l,m,g,n,p)=>{h=[];for(F=f=0;++F<l;f+=1+R(m))h[F]=Math.cos(f*e*Math.cos(f*n+p))*(F<g?F/g:1-(F-g)/(l-g))
+F=X.createBuffer(1,1E5,1E5);F.getChannelData(0).set(h);h=X.createBufferSource();h.buffer=F;h.connect(X.destination);h.start()}
+X=new AudioContext;r=0
 R=e=>(r^=r<<3,r^=r>>2,r%e)
-h=new AudioContext;r=0
 */
 ///////////////////////////////////////////////////////////////////////////////
 // ZzFX END - stop copying here to use ZzFX in your code!
