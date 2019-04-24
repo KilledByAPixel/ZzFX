@@ -7,7 +7,7 @@ ZzFX Features
 - Micro synth engine with 6 controllable parameters, you can add more.
 - Seeded sounds can also be played using as few as 4 bytes, ex: z(3)
 - Able to produce a wide variety of sound effect types.
-- Tiny footprint, after being minified with closure ZzFX lib is 422 bytes.
+- Tiny footprint, after being minified with closure ZzFX lib is 375 bytes.
 - Compresses well with JSCrush (alongside the rest of your game)
 - You can include just the Z function by itself if you don't want seeds.
 
@@ -94,7 +94,7 @@ onresize = function() { a.width = window.innerWidth; a.height = window.innerHeig
 ///////////////////////////////////////////////////////////////////////////////
 // ZzFX START - start copying here to use ZzFX in your code!
 ///////////////////////////////////////////////////////////////////////////////
-Z=function              // play a sound with full parameter control
+Z=                      // play a sound with full parameter control
 (
     frequency,          // float frequency of note, 1 is ~ 2000 hz
     length,             // int length of sample, 1e5 is max (about 1 second)
@@ -102,7 +102,7 @@ Z=function              // play a sound with full parameter control
     attack,             // int how long to fade in before fading out
     modulation,         // float modulation frequency (warble), 0 is none
     modulationPhase     // float phase of modualtion (sine wave offset)
-)
+)=>
 {
     // build the sample
     for(X=[], F=f=0; ++F < length; f += 1+R(noise))           // noise
@@ -121,12 +121,12 @@ Z=function              // play a sound with full parameter control
     X.connect(ZzFX_context.destination);
     X.start();
 }
-z=function(seed)         // play sound from a seed
+z=seed=>                // play sound from a seed
 {
-    X = R(5e3);          // tiny bit of frequency randomness
-    r = randSeed;        // save rand seed
-    randSeed = seed;     // set our seed
-    R();R();             // warm it up first (so low seeds sound good)
+    X = R(5e3);         // tiny bit of frequency randomness
+    s = r;              // save rand seed
+    r = seed;           // set our seed
+    R();R();            // warm it up first (so low seeds sound good)
     
     // play seeded sound
     Z(
@@ -138,12 +138,19 @@ z=function(seed)         // play sound from a seed
         R(1e5)          // modulation phase
     );
     
-    randSeed = r;      // restore rand seed
+    r = s;              // restore rand seed
 }
-R=function(max)                      // random numbers, beween 0, and 1 less then max
-{randSeed^=randSeed<<3;randSeed^=randSeed>>2;return max?randSeed%max:0;}
-var ZzFX_context= new AudioContext,  // shared audio context (prevents running out)
-randSeed = Date.now();               // starting used by random number generator
+R=max=>                              // random numbers, beween 0, and 1 less then max
+(r^=r<<3,r^=r>>2,max?r%max:0)
+var ZzFX_context = new AudioContext, // shared audio context (prevents running out)
+r = Date.now();                      // starting used by random number generator
+/* 
+// Minified ZzFX Code (375 bytes)
+Z=(e,l,m,g,n,p)=>{X=[];for(F=f=0;++F<l;f+=1+R(m))X[F]=Math.cos(f*e*Math.cos(f*n+p))*(F<g?F/g:1-(F-g)/(l-g));F=h.createBuffer(1,1E5,1E5);F.getChannelData(0).set(X);X=h.createBufferSource();X.buffer=F;X.connect(h.destination);X.start()}
+z=e=>{X=R(5E3);s=r;r=e;R();R();Z((R(1E5)+X)/1E6,f=R(1E5),R(9),R(f),R(1E5)/1E9,R(1E5));r=s}
+R=e=>(r^=r<<3,r^=r>>2,r%e)
+h=new AudioContext;r=0
+*/
 ///////////////////////////////////////////////////////////////////////////////
 // ZzFX END - stop copying here to use ZzFX in your code!
 //
@@ -155,7 +162,7 @@ randSeed = Date.now();               // starting used by random number generator
 // ♜        ♟             ♟          ♟           ♜        ♟                 
 //       ♜    ♟    ♟                      ♝                                 
 //      ♜          ♟                    ♞     ♟    ♟       ♜                
-//           ♜♟  ♟             ♛                       ♝          ♟     
+    //           ♜♟  ♟             ♛                       ♝          ♟     
 //  ♟        ♟               ♥                ♟       ♟     ♟               
 //        ♝     ♟         ♥              ♟                                  
 //     ♟           ❀   ♥                ♟ ♟    ♟       Brought to you by... 
@@ -178,13 +185,13 @@ C=function(x, y, seed)
         if (Math.abs(mouseX - x) < 35 & Math.abs(mouseY - y) < 60)
         {
             lastPlayedCard = this;    // save last played card
-            randSeed = Date.now();    // new random seed (for frequency randomness)
+            r = Date.now();           // new random seed (for frequency randomness)
             z(seed);                  // play the sound
             mouseX = 0;               // need to click again
-            titleSeed = randSeed;     // randomize title
+            titleSeed = r;            // randomize title
         }
         
-        randSeed = seed;                                      // set random seed
+        r = seed;                                             // set random seed
         Y(x,y, 99, 0, 0, lastPlayedCard==this?99:0, 9608);    // border
         Y(x,y, 85, R(99), R(99), R(99),9608);                 // background color
         for(i=3;--i;)
@@ -237,12 +244,14 @@ setInterval(G=function()
     if (lastPlayedCard)         // let last played card do it's special update
         lastPlayedCard.P();
 
-    randSeed = titleSeed;
+    r = titleSeed;
     for(i=9;i--;)             // draw random seeded background and ZzFX logo
     {
         Y(R(a.width), R(a.height), 999, R(99), R(99), R(99), 0,9999);
         T(135+R(9),80+R(9),90+R(9)*Math.cos(Date.now()/99),R(99), R(99), R(99),"ZzFX",);
     }
+    
+    T(139,135, 20, R(99), R(99), R(99),"Click to Copy/Paste Seed",);
     
     // update & draw cards
     for(k = 0; k < cards.length; ++k) // optimize with for(c of cards)
@@ -259,13 +268,13 @@ T = function(x, y, size, h, s, v, text) // draw text
     c.fillStyle="hsl("+9*h+","+s+"%,"+v+"%)";
     c.fillText(text,x,y);
 }
-Y = function(x, y, size, h, s, v, char, r)  // draw character
+Y = function(x, y, size, h, s, v, char, rand)  // draw character
 {
     c.textAlign = "center";
     c.textBaseline = "middle";
     c.font = size + "px a";
     c.fillStyle="hsl("+9*h+","+s+"%,"+v+"%)";
-    c.fillText(String.fromCharCode(char + R(r)),x,y);
+    c.fillText(String.fromCharCode(char + R(rand)),x,y);
 }
 
 /////////////////////////////////////////////////////////////////////////////// 
