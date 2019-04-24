@@ -1,4 +1,4 @@
-# ZzFX - A zuper zmall open zource zound fx zynth
+# ZzFX - Zuper Zmall Zeeded Zound Zynth
 By Frank Force - 2019
 
 ZzFX Features
