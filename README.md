@@ -1,6 +1,9 @@
 # ZzFX - Zuper Zmall Zeeded Zound Zynth
 By Frank Force - 2019
 
+ZzFX Seed Browser
+- ##http://zzfx.3d2k.com##
+
 ZzFX Features
 - Micro synth engine with 6 controllable parameters, you can add more.
 - Seeded sounds can also be played using as few as 4 bytes, ex: z(3)
