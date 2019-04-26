@@ -31,9 +31,8 @@ Additional notes...
 **Here's the latest version of the minfied code you can use directly!**
 
 ```
-// ZzFX - Minified Code (375 bytes) - MIT License - Copyright (c) 2019 - Frank Force
-z=e=>{h=R(5E3);s=r;r=e;R();R();Z((R(1E5)+h)/1E6,f=R(1E5),R(9),R(f),R(1E5)/1E9,R(1E5));r=s}
-Z=(e,l,m,g,n,p)=>{h=[];for(F=f=0;++F<l;f+=1+R(m))h[F]=Math.cos(f*e*Math.cos(f*n+p))*(F<g?F/g:1-(F-g)/(l-g))
+// ZzFX - Minified Code (352 bytes) - MIT License - Copyright (c) 2019 - Frank Force
+z=e=>{h=R(5E3);r=e;R(R());e=(R(1E5)+h)/1E6;l=R(1E5);m=R(9);g=R(l);n=R(1E5)/1E9;p=R(1E5);h=[];for(F=f=0;++F<l;f+=1+R(m))h[F]=Math.cos(f*e*Math.cos(f*n+p))*(F<g?F/g:1-(F-g)/(l-g))
 F=X.createBuffer(1,1E5,1E5);F.getChannelData(0).set(h);h=X.createBufferSource();h.buffer=F;h.connect(X.destination);h.start()}
 X=new AudioContext;r=0;R=e=>(r^=r<<3,r^=r>>2,r%e)
 ```
