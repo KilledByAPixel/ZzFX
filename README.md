@@ -8,7 +8,7 @@ ZzFX Features
 - Micro synth engine with 6 controllable parameters, you can add more.
 - Seeded sounds can also be played using as few as 4 bytes, ex: z(3)
 - Able to produce a wide variety of sound effect types.
-- Tiny footprint, after being minified with closure ZzFX lib is 375 bytes!
+- Tiny footprint, after being minified with closure ZzFX lib is 352 bytes!
 - Compresses well with JSCrush (alongside the rest of your game)
 - You can include just the Z function by itself if you don't want seeds.
 
