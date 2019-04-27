@@ -31,7 +31,7 @@ Additional notes...
 **Here's the latest version of the minfied code you can use directly!**
 
 ```
-// ZzFX - Minified Code (352 bytes) - MIT License - Copyright (c) 2019 - Frank Force
+// ZzFX - Zuper Zmall Zound Zynth - Minified (352 bytes) - MIT License - Copyright 2019 Frank Force
 z=e=>{h=R(5E3);s=r;r=e;R(R());e=(R(Z=1E5)+h)/1E6;l=R(Z);m=R(9);g=R(l);n=R(Z)/1E9;p=R(Z);h=[];for(F=f=0;++F<l;f+=1+R(m))h[F]=Math.cos(f*e*Math.cos(f*n+p))*(F<g?F/g:1-(F-g)/(l-g))
 F=X.createBuffer(1,Z,Z);F.getChannelData(0).set(h);h=X.createBufferSource();h.buffer=F;h.connect(X.destination);h.start();r=s}
 X=new AudioContext;r=0;R=e=>(r^=r<<3,r^=r>>2,r%e)
