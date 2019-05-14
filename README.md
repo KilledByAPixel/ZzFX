@@ -1,8 +1,7 @@
 # ZzFX - Zuper Zmall Zeeded Zound Zynth
 By Frank Force - 2019
 
-ZzFX Seed Browser and Demo
-- **http://zzfx.3d2k.com**
+# [LIVE DEMO!](http://zzfx.3d2k.com)
 
 ZzFX Features
 - Micro synth engine with 6 controllable parameters, you can add more.
