@@ -4,10 +4,10 @@ By Frank Force - 2019
 # [LIVE DEMO!](http://zzfx.3d2k.com)
 
 ZzFX Features
-- Micro synth engine with 6 controllable parameters, you can add more.
+- Micro synth engine with 6 controllable parameters.
 - Seeded sounds can also be played using as few as 4 bytes, ex: z(3)
 - Able to produce a wide variety of sound effect types.
-- Tiny footprint, after being minified, ZzFX is only 352 bytes!
+- Tiny footprint, after being minified, ZzFX is only 352 bytes uncompressed!
 
 ZzFX UI Features
 - The UI is just a seed browser for ZzFX.
@@ -19,7 +19,6 @@ ZzFX UI Features
 
 Additional notes...
 - Be careful of variable name collisions! vars used are ZzFfXRr, don't use them.
-- If you use closure compiler, it will shorten the internal variable names.
 - You can use R() instead of Math.Random() to save space.
 - Feel free to completely modify any of this code!
 - Try playing multiple sounds at once for unique effects.
