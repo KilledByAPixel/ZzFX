@@ -150,8 +150,8 @@ class ZZFXLib
         sound['frequencySlide']     = seed?parseFloat(((this.R()**3)*10).toFixed(1)):0;
         sound['length']             = seed?parseFloat((.1+this.R()).toFixed(1)):1;
         sound['attack']             = seed?parseFloat((this.R()).toFixed(2)):.1;
-        sound['noise']              = seed?parseFloat((this.R()**2*5).toFixed(1)):0; 
-        sound['modulation']         = seed?parseFloat((this.R()**3*99).toFixed(1)):0; 
+        sound['noise']              = seed?parseFloat((this.R()**3*5).toFixed(1)):0; 
+        sound['modulation']         = seed?parseFloat((this.R()**5*99).toFixed(1)):0; 
         sound['modulationPhase']    = seed?parseFloat((this.R()).toFixed(2)):0;
         
         this.r = rSave;             // restore rand seed
