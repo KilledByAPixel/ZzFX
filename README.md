@@ -3,7 +3,6 @@ By Frank Force - 2019
 
 # [LIVE DEMO!](http://zzfx.3d2k.com)
 
-    
 ZzFX Features
 
 - Micro synth engine with 9 controllable parameters.
@@ -21,23 +20,6 @@ ZzFX UI Features
 - Lock, reset and mutate buttons for each parameter.
 - Sounds can be download as a wave file.
 - Mark sounds as favorites to keep them from being cleared.
-
-ZzFX Features
-
-- Micro synth engine with 9 controllable parameters.
-- Tiny code footprint (<1k) for the minified version.
-- Smaller ZzFXmicro version provided without seeds.
-- Can produce a wide variety of sound effect types.
-- Seeded sounds can be played with a tiny function call, ex: ZZFX.z(3)
-- Seeded sound paramerters can be overridden.
-
-ZzFX UI Features
-
-- Generate random sounds from seed.
-- Stores sounds in list with local storage persistence.
-- Parameters can be modified for more control.
-- Lock, reset and mutate buttons for each parameter.
-- Sounds can be download as a wave file.
 
 Additional notes...
 - You can use ZZFX.R() as a random number generator.
