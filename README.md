@@ -9,7 +9,7 @@ ZzFX Features
 - Small code footprint for full version and the micro version is under 500 bytes!
 - Can produce a wide variety of sound effect types.
 - Seeded sounds can be played with a tiny function call, ex: ZZFX.z(6)
-- Seeded sound paramerters can be overridden, ex: ZZFX.z({seed:26,frequency:600})
+- Seeded sound paramerters can be overridden, ex: ZZFX.z(26,{frequency:600})
 - Random number generator ZZFX.R can be used in place of Math.random().
 - Use ZZFX.M to make music notes, ex: ZZFX.m(440, 7) // 7 semitons above 440hz (A4)
 
