@@ -126,14 +126,14 @@ Master Volume
 <tr><td height=100%></td></tr>
 </table>
 <br>
-ZzFX JavaScript Code (Use this code to play the sound in your game)
+ZzFX JavaScript (Use this code to play the sound)
 <br>
-<textarea title='Code to play the selected sound' id=textarea_code cols=80 disabled></textarea>
+<textarea title='Code to play the selected sound' id=textarea_code cols=80 ></textarea>
 <br><button title='Eval the actual ZzFX code' onclick='RandomizeLogo();eval(textarea_code.value)'>Test Code</button>
 <a href="ZzFX.min.js" style="font-size:25px" target="_blank">Download ZzFX.min.js</a>
 <br>
 <br>
-ZzFXmicro JavaScript Code (Simplified version without seeds)
+ZzFXmicro JavaScript (Simplified version without seeds)
 <br>
 <textarea title='Code to play the selected sound with the micro version' id=textarea_codeMicro cols=80 disabled></textarea>
 <br><button title='Eval the actual ZzFXmicro code' onclick='RandomizeLogo();eval(textarea_codeMicro.value)'>Test Code</button>
@@ -689,9 +689,9 @@ let settings =
     BuildSetting('volume',          .1, 'Volume',               'Volume scale in percent'),
     BuildSetting('randomness',      .1, 'Frequency Randomness', 'How much to randomize frequency in percent'),
     BuildSetting('frequency',       50, 'Frequency',            'Frequency of sound in Hz'),
-    BuildSetting('slide',           .1, 'Frequency Slide',      'How much to change frequency in kHz/s'),
     BuildSetting('length',          .1, 'Length',               'Sound length in seconds'),
     BuildSetting('attack',         .01, 'Attack',               'Attack percent of length'),
+    BuildSetting('slide',           .1, 'Frequency Slide',      'How much to change frequency in kHz/s'),
     BuildSetting('noise',           .1, 'Noise',                'How much random noise to add in percent'),
     BuildSetting('modulation',       1, 'Modulation Frequency', 'Frequency of modulation wave in Hz'),
     BuildSetting('modulationPhase',.01, 'Modulation Phase',     'Phase of modulation wave in percent'),

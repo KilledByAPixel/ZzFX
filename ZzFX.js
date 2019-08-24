@@ -49,13 +49,9 @@ class ZZFXLib
     z(seed, sound) 
     {
         // build the sound
-        let soundBuild = sound;
-        if (seed)
-        {
-            soundBuild = this.G(seed);
-            for(let setting in sound)
-                soundBuild[setting] = sound[setting];
-        }
+        let soundBuild = this.G(seed);
+        for(let setting in sound)
+            soundBuild[setting] = sound[setting];
     
         // copy default settings
         let s = this.G(0);
@@ -67,9 +63,9 @@ class ZZFXLib
             s['volume'], 
             s['randomness'],
             s['frequency'], 
-            s['slide'], 
             s['length'],
             s['attack'],
+            s['slide'], 
             s['noise'],
             s['modulation'],
             s['modulationPhase']
@@ -81,13 +77,13 @@ class ZZFXLib
     (
         volume, 
         randomness,
-        frequency, 
-        slide, 
-        length,
-        attack,
-        noise,
-        modulation,
-        modulationPhase
+        frequency,
+        length=1,
+        attack=.1,
+        slide=0, 
+        noise=0,
+        modulation=0,
+        modulationPhase=0
     )
     {
         let sampleRate = 44100;
@@ -182,12 +178,12 @@ zzfx = function            // play a sound
     volume, 
     randomness,
     frequency, 
-    slide, 
-    length,
-    attack,
-    noise,
-    modulation,
-    modulationPhase
+    length=1,
+    attack=.1,
+    slide=0,
+    noise=0,
+    modulation=0,
+    modulationPhase=0
 )
 {
     let sampleRate = 44100;
