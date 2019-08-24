@@ -65,10 +65,10 @@ button                       { font-size:20px; }
 select                       { overflow-x:hidden; width:600px; height:450px; }
 .slider                      { cursor: pointer; width:200px; }
 button.reset                 { width:20px; height:20px; }
-button.rand                  { width:20px; height:20px; background-color: #FF0; }
-button.resetDefault          { background-color: #55F; }
-button.resetLocked           { background-color: #F55; }
-button.resetChanged          { background-color: #5F5; }
+button.rand                  { width:20px; height:20px; background-color: #4F4; }
+button.resetDefault          { background-color: #44F; }
+button.resetLocked           { background-color: #F44; }
+button.resetChanged          { background-color: #FF4; }
 input.lock                   { width:20px; height:20px; }
 input.setting                { width:150px; }
 body,input,select,textarea   { color: #FFF; font-size:20px; }
@@ -649,7 +649,7 @@ let settings =
     BuildSetting('length',          .1, 'Length',               'Sound length in seconds'),
     BuildSetting('attack',         .01, 'Attack',               'Attack percent of length'),
     BuildSetting('noise',           .1, 'Noise',                'How much random noise to add in percent'),
-    BuildSetting('modulation',      .1, 'Modulation Frequency', 'Frequency of modulation wave in Hz'),
+    BuildSetting('modulation',       1, 'Modulation Frequency', 'Frequency of modulation wave in Hz'),
     BuildSetting('modulationPhase',.01, 'Modulation Phase',     'Phase of modulation wave in percent'),
 ]
 

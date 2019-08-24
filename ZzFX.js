@@ -146,12 +146,12 @@ class ZZFXLib
         sound['seed']               = seed;
         sound['volume']             = 1;
         sound['randomness']         = seed?this.randomness:0;
-        sound['frequency']          = seed?(50+this.R()**2*2e3)|0:220;
+        sound['frequency']          = seed?this.R()**2*2e3|0:220;
         sound['frequencySlide']     = seed?parseFloat(((this.R()**3)*10).toFixed(1)):0;
         sound['length']             = seed?parseFloat((.1+this.R()).toFixed(1)):1;
         sound['attack']             = seed?parseFloat((this.R()).toFixed(2)):.1;
         sound['noise']              = seed?parseFloat((this.R()**2*5).toFixed(1)):0; 
-        sound['modulation']         = seed?parseFloat((this.R()**2*10).toFixed(1)):0; 
+        sound['modulation']         = seed?parseFloat((this.R()**3*99).toFixed(1)):0; 
         sound['modulationPhase']    = seed?parseFloat((this.R()).toFixed(2)):0;
         
         this.r = rSave;             // restore rand seed
