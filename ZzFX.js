@@ -46,22 +46,13 @@ class ZZFXLib
     }
 
     // play a seeded sound with overrides applied
-    z(sound) 
+    z(seed, sound) 
     {
-        if (typeof sound == 'number')
-        {
-            // play seed
-            let seededSound = {};
-            seededSound['seed']=sound;
-            this.z(seededSound);
-            return;
-        }
-    
         // build the sound
         let soundBuild = sound;
-        if (sound['seed'] !== undefined)
+        if (seed)
         {
-            soundBuild = this.G(sound['seed']);
+            soundBuild = this.G(seed);
             for(let setting in sound)
                 soundBuild[setting] = sound[setting];
         }
@@ -76,7 +67,7 @@ class ZZFXLib
             s['volume'], 
             s['randomness'],
             s['frequency'], 
-            s['frequencySlide'], 
+            s['slide'], 
             s['length'],
             s['attack'],
             s['noise'],
@@ -91,7 +82,7 @@ class ZZFXLib
         volume, 
         randomness,
         frequency, 
-        frequencySlide, 
+        slide, 
         length,
         attack,
         noise,
@@ -103,7 +94,7 @@ class ZZFXLib
         volume *= this.volume;
         frequency *= 2*Math.PI / sampleRate;
         frequency *= (1 + randomness*(this.R()*2-1));
-        frequencySlide *= Math.PI * 1e3 / sampleRate**2;
+        slide *= Math.PI * 1e3 / sampleRate**2;
         length = length>0? (length>10?10:length) * sampleRate | 0 : 1;
         attack *= length | 0;
         modulation *= 2*Math.PI / sampleRate;
@@ -120,7 +111,7 @@ class ZZFXLib
                 1 - (F - attack)/(length - attack));           // decay
             f += 1+noise*(this.R()*2-1);                       // noise
             fm += 1+noise*(this.R()*2-1);                      // modulation noise
-            frequency += frequencySlide;                       // frequency slide
+            frequency += slide;                                // frequency slide
         }
         
         // play the sound
@@ -147,7 +138,7 @@ class ZZFXLib
         sound['volume']             = 1;
         sound['randomness']         = seed?this.randomness:0;
         sound['frequency']          = seed?this.R()**2*2e3|0:220;
-        sound['frequencySlide']     = seed?parseFloat(((this.R()**3)*10).toFixed(1)):0;
+        sound['slide']              = seed?parseFloat(((this.R()**3)*10).toFixed(1)):0;
         sound['length']             = seed?parseFloat((.1+this.R()).toFixed(1)):1;
         sound['attack']             = seed?parseFloat((this.R()).toFixed(2)):.1;
         sound['noise']              = seed?parseFloat((this.R()**3*5).toFixed(1)):0; 
@@ -191,7 +182,7 @@ zzfx = function            // play a sound
     volume, 
     randomness,
     frequency, 
-    frequencySlide, 
+    slide, 
     length,
     attack,
     noise,
@@ -202,7 +193,7 @@ zzfx = function            // play a sound
     let sampleRate = 44100;
     frequency *= 2*Math.PI / sampleRate;
     frequency *= (1 + randomness*(Math.random()*2-1));
-    frequencySlide *= Math.PI * 1e3 / sampleRate**2;
+    slide *= Math.PI * 1e3 / sampleRate**2;
     length = length>0? (length>10?10:length) * sampleRate | 0 : 1;
     attack *= length | 0;
     modulation *= 2*Math.PI / sampleRate;
@@ -219,7 +210,7 @@ zzfx = function            // play a sound
             1 - (F - attack)/(length - attack));           // decay
         f += 1+noise*(Math.random()*2-1);                  // noise
         fm += 1+noise*(Math.random()*2-1);                 // modulation noise
-        frequency += frequencySlide;                       // frequency slide
+        frequency += slide;                                // frequency slide
     }
 
     // play the sound

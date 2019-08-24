@@ -164,7 +164,8 @@ function PlaySound()
         lastPlayedSound = 0;
     }
     
-    lastPlayedSound = ZZFX.z(BuildSound());
+    let sound = BuildSound();
+    lastPlayedSound = ZZFX.z(sound.seed, sound);
     DrawSoundWave(ZZFX.b);
     RandomizeLogo();
 }
@@ -200,27 +201,27 @@ function GetCode(sound)
     let code = 'ZZFX.z(';
     let onlyHasSeed = 1;
     let first = 1;
+    code += sound.seed;
     for(let setting in sound)
     {
-        if (setting != 'seed')
-        {
-            if (seedSound[setting] == sound[setting])
-                continue;
-            onlyHasSeed = 0;
-        }
+        if (setting == 'seed' || setting == 'favorite')
+            continue;
+            
+        if (seedSound[setting] == sound[setting])
+            continue;
+        onlyHasSeed = 0;
 
         let value = sound[setting] + '';
         value = value.replace(/^0+/, ''); // remove leading 0's
         if (value == '')
             value = '0';
-        code += first? '{':',';
+        code += first? ',{':',';
         code += setting + ':' + value;
         first = 0;
     }
-    code += '});';
-    
-    if (onlyHasSeed)
-        code = "ZZFX.z("+sound.seed+");";
+    if (!first)
+        code += '}';
+    code += ');';
     return code;
 }
 
@@ -231,7 +232,7 @@ function GetCodeMicro(sound)
     let first = 1;
     for(let setting in sound)
     {
-        if (setting == 'seed')
+        if (setting == 'seed' || setting == 'favorite')
             continue;
             
         let value = sound[setting] + '';
@@ -271,7 +272,6 @@ function UpdateSettings(rebuildSound)
         if (selectedWasChanged)
             sounds[index] = sound;
         
-        let browserName = '';
         let seedSound = ZZFX.G(sound.seed);
         for(let s in sound)
         {
@@ -279,6 +279,7 @@ function UpdateSettings(rebuildSound)
             UpdateResetButton(s, changed, IsLocked(s));
         }
         
+        let browserName = '';
         if (sounds[index].favorite)
             browserName += "* ";
         
@@ -478,7 +479,7 @@ function MutateSetting(name, step)
     let seedSound = ZZFX.G(sound.seed);
     let v = seedSound[name];
     v += r * step;
-    if (v < 0 && name != 'frequencySlide')
+    if (v < 0 && name != 'slide')
         v *= -1;
         
     v = parseFloat(v.toFixed(4));
@@ -688,7 +689,7 @@ let settings =
     BuildSetting('volume',          .1, 'Volume',               'Volume scale in percent'),
     BuildSetting('randomness',      .1, 'Frequency Randomness', 'How much to randomize frequency in percent'),
     BuildSetting('frequency',       50, 'Frequency',            'Frequency of sound in Hz'),
-    BuildSetting('frequencySlide',  .1, 'Frequency Slide',      'How much to change frequency in kHz/s'),
+    BuildSetting('slide',           .1, 'Frequency Slide',      'How much to change frequency in kHz/s'),
     BuildSetting('length',          .1, 'Length',               'Sound length in seconds'),
     BuildSetting('attack',         .01, 'Attack',               'Attack percent of length'),
     BuildSetting('noise',           .1, 'Noise',                'How much random noise to add in percent'),
