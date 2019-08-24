@@ -77,6 +77,7 @@ button.resetLocked           { background-color: #F44; }
 button.resetChanged          { background-color: #FF4; }
 input.lock                   { width:20px; height:20px; }
 input.setting                { width:150px; }
+textarea                     { height:35px; }
 body,input,select,textarea   { color: #FFF; font-size:20px; }
 select,input,textarea,canvas { background-color: #0B0B0B; border:1px solid #FFF; }
 </style>
@@ -84,23 +85,21 @@ select,input,textarea,canvas { background-color: #0B0B0B; border:1px solid #FFF;
 </head>
 <body bgcolor="#222">
 <center>
-<table border=0 style='text-align:center;'>
-<tr><td style='text-align:right;'>
+<table border=0>
+<tr>
+<td style='text-align:center'>
+Master Volume 
+<input title='Volume to scale all sounds by in percent' type="range" min="0" max="100" value="50" class="slider" id="slider_masterVolume" onchange="UpdateSettings();SaveLocalStorage()">
+<div id=div_masterVolume style="display:inline;"></div>
+</td><td style='text-align:right;'>
 <font size=7><b><div style="display:inline;" id=div_logo>ℤ𝕫𝔽𝕏</div></b></font>
 </td><td style='text-align:left;'>
 <div style="display:inline;" id=div_logo2>
 <i>&nbsp;Zuper Zmall Zeeded Zound Zynth</i>
 </div>
 </td></tr>
-<tr><td colspan=2>
-<table border=0>
 <tr>
-<td colspan=2 style='text-align:center'>
-Master Volume 
-<input title='Volume to scale all sounds by in percent' type="range" min="0" max="100" value="50" class="slider" id="slider_masterVolume" onchange="UpdateSettings();SaveLocalStorage()">
-<div id=div_masterVolume style="display:inline;"></div>
-<br><br>
-
+<td style='text-align:center'>
 <a hidden id=a_downloadLink></a>
 <button title='Clear all sounds' onclick=ClearButton(1)>Clear All</button>
 <button title='Clear non-favorite sounds' onclick=ClearButton()>Clear</button>
@@ -111,12 +110,10 @@ Master Volume
 <button title='Make copy of selected sound' onclick=CopySound()>Copy</button>
 <button title='Play selected sound' onclick=PlaySound()>Play</button>
 <button title='Create new random sound' onclick=NewSound()>Random</button>
-
 <br>
 <br>
 </td>
-<td rowspan=20 style='text-align:center'>
-
+<td colspan=2 rowspan=20 style='text-align:center'>
 <select title='Select a sound to play' id=select_soundList onclick='LoadSelected();PlaySound();' onchange='LoadSelected();PlaySound();' size=2></select>
 </td>
 </tr>
@@ -132,21 +129,19 @@ ZzFX JavaScript Code (Use this code to play the sound in your game)
 <br>
 <textarea title='Code to play the selected sound' id=textarea_code cols=80 disabled></textarea>
 <br><button title='Eval the actual ZzFX code' onclick='RandomizeLogo();eval(textarea_code.value)'>Test Code</button>
-<a href="ZzFX.min.js" style="font-size:30px" target="_blank">Download ZzFX.min.js</a>
+<a href="ZzFX.min.js" style="font-size:25px" target="_blank">Download ZzFX.min.js</a>
 <br>
 <br>
 ZzFXmicro JavaScript Code (Simplified version without seeds)
 <br>
 <textarea title='Code to play the selected sound with the micro version' id=textarea_codeMicro cols=80 disabled></textarea>
 <br><button title='Eval the actual ZzFXmicro code' onclick='RandomizeLogo();eval(textarea_codeMicro.value)'>Test Code</button>
-<a href="ZzFX.micro.js" style="font-size:30px" target="_blank">Download ZzFX.micro.js</a>
+<a href="ZzFX.micro.js" style="font-size:25px" target="_blank">Download ZzFX.micro.js</a>
 <br>
 <br>
 Sound Wave
 <br>
 <canvas title='Image of sound wave' id=canvas_soundWave width=1000 height=100></canvas>
-</td></tr>
-</table>
 </center>
 <center>
 
@@ -501,7 +496,7 @@ function ClearSounds(clearFavorites)
     if (!clearFavorites)
     {
         for(let s of oldSounds)
-            if (s.favorite)
+            if (s && s.favorite)
                 AddToList(s, 1);
     }
     
