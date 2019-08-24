@@ -3,34 +3,50 @@ By Frank Force - 2019
 
 # [LIVE DEMO!](http://zzfx.3d2k.com)
 
+    
 ZzFX Features
-- Micro synth engine with 6 controllable parameters.
-- Seeded sounds can also be played using as few as 4 bytes, ex: z(3)
-- Able to produce a wide variety of sound effect types.
-- Tiny footprint, after being minified, ZzFX is only 352 bytes uncompressed!
+
+- Micro synth engine with 9 controllable parameters.
+- Tiny code footprint (<1k) and the micro version is even smaller.
+- Can produce a wide variety of sound effect types.
+- Seeded sounds can be played with a tiny function call, ex: ZZFX.z(3)
+- Seeded sound paramerters can be overridden.
 
 ZzFX UI Features
-- The UI is just a seed browser for ZzFX.
-- When the page loads it is filled with cards each corresponding to a seed.
-- Click on a card to play the sound for that seed.
-- Each card also has a unique visual apearance tied to that seed.
-- You can click on the ZzFX logo to copy the last played seed or change it!
-- There is a section in code to create a preset card layout.
+
+- Generate random sounds from seed.
+- Stores sounds in list with local storage persistence.
+- Parameters can be modified for more control.
+- Lock, reset and mutate buttons for each parameter.
+- Sounds can be download as a wave file.
+
+ZzFX Features
+
+- Micro synth engine with 9 controllable parameters.
+- Tiny code footprint (<1k) for the minified version.
+- Smaller ZzFXmicro version provided without seeds.
+- Can produce a wide variety of sound effect types.
+- Seeded sounds can be played with a tiny function call, ex: ZZFX.z(3)
+- Seeded sound paramerters can be overridden.
+
+ZzFX UI Features
+
+- Generate random sounds from seed.
+- Stores sounds in list with local storage persistence.
+- Parameters can be modified for more control.
+- Lock, reset and mutate buttons for each parameter.
+- Sounds can be download as a wave file.
 
 Additional notes...
-- Be careful of variable name collisions! vars used are ZzFfXRr, don't use them.
-- You can use R() instead of Math.Random() to save space.
-- Feel free to completely modify any of this code!
-- Try playing multiple sounds at once for unique effects.
-- You can also use negative seeds.
-- There is built in 5% frequency randomness in z(), you can change it.
-- You may want to add parameters to z(), like a volume setting for example.
+- You can use ZZFX.R() as a random number generator.
+- Try playing multiple sounds simultaneously for unique effects.
+- You can change the master volume and frequency randomness.
+- Feel free to modify any or all of this code!
 
-**Here's the latest version of the minfied code you can use directly!**
+**Here's the latest version of the ZzFXmicro you can use directly!**
 
 ```
-// ZzFX - Zuper Zmall Zound Zynth - Minified (352 bytes) - MIT License - Copyright 2019 Frank Force
-z=e=>{h=R(5E3);s=r;r=e;R(R());e=(R(Z=1E5)+h)/1E6;l=R(Z);m=R(9);g=R(l);n=R(Z)/1E9;p=R(Z);h=[];for(F=f=0;++F<l;f+=1+R(m))h[F]=Math.cos(f*e*Math.cos(f*n+p))*(F<g?F/g:1-(F-g)/(l-g))
-F=X.createBuffer(1,Z,Z);F.getChannelData(0).set(h);h=X.createBufferSource();h.buffer=F;h.connect(X.destination);h.start();r=s}
-X=new AudioContext;r=0;R=e=>(r^=r<<3,r^=r>>2,r%e)
+// ZzFX - Zuper Zmall Zound Zynth - Micro Version (488 bytes) - MIT License - Copyright 2019 Frank Force
+zzfx_v=.5;zzfx_x=new AudioContext;
+zzfx=(e,f,a,g,b,d,h,k,l)=>{let S=44100,P=Math.PI;a*=2*P/S;a*=1+f*(2*Math.random()-1);g*=1E3*P/(S**2);b=0<b?S*(10<b?10:b)|0:1;d*=b|0;k*=2*P/S;l*=P;f=[];for(var m=0,n=0,c=0;c<b;++c)f[c]=e*zzfx_v*Math.cos(m*a*Math.cos(n*k+l))*(c<d?c/d:1-(c-d)/(b-d)),m+=1+h*(2*Math.random()-1),n+=1+h*(2*Math.random()-1),a+=g;e=zzfx_x.createBuffer(1,b,S);a=zzfx_x.createBufferSource();e.getChannelData(0).set(f);a.buffer=e;a.connect(zzfx_x.destination);a.start();return a};
 ```
