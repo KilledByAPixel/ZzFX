@@ -7,7 +7,7 @@ By Frank Force - 2019
 ZzFX Features
 
 - Micro synth engine with 9 controllable parameters.
-- Tiny code footprint (<1k) and the micro version is even smaller.
+- Tiny code footprint and the micro version is under 500 bytes!
 - Can produce a wide variety of sound effect types.
 - Seeded sounds can be played with a tiny function call, ex: ZZFX.z(3)
 - Seeded sound paramerters can be overridden.
