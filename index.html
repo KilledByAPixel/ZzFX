@@ -27,6 +27,12 @@ Additional notes...
 - You can change the master volume and frequency randomness.
 - Feel free to modify any or all of this code!
 
+Todo
+- musical notes
+- favorite a sound
+- way to clear non favorites
+- share button
+
 --> 
 <!--
 
@@ -96,12 +102,15 @@ Master Volume
 <br><br>
 
 <a hidden id=a_downloadLink></a>
+<button title='Clear all sounds' onclick=ClearButton(1)>Clear All</button>
+<button title='Clear non-favorite sounds' onclick=ClearButton()>Clear</button>
 <button title='Download the selected wave file' onclick=SaveWave()>Download</button>
 <button title='Remove selected sound' onclick=RemoveButton()>Remove</button>
-<button title='Clear all sounds' onclick=ClearButton()>Clear</button>
+<br><br>
+<button title='Toggle favorite on current sound' onclick=FavoriteButton()>Favorite</button>
 <button title='Make copy of selected sound' onclick=CopySound()>Copy</button>
-<button title='Create new random sound' onclick=NewSound()>Random</button>
 <button title='Play selected sound' onclick=PlaySound()>Play</button>
+<button title='Create new random sound' onclick=NewSound()>Random</button>
 
 <br>
 <br>
@@ -272,12 +281,17 @@ function UpdateSettings(rebuildSound)
             let changed = sound[s] != seedSound[s];
             UpdateResetButton(s, changed, IsLocked(s));
         }
+        
+        if (sounds[index].favorite)
+            browserName += "* ";
+        
+        let count = 0;
         for(let s in sounds[index])
         {
             let changed = sound[s] != seedSound[s];
-            if (s != 'seed' && !changed)
+            if (s == 'favorite' || s != 'seed' && !changed)
                 continue;
-            if (browserName.length>0)
+            if (count++)
                 browserName+=', ';
             browserName += s+':'+sound[s];
         }
@@ -316,7 +330,7 @@ function CopySound()
     SaveLocalStorage();
 }
 
-function AddToList(sound)
+function AddToList(sound, dontRebuild)
 {
     let i = sounds.push(sound) - 1;
     let option = document.createElement('option');
@@ -325,7 +339,7 @@ function AddToList(sound)
     select_soundList.selectedIndex = select_soundList.length-1;
     LoadSelected();
     selectedWasChanged = 1;
-    UpdateSettings(1);
+    UpdateSettings(!dontRebuild);
 }
 
 function SelectedWasChanged(name)
@@ -368,11 +382,36 @@ function RandomizeLogo()
     div_logo2.style.color=`hsl(${ZZFX.R()*3e3},${50+50*ZZFX.R()}%,${50+50*ZZFX.R()}%)`;
 }
 
-function ClearButton()
+function FavoriteButton()
 {
-    if (!confirm('Are you sure you want clear everything?'))
+    let i = select_soundList.selectedIndex;
+    let index = select_soundList.options[i].value;
+    let s = sounds[index];
+    if (!s)
         return;
-    ClearSounds();
+        
+    s.favorite = !s.favorite
+    UpdateSettings();
+    PlaySound();
+    SaveLocalStorage();
+}
+
+function ClearButton(clearFavorites)
+{
+    if (clearFavorites)
+    {
+        if (!confirm('Are you sure you want clear all sounds?\nThis will DELETE your favorites!'))
+            return;
+        if (!confirm('Are you positive? This will clear everything!'))
+            return;
+        slider_masterVolume.value = 50;
+    }
+    else
+    {
+        if (!confirm('Are you sure you want clear sounds?\nYour favorites will remain.'))
+            return;
+    }
+    ClearSounds(clearFavorites);
     localStorage.clear();
     PlaySound();
 }
@@ -450,17 +489,24 @@ function MutateSetting(name, step)
     SelectedWasChanged();
 }
 
-function ClearSounds()
+function ClearSounds(clearFavorites)
 {
-    slider_masterVolume.value = 50;
-
-    sounds = [];
     select_soundList.selectedIndex=-1;
     while(select_soundList.options.length>0)
         select_soundList.options.remove(0);
     BuildSettingsTable();
     
-    AddToList(ZZFX.G(0));
+    let oldSounds = sounds;
+    sounds = [];
+    if (!clearFavorites)
+    {
+        for(let s of oldSounds)
+            if (s.favorite)
+                AddToList(s, 1);
+    }
+    
+    if (sounds.length == 0)
+        AddToList(ZZFX.G(0));
     selectedWasChanged = 0;
     canvas_soundWave.width |= 0;
     UpdateSettings();
@@ -617,7 +663,7 @@ function BuildSettingsTable()
         
         html += '<td style="width:25px">';
         if (s.name == 'seed')
-            html += '🔒</td><td style="width:25px">♻️</td><td style="width:25px">❓';
+            html += '🔒</td><td style="width:25px">♻️</td><td style="width:25px">🎲';
         else
         {
             html += `<input title='Lock parameter' id=input_lock_${s.name} oninput=SelectedWasChanged() class="lock" type=checkbox>`;
