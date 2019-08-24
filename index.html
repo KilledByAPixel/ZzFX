@@ -32,6 +32,7 @@ Todo
 - favorite a sound
 - way to clear non favorites
 - share button
+- export/import
 
 --> 
 <!--
@@ -262,6 +263,7 @@ function UpdateSettings(rebuildSound)
         let option = select_soundList.options[select_soundList.selectedIndex];
         let index = parseInt(option.value);
         let buildSound = BuildSound();
+        buildSound.favorite = sounds[index].favorite;
         let sound = rebuildSound? buildSound : sounds[index];
         textarea_code.value = GetCode(buildSound);
         textarea_codeMicro.value = GetCodeMicro(buildSound);
@@ -334,7 +336,7 @@ function AddToList(sound, dontRebuild)
     select_soundList.selectedIndex = select_soundList.length-1;
     LoadSelected();
     selectedWasChanged = 1;
-    UpdateSettings(!dontRebuild);
+    UpdateSettings();
 }
 
 function SelectedWasChanged(name)
@@ -497,7 +499,7 @@ function ClearSounds(clearFavorites)
     {
         for(let s of oldSounds)
             if (s && s.favorite)
-                AddToList(s, 1);
+                AddToList(s);
     }
     
     if (sounds.length == 0)
