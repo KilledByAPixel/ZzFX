@@ -31,7 +31,7 @@
 // ==ClosureCompiler==
 // @compilation_level ADVANCED_OPTIMIZATIONS
 // @output_file_name ZzFx.min.js
-// @js_externs ZZFX, ZZFXLib, ZZFXLib.z, ZZFXLib.Z, ZZFXLib.G
+// @js_externs ZZFX, ZZFXLib, ZZFXLib.z, ZZFXLib.Z, ZZFXLib.G, ZZFXLib.M
 // @js_externs ZZFXLib.R, ZZFXLib.x, ZZFXLib.r, ZZFXLib.b, ZZFXLib.volume, ZZFXLib.randomness
 // ==/ClosureCompiler==
 class ZZFXLib
@@ -158,7 +158,14 @@ class ZZFXLib
         return sound;
     }
     
-    R() // random seeded float
+    // get the frequency of a musical note
+    M(rootNoteFrequency, semitoneOffset)
+    {
+        return rootNoteFrequency*2**(semitoneOffset/12);
+    }
+    
+    // random seeded float
+    R()
     { 
         this.r^=this.r<<13
         this.r^=this.r>>7

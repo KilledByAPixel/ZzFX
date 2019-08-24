@@ -9,7 +9,8 @@ ZzFX Features
 - Tiny code footprint (<1k) for the minified version.
 - Smaller ZzFXmicro version provided without seeds.
 - Can produce a wide variety of sound effect types.
-- Seeded sounds can be played with a tiny function call, ex: ZZFX.z(3)
+- Seeded sounds can be played with a tiny function call, ex: ZZFX.z(6)
+- Use function ZZFX.M() to get the frequency of a musical note.
 - Seeded sound paramerters can be overridden.
 
 ZzFX UI Features
@@ -646,10 +647,10 @@ let settings =
     BuildSetting('frequency',       50, 'Frequency',            'Frequency of sound in Hz'),
     BuildSetting('frequencySlide',  .1, 'Frequency Slide',      'How much to change frequency in kHz/s'),
     BuildSetting('length',          .1, 'Length',               'Sound length in seconds'),
-    BuildSetting('attack',          .1, 'Attack',               'Attack percent of length'),
+    BuildSetting('attack',         .01, 'Attack',               'Attack percent of length'),
     BuildSetting('noise',           .1, 'Noise',                'How much random noise to add in percent'),
     BuildSetting('modulation',      .1, 'Modulation Frequency', 'Frequency of modulation wave in Hz'),
-    BuildSetting('modulationPhase', .1, 'Modulation Phase',     'Phase of modulation wave in percent'),
+    BuildSetting('modulationPhase',.01, 'Modulation Phase',     'Phase of modulation wave in percent'),
 ]
 
 ///////////////////////////////////////////////////////////////////////////////
