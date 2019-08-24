@@ -11,6 +11,7 @@ ZzFX Features
 - Can produce a wide variety of sound effect types.
 - Seeded sounds can be played with a tiny function call, ex: ZZFX.z(3)
 - Seeded sound paramerters can be overridden.
+- Use ZZFX.M to make music notes.
 
 ZzFX UI Features
 
@@ -19,6 +20,7 @@ ZzFX UI Features
 - Parameters can be modified for more control.
 - Lock, reset and mutate buttons for each parameter.
 - Sounds can be download as a wave file.
+- Mark sounds as favorites to keep them from being cleared.
 
 ZzFX Features
 
