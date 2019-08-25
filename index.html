@@ -23,6 +23,7 @@ ZzFX UI Features
 - Sounds can be download as a wave file.
 - Mark sounds as favorites to keep them from being cleared.
 - List of sounds can be exported and imported.
+- Supports drag-and-drop of exported files into sound list.
 
 Todo
 - musical notes
@@ -250,6 +251,20 @@ function GetCodeMicro(sound)
 // click on canvas to play sound
 canvas_soundWave.onmousedown=e=>{e.preventDefault();}
 canvas_soundWave.onclick=e=>{PlaySound();e.preventDefault();}
+
+// drag and drop exported files into the sound list
+select_soundList.addEventListener('dragover', function(e) {
+    e.stopPropagation();
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+});
+select_soundList.addEventListener('drop', function(e) 
+{
+    e.stopPropagation();
+    e.preventDefault();
+    LoadFile(e.dataTransfer.files[0]);
+    PlaySound();
+});
 
 function UpdateSettings(rebuildSound)
 {
@@ -536,6 +551,7 @@ function ClearSounds(clearFavorites, clearAll)
 
 function Export()
 {
+    PlaySound();
     let fileData = "1\n"; // version
     for(let i in sounds)
     {
@@ -554,6 +570,7 @@ function Export()
 
 function Import()
 {
+    PlaySound();
     input_importFile.onchange=e=>LoadFile(e.target.files[0]);
     input_importFile.click();
 }
