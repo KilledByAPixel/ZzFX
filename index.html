@@ -29,8 +29,7 @@ Additional notes...
 
 Todo
 - musical notes
-- favorite a sound
-- way to clear non favorites
+- shortcut keys
 - share button
 - export/import
 
@@ -65,11 +64,12 @@ Todo
 <meta charset="utf-8">
 <head>
 <title>ZzFX - Zuper Zmall Zeeded Zound Zynth</title>
+<link rel="shortcut icon" type="image/x-icon" href="favicon.png"/>
 <style>
 *                            { font-family: "courier"; }
 a                            { color:#5AF; }
 button                       { font-size:20px; }
-select                       { overflow-x:hidden; width:600px; height:450px; }
+select                       { overflow-x:hidden; width:600px; height:350px; }
 .slider                      { cursor: pointer; width:200px; }
 button.reset                 { width:20px; height:20px; }
 button.rand                  { width:20px; height:20px; background-color: #4F4; }
@@ -78,7 +78,7 @@ button.resetLocked           { background-color: #F44; }
 button.resetChanged          { background-color: #FF4; }
 input.lock                   { width:20px; height:20px; }
 input.setting                { width:150px; }
-textarea                     { height:35px; }
+textarea                     { height:50px; cursor: text; }
 body,input,select,textarea   { color: #FFF; font-size:20px; }
 select,input,textarea,canvas { background-color: #0B0B0B; border:1px solid #FFF; }
 </style>
@@ -114,21 +114,23 @@ Master Volume
 <br>
 <br>
 </td>
-<td colspan=2 rowspan=20 style='text-align:center'>
-<select title='Select a sound to play' id=select_soundList onclick='LoadSelected();PlaySound();' onchange='LoadSelected();PlaySound();' size=2></select>
+<td colspan=2 rowspan=1 style='text-align:center'>
+<canvas title='Image of sound wave' id=canvas_soundWave width=600 height=80></canvas>
 </td>
 </tr>
+<tr></tr>
 <tr>
 <td>
 <div id=div_settingsTable></div>
 </td>
+<td colspan=2><select id=select_soundList onclick='LoadSelected();PlaySound();' onchange='LoadSelected();PlaySound();' size=2></select></td>
 </tr>
 <tr><td height=100%></td></tr>
 </table>
 <br>
 ZzFX JavaScript (Use this code to play the sound)
 <br>
-<textarea title='Code to play the selected sound' id=textarea_code cols=80 ></textarea>
+<textarea title='Code to play the selected sound' id=textarea_code cols=80 disabled></textarea>
 <br><button title='Eval the actual ZzFX code' onclick='RandomizeLogo();eval(textarea_code.value)'>Test Code</button>
 <a href="ZzFX.min.js" style="font-size:25px" target="_blank">Download ZzFX.min.js</a>
 <br>
@@ -138,14 +140,7 @@ ZzFXmicro JavaScript (Simplified version without seeds)
 <textarea title='Code to play the selected sound with the micro version' id=textarea_codeMicro cols=80 disabled></textarea>
 <br><button title='Eval the actual ZzFXmicro code' onclick='RandomizeLogo();eval(textarea_codeMicro.value)'>Test Code</button>
 <a href="ZzFX.micro.js" style="font-size:25px" target="_blank">Download ZzFX.micro.js</a>
-<br>
-<br>
-Sound Wave
-<br>
-<canvas title='Image of sound wave' id=canvas_soundWave width=1000 height=100></canvas>
-</center>
-<center>
-
+<br><br>
 <a href="https://github.com/KilledByAPixel/ZzFX">ZzFX is Open Source on GitHub!</a>
 <br>
 ZzFX © <a href="http://www.frankforce.com">Frank Force</a> 2019 ☮♥☻␌
@@ -166,7 +161,7 @@ function PlaySound()
     
     let sound = BuildSound();
     lastPlayedSound = ZZFX.z(sound.seed, sound);
-    DrawSoundWave(ZZFX.b);
+    DrawSoundWave(ZZFX.b, ZZFX.volume, sound);
     RandomizeLogo();
 }
 
@@ -297,18 +292,25 @@ function UpdateSettings(rebuildSound)
     }
 }
 
-function DrawSoundWave(b)
+function DrawSoundWave(b, volume, sound)
 {
     // draw sound wave
     let x = canvas_soundWave.getContext('2d'); 
     let w = canvas_soundWave.width;
     let h = canvas_soundWave.height;
     canvas_soundWave.width |= 0;
-    x.strokeStyle="#FFF";
+    
+    let saveSeed = ZZFX.r;
+    ZZFX.r = sound.seed;
+    
+    canvas_soundWave.style.background=`hsl(${ZZFX.R()*3e3},${ZZFX.R()*99}%,5%)`;
+    x.strokeStyle=`hsl(${ZZFX.R()*3e3},${ZZFX.R()*99}%,${60+ZZFX.R()*30}%)`;
     x.beginPath();
     for(let i=0; i<b.length; ++i)
-        x.lineTo(w*i/b.length, b[i]*h/2+h/2);
+        x.lineTo(w*i/b.length, b[i]*h/2/volume+h/2);
     x.stroke();
+    
+    ZZFX.r = saveSeed;
 }
 
 function NewSound()
@@ -400,7 +402,7 @@ function ClearButton(clearFavorites)
     {
         if (!confirm('Are you sure you want clear all sounds?\nThis will DELETE your favorites!'))
             return;
-        if (!confirm('Are you positive? This will clear everything!'))
+        if (!confirm('Are you positive?\nThis will clear everything!'))
             return;
         slider_masterVolume.value = 50;
     }
@@ -418,6 +420,13 @@ function RemoveButton()
 {
     let i = select_soundList.selectedIndex;
     let index = select_soundList.options[i].value;
+    
+    if (sounds[index].favorite)
+    {
+        alert('Favorited sounds can not be removed!');
+        return;
+    }
+    
     delete sounds[index];
     select_soundList.options.remove(i);
     
