@@ -5,13 +5,13 @@ By Frank Force 2019
     
 ZzFX Features
 
-- Micro synth engine with 9 controllable parameters.
-- Tiny code footprint (<1k) for the minified version.
-- Smaller ZzFXmicro version provided without seeds.
+- Tiny synth engine with 9 controllable parameters.
+- Small code footprint for full version and the micro version is under 500 bytes!
 - Can produce a wide variety of sound effect types.
 - Seeded sounds can be played with a tiny function call, ex: ZZFX.z(6)
-- Use function ZZFX.M() to get the frequency of a musical note.
-- Seeded sound paramerters can be overridden.
+- Seeded sound paramerters can be overridden, ex: ZZFX.z(26,{frequency:600})
+- Random number generator ZZFX.R() can be used in place of Math.random().
+- Use ZZFX.M to make music notes, ex: ZZFX.M(440, 7) // 7 semitons above 440hz (A4)
 
 ZzFX UI Features
 
@@ -19,19 +19,15 @@ ZzFX UI Features
 - Stores sounds in list with local storage persistence.
 - Parameters can be modified for more control.
 - Lock, reset and mutate buttons for each parameter.
+- Displays image of sound wave when played.
 - Sounds can be download as a wave file.
-
-Additional notes...
-- You can use ZZFX.R() as a random number generator.
-- Try playing multiple sounds simultaneously for unique effects.
-- You can change the master volume and frequency randomness.
-- Feel free to modify any or all of this code!
+- Mark sounds as favorites to keep them from being cleared.
+- List of sounds can be exported and imported.
 
 Todo
 - musical notes
 - shortcut keys
 - share button
-- export/import
 
 --> 
 <!--
@@ -68,9 +64,10 @@ Todo
 <style>
 *                            { font-family: "courier"; }
 a                            { color:#5AF; }
-button                       { font-size:20px; }
-select                       { overflow-x:hidden; width:600px; height:350px; }
+button                       { font-size:20px; margin: 4px;}
+select                       { overflow-x:hidden; width:600px; height:330px; }
 .slider                      { cursor: pointer; width:200px; }
+button.large                 { height:50px; }
 button.reset                 { width:20px; height:20px; }
 button.rand                  { width:20px; height:20px; background-color: #4F4; }
 button.resetDefault          { background-color: #44F; }
@@ -78,7 +75,7 @@ button.resetLocked           { background-color: #F44; }
 button.resetChanged          { background-color: #FF4; }
 input.lock                   { width:20px; height:20px; }
 input.setting                { width:150px; }
-textarea                     { height:50px; cursor: text; }
+textarea                     { height:45px; cursor: text; }
 body,input,select,textarea   { color: #FFF; font-size:20px; }
 select,input,textarea,canvas { background-color: #0B0B0B; border:1px solid #FFF; }
 </style>
@@ -101,21 +98,24 @@ Master Volume
 </td></tr>
 <tr>
 <td style='text-align:center'>
-<a hidden id=a_downloadLink></a>
+<button class="large" title='Make copy of selected sound' onclick=CopySound()>Copy</button>
+<button class="large" title='Toggle favorite on current sound' onclick=FavoriteButton()>Favorite</button>
+<!--<button title='Play selected sound' onclick=PlaySound()>Play</button>-->
+<button class="large" title='Create new random sound' onclick=NewSound()>Random</button>
+<br>
 <button title='Clear all sounds' onclick=ClearButton(1)>Clear All</button>
 <button title='Clear non-favorite sounds' onclick=ClearButton()>Clear</button>
-<button title='Download the selected wave file' onclick=SaveWave()>Download</button>
 <button title='Remove selected sound' onclick=RemoveButton()>Remove</button>
-<br><br>
-<button title='Toggle favorite on current sound' onclick=FavoriteButton()>Favorite</button>
-<button title='Make copy of selected sound' onclick=CopySound()>Copy</button>
-<button title='Play selected sound' onclick=PlaySound()>Play</button>
-<button title='Create new random sound' onclick=NewSound()>Random</button>
 <br>
+<button title='Import all sounds from a text file.' onclick=Import()>Import</button>
+<button title='Export all sounds to a text file.' onclick=Export()>Export</button>
+<button title='Download the selected wave file' onclick=SaveWave()>Save Wav</button>
 <br>
 </td>
 <td colspan=2 rowspan=1 style='text-align:center'>
-<canvas title='Image of sound wave' id=canvas_soundWave width=600 height=80></canvas>
+<canvas title='Image of sound wave, click to play the sound.' id=canvas_soundWave width=600 height=100></canvas>
+<a hidden id=a_downloadLink></a>
+<input id=input_importFile type="file" accept=".txt" hidden>
 </td>
 </tr>
 <tr></tr>
@@ -247,6 +247,10 @@ function GetCodeMicro(sound)
 ///////////////////////////////////////////////////////////////////////////////
 // UI
 
+// click on canvas to play sound
+canvas_soundWave.onmousedown=e=>{e.preventDefault();}
+canvas_soundWave.onclick=e=>{PlaySound();e.preventDefault();}
+
 function UpdateSettings(rebuildSound)
 {
     let v = slider_masterVolume.value;
@@ -276,7 +280,12 @@ function UpdateSettings(rebuildSound)
         
         let browserName = '';
         if (sounds[index].favorite)
+        {
             browserName += "* ";
+            option.style="color:#0F0";
+        }
+        else
+            option.style="color:white";
         
         let count = 0;
         for(let s in sounds[index])
@@ -299,6 +308,9 @@ function DrawSoundWave(b, volume, sound)
     let w = canvas_soundWave.width;
     let h = canvas_soundWave.height;
     canvas_soundWave.width |= 0;
+    
+    if (!volume)
+        return;
     
     let saveSeed = ZZFX.r;
     ZZFX.r = sound.seed;
@@ -423,7 +435,7 @@ function RemoveButton()
     
     if (sounds[index].favorite)
     {
-        alert('Favorited sounds can not be removed!');
+        alert('Favorited sounds can not be removed!\nYou must unfavorite it first.');
         return;
     }
     
@@ -496,7 +508,7 @@ function MutateSetting(name, step)
     SelectedWasChanged();
 }
 
-function ClearSounds(clearFavorites)
+function ClearSounds(clearFavorites, clearAll)
 {
     select_soundList.selectedIndex=-1;
     while(select_soundList.options.length>0)
@@ -512,11 +524,75 @@ function ClearSounds(clearFavorites)
                 AddToList(s);
     }
     
-    if (sounds.length == 0)
+    if (sounds.length == 0 && !clearAll)
         AddToList(ZZFX.G(0));
     selectedWasChanged = 0;
     canvas_soundWave.width |= 0;
     UpdateSettings();
+}
+
+///////////////////////////////////////////////////////////////////////////////
+// export/import
+
+function Export()
+{
+    let fileData = "1\n"; // version
+    for(let i in sounds)
+    {
+        // convert to string
+        let string = "";
+        let sound = sounds[i];
+        for(let s in sound)
+            string += `${s}:${sound[s]}, `;
+        fileData += string + '\n';
+    }
+    
+    a_downloadLink.download = "zzfx.txt";
+    a_downloadLink.href='data:application/octet-stream;charset=UTF-8,' + encodeURIComponent(fileData);
+    a_downloadLink.click();
+}
+
+function Import()
+{
+    input_importFile.onchange=e=>LoadFile(e.target.files[0]);
+    input_importFile.click();
+}
+
+function LoadFile(file)
+{
+    input_importFile.onchange=e=>0;
+    input_importFile.value='';
+    
+    if (file.type != "text/plain")
+        return;
+
+    let reader = new FileReader();
+    reader.readAsText(file,'UTF-8');
+    reader.onload=readerEvent=>
+    {
+        let fileData = readerEvent.target.result;
+        let fileLines = fileData.split('\n');
+        
+        let version = parseInt(fileLines[0]);
+        if (version != 1)
+        {
+            alert('Error! Data version mismatch.');
+            return;
+        }
+
+        ClearSounds(1, 1);
+        for(let i = 1; i < fileLines.length; ++i)
+        {
+            if (fileLines[i].length==0)
+                continue;
+            let string = fileLines[i];
+            let sound = {};
+            eval(`sound={${ string }}`);
+            AddToList(sound);
+        }
+    }
+    
+    SaveLocalStorage();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -579,11 +655,17 @@ function SaveWave()
 {    
     PlaySound();
     let buffer = ZZFX.b;
-    if (!buffer || !buffer.length)
+    let volume = ZZFX.volume;
+    if (!buffer || !buffer.length || !volume)
         return;
+        
+    // normalize volume
+    let bufferNormalized = [];
+    for(let i =0; i<buffer.length; ++i)
+        bufferNormalized[i] = buffer[i]/volume;
     
     a_downloadLink.download = "zzfx.wav";
-    a_downloadLink.href = BuildWavUrl(buffer);
+    a_downloadLink.href = BuildWavUrl(bufferNormalized);
     a_downloadLink.click();
 }
 

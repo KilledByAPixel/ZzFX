@@ -45,34 +45,32 @@ class ZZFXLib
         this.randomness = .1;           // default frequency randomness
     }
 
-    // play a seeded sound with overrides applied
-    z(seed, sound) 
+    // play seeded sound with overrides applied
+    z(seed, soundOverrides) 
     {
-        // build the sound
-        let soundBuild = this.G(seed);
-        for(let setting in sound)
-            soundBuild[setting] = sound[setting];
+        // generate sound from seed
+        let sound = this.G(seed);
+        
+        // copy overrides to sound
+        for(let setting in soundOverrides)
+            sound[setting] = soundOverrides[setting];
     
-        // copy default settings
-        let s = this.G(0);
-        for (let setting in soundBuild)
-            s[setting] = soundBuild[setting];
-    
+        // play sound
         return this.Z
         (
-            s['volume'], 
-            s['randomness'],
-            s['frequency'], 
-            s['length'],
-            s['attack'],
-            s['slide'], 
-            s['noise'],
-            s['modulation'],
-            s['modulationPhase']
+            sound['volume'], 
+            sound['randomness'],
+            sound['frequency'], 
+            sound['length'],
+            sound['attack'],
+            sound['slide'], 
+            sound['noise'],
+            sound['modulation'],
+            sound['modulationPhase']
         );
     }
     
-    // play a sound with full parameter control
+    // play sound with full parameter control
     Z
     (
         volume, 
@@ -86,6 +84,7 @@ class ZZFXLib
         modulationPhase=0
     )
     {
+        // normalize parameters
         let sampleRate = 44100;
         volume *= this.volume;
         frequency *= 2*Math.PI / sampleRate;
@@ -96,7 +95,7 @@ class ZZFXLib
         modulation *= 2*Math.PI / sampleRate;
         modulationPhase *= Math.PI;
          
-        // generate the waveform
+        // generate waveform
         let b = [], f = 0, fm = 0;
         for(let F = 0; F < length; ++F)
         {
@@ -110,7 +109,7 @@ class ZZFXLib
             frequency += slide;                                // frequency slide
         }
         
-        // play the sound
+        // play sound
         this.b = b;
         let B = this.x.createBuffer(1, b.length, sampleRate);
         let S = this.x.createBufferSource();
@@ -121,7 +120,7 @@ class ZZFXLib
         return S;
     }
     
-    // generate a sound from seed
+    // generate sound from seed
     G(seed)
     {
         let rSave = this.r;         // save the seed
@@ -145,7 +144,7 @@ class ZZFXLib
         return sound;
     }
     
-    // get the frequency of a musical note
+    // get frequency of a musical note
     M(rootNoteFrequency, semitoneOffset)
     {
         return rootNoteFrequency*2**(semitoneOffset/12);
