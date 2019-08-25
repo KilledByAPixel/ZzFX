@@ -253,17 +253,23 @@ canvas_soundWave.onmousedown=e=>{e.preventDefault();}
 canvas_soundWave.onclick=e=>{PlaySound();e.preventDefault();}
 
 // drag and drop exported files into the sound list
-select_soundList.addEventListener('dragover', function(e) {
+select_soundList.addEventListener('dragover', function(e) 
+{
     e.stopPropagation();
     e.preventDefault();
     e.dataTransfer.dropEffect = 'copy';
+    select_soundList.style.background="#F00"
+});
+select_soundList.addEventListener('dragleave', function(e) 
+{
+    select_soundList.style.background=""
 });
 select_soundList.addEventListener('drop', function(e) 
 {
     e.stopPropagation();
     e.preventDefault();
     LoadFile(e.dataTransfer.files[0]);
-    PlaySound();
+    select_soundList.style.background=""
 });
 
 function UpdateSettings(rebuildSound)
@@ -344,7 +350,7 @@ function NewSound()
 {
     let seed = ZZFX.R()*1e5|0;
     let sound = ZZFX.G(seed);
-    AddToList(sound);
+    AddToList(sound, 1);
     PlaySound();
     SaveLocalStorage();
 }
@@ -357,7 +363,7 @@ function CopySound()
     SaveLocalStorage();
 }
 
-function AddToList(sound, dontRebuild)
+function AddToList(sound, rebuildSound)
 {
     let i = sounds.push(sound) - 1;
     let option = document.createElement('option');
@@ -366,7 +372,7 @@ function AddToList(sound, dontRebuild)
     select_soundList.selectedIndex = select_soundList.length-1;
     LoadSelected();
     selectedWasChanged = 1;
-    UpdateSettings();
+    UpdateSettings(rebuildSound);
 }
 
 function SelectedWasChanged(name)
@@ -429,14 +435,7 @@ function ClearButton(clearFavorites)
     {
         if (!confirm('Are you sure you want clear all sounds?\nThis will DELETE your favorites!'))
             return;
-        if (!confirm('Are you positive?\nThis will clear everything!'))
-            return;
         slider_masterVolume.value = 50;
-    }
-    else
-    {
-        if (!confirm('Are you sure you want clear sounds?\nYour favorites will remain.'))
-            return;
     }
     ClearSounds(clearFavorites);
     SaveLocalStorage();
@@ -491,7 +490,7 @@ function IsLocked(name)
     return lock && lock.checked;
 }
 
-function ResetSetting(name)
+function ResetSetting(name, dontRefresh)
 {
     if (IsLocked(name)) // unlock
         document.getElementById("input_lock_"+name).checked = 0;
@@ -499,27 +498,72 @@ function ResetSetting(name)
     let sound = GetSelectedSound();
     let seedSound = ZZFX.G(sound.seed);
     document.getElementById('input_'+name).value = seedSound[name];
-    SelectedWasChanged();
+    if (!dontRefresh)
+        SelectedWasChanged();
 }
 
-function MutateSetting(name, step)
+function MutateSetting(name, step, dontRefresh)
 {
     if (IsLocked(name)) // unlock
         document.getElementById("input_lock_"+name).checked = 0;
     
-    let r = (Math.random())*10 + 1|0
+    let sound = GetSelectedSound();
+    let v = sound[name];
+    let seedSound = ZZFX.G(sound.seed);
+    
+    // mutate value
+    let r = (Math.random())*(dontRefresh?2:10)|0
+    if (!dontRefresh)
+        r += 1;
     if (Math.random() > .5)
         r *= -1;
-    
-    let sound = GetSelectedSound();
-    let seedSound = ZZFX.G(sound.seed);
-    let v = seedSound[name];
     v += r * step;
-    if (v < 0 && name != 'slide')
-        v *= -1;
-        
+    v = parseFloat(v.toFixed(4));
+    if (v<=0 && name != 'slide')
+        v = 2 * step;
+            
+    if (name == 'volume' || name == 'attack' || name == 'modulationPhase')
+        if (v > 1)
+            v = 1 - 2 * step;
+    
     v = parseFloat(v.toFixed(4));
     document.getElementById('input_'+name).value = v;
+    if (!dontRefresh)
+        SelectedWasChanged();
+}
+
+function ToggleLockAll()
+{
+    let isLocked = 0;
+    for(let s of settings)
+        isLocked |= IsLocked(s.name);
+        
+    for(let s of settings)
+    {
+        let lock = document.getElementById("input_lock_"+s.name);
+        if (lock)
+            lock.checked = !isLocked;
+    }
+    
+    UpdateSettings();
+    PlaySound();
+}
+
+function ResetAllSettings()
+{
+    for(let s of settings)
+        ResetSetting(s.name, 1);
+    SelectedWasChanged();
+}
+
+function MutateAllSettings()
+{
+    for(let s of settings)
+        if (s.name != 'seed' && !IsLocked(s.name))
+            MutateSetting(s.name, s.step, 1);
+           
+    document.getElementById('input_volume').value = 1;
+    document.getElementById('input_randomness').value = ZZFX.randomness;
     SelectedWasChanged();
 }
 
@@ -581,7 +625,10 @@ function LoadFile(file)
     input_importFile.value='';
     
     if (file.type != "text/plain")
+    {
+        alert('Error! File type mismatch.');
         return;
+    }
 
     let reader = new FileReader();
     reader.readAsText(file,'UTF-8');
@@ -609,6 +656,7 @@ function LoadFile(file)
         }
     
         SaveLocalStorage();
+        PlaySound();
     }
 }
 
@@ -767,9 +815,13 @@ function BuildSettingsTable()
         html += '</td><td>';
         html += `<input title='${s.help}' class="setting" type=number step=${s.step} id=input_${s.name} oninput=SelectedWasChanged('${s.name}')>`
         
-        html += '<td style="width:25px">';
+        html += '<td>';
         if (s.name == 'seed')
-            html += '🔒</td><td style="width:25px">♻️</td><td style="width:25px">🎲';
+        {
+            html += '<button title="Toggle lock all parameters" onclick=ToggleLockAll()>🔒</button></td><td>'
+            html += '<button title="Revert all parameters to seed" onclick=ResetAllSettings()>♻️</button></td><td>'
+            html += '<button title="Mutate all unlocked parameters" onclick=MutateAllSettings()>🎲</button>';
+        }
         else
         {
             html += `<input title='Lock parameter' id=input_lock_${s.name} oninput=SelectedWasChanged() class="lock" type=checkbox>`;
