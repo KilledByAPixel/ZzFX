@@ -31,16 +31,16 @@
 // ==ClosureCompiler==
 // @compilation_level ADVANCED_OPTIMIZATIONS
 // @output_file_name ZzFx.min.js
-// @js_externs ZZFX, ZZFXLib, ZZFXLib.z, ZZFXLib.Z, ZZFXLib.G, ZZFXLib.M
-// @js_externs ZZFXLib.R, ZZFXLib.x, ZZFXLib.r, ZZFXLib.b, ZZFXLib.volume, ZZFXLib.randomness
+// @js_externs ZZFX, ZZFXLib, ZZFXLib.z, ZZFXLib.Z, ZZFXLib.Generate, ZZFXLib.Note
+// @js_externs ZZFXLib.R, ZZFXLib.x, ZZFXLib.r, ZZFXLib.buffer, ZZFXLib.volume, ZZFXLib.randomness
 // ==/ClosureCompiler==
 class ZZFXLib
 {
     constructor()
     {
-        this.x = new AudioContext;      // shared audio context (prevents running out)
+        this.x = new AudioContext;      // shared audio context
         this.r = Date.now();            // starting value for random numbers
-        this.b = 0;                     // last sound buffer
+        this.buffer = 0;                // last sound buffer
         this.volume = .5;               // master volume scale
         this.randomness = .1;           // default frequency randomness
     }
@@ -49,7 +49,7 @@ class ZZFXLib
     z(seed, soundOverrides) 
     {
         // generate sound from seed
-        let sound = this.G(seed);
+        let sound = this.Generate(seed);
         
         // copy overrides to sound
         for(let setting in soundOverrides)
@@ -110,7 +110,7 @@ class ZZFXLib
         }
         
         // play sound
-        this.b = b;
+        this.buffer = b;
         let B = this.x.createBuffer(1, b.length, sampleRate);
         let S = this.x.createBufferSource();
         B.getChannelData(0).set(b);
@@ -121,7 +121,7 @@ class ZZFXLib
     }
     
     // generate sound from seed
-    G(seed)
+    Generate(seed)
     {
         let rSave = this.r;         // save the seed
         this.r = seed;              // set our seed
@@ -145,7 +145,7 @@ class ZZFXLib
     }
     
     // get frequency of a musical note
-    M(rootNoteFrequency, semitoneOffset)
+    Note(rootNoteFrequency, semitoneOffset)
     {
         return rootNoteFrequency*2**(semitoneOffset/12);
     }

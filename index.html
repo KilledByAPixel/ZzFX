@@ -11,7 +11,7 @@ ZzFX Features
 - Seeded sounds can be played with a tiny function call, ex: ZZFX.z(6)
 - Seeded sound paramerters can be overridden, ex: ZZFX.z(26,{frequency:600})
 - Random number generator ZZFX.R() can be used in place of Math.random().
-- Use ZZFX.M to make music notes, ex: ZZFX.M(440, 7) // 7 semitons above 440hz (A4)
+- Use ZZFX.Note to make music notes, ex: ZZFX.Note(440, 7) // 7 semitons above A4
 
 ZzFX UI Features
 
@@ -24,11 +24,6 @@ ZzFX UI Features
 - Mark sounds as favorites to keep them from being cleared.
 - List of sounds can be exported and imported.
 - Supports drag-and-drop of exported files into sound list.
-
-Todo
-- musical notes
-- shortcut keys
-- share button
 
 --> 
 <!--
@@ -67,7 +62,7 @@ Todo
 a                            { color:#5AF; }
 button                       { font-size:20px; margin: 4px;}
 select                       { overflow-x:hidden; width:600px; height:330px; }
-.slider                      { cursor: pointer; width:200px; }
+.slider                      { cursor: pointer; width:350px; }
 button.large                 { height:50px; }
 button.reset                 { width:20px; height:20px; }
 button.rand                  { width:20px; height:20px; background-color: #4F4; }
@@ -76,7 +71,7 @@ button.resetLocked           { background-color: #F44; }
 button.resetChanged          { background-color: #FF4; }
 input.lock                   { width:20px; height:20px; }
 input.setting                { width:150px; }
-textarea                     { height:45px; cursor: text; }
+textarea                     { height:40px; cursor: text; }
 body,input,select,textarea   { color: #FFF; font-size:20px; }
 select,input,textarea,canvas { background-color: #0B0B0B; border:1px solid #FFF; }
 </style>
@@ -86,18 +81,21 @@ select,input,textarea,canvas { background-color: #0B0B0B; border:1px solid #FFF;
 <center>
 <table border=0>
 <tr>
-<td style='text-align:center'>
+<td style='text-align:right'>
+<font size=7><b><div style="display:inline;" id=div_logo>ℤ𝕫𝔽𝕏</div></b></font>
+</td>
+<td style='text-align:left;'>
+<div style="display:inline;" id=div_logo2>
+<i>Zuper Zmall Zeeded Zound Zynth</i>
+</div>
+</td>
+<td style='text-align:center;'>
 Master Volume 
 <input title='Volume to scale all sounds by in percent' type="range" min="0" max="100" value="50" class="slider" id="slider_masterVolume" onchange="UpdateSettings();SaveLocalStorage()">
 <div id=div_masterVolume style="display:inline;"></div>
-</td><td style='text-align:right;'>
-<font size=7><b><div style="display:inline;" id=div_logo>ℤ𝕫𝔽𝕏</div></b></font>
-</td><td style='text-align:left;'>
-<div style="display:inline;" id=div_logo2>
-<i>&nbsp;Zuper Zmall Zeeded Zound Zynth</i>
-</div>
 </td></tr>
 <tr>
+<td></td>
 <td style='text-align:center'>
 <button class="large" title='Make copy of selected sound' onclick=CopySound()>Copy</button>
 <button class="large" title='Toggle favorite on current sound' onclick=FavoriteButton()>Favorite</button>
@@ -113,7 +111,7 @@ Master Volume
 <button title='Download the selected wave file' onclick=SaveWave()>Save Wav</button>
 <br>
 </td>
-<td colspan=2 rowspan=1 style='text-align:center'>
+<td rowspan=1 style='text-align:center'>
 <canvas title='Image of sound wave, click to play the sound.' id=canvas_soundWave width=600 height=100></canvas>
 <a hidden id=a_downloadLink></a>
 <input id=input_importFile type="file" accept=".txt" hidden>
@@ -121,10 +119,10 @@ Master Volume
 </tr>
 <tr></tr>
 <tr>
-<td>
+<td colspan=2>
 <div id=div_settingsTable></div>
 </td>
-<td colspan=2><select id=select_soundList onclick='LoadSelected();PlaySound();' onchange='LoadSelected();PlaySound();' size=2></select></td>
+<td ><select id=select_soundList onclick='LoadSelected();PlaySound();' onchange='LoadSelected();PlaySound();' size=2></select></td>
 </tr>
 <tr><td height=100%></td></tr>
 </table>
@@ -132,14 +130,18 @@ Master Volume
 ZzFX JavaScript (Use this code to play the sound)
 <br>
 <textarea title='Code to play the selected sound' id=textarea_code cols=80 disabled></textarea>
-<br><button title='Eval the actual ZzFX code' onclick='RandomizeLogo();eval(textarea_code.value)'>Test Code</button>
+<br>
+<button title='Copy ZzFX code to clipboard' onclick='CopyToCliboard(textarea_code.value);PlaySoundEval(textarea_code);'>Copy to Cliboard</button>
+<button title='Eval the actual ZzFX code' onclick='PlaySoundEval(textarea_code);'>Test Code</button>
 <a href="ZzFX.min.js" style="font-size:25px" target="_blank">Download ZzFX.min.js</a>
 <br>
 <br>
 ZzFXmicro JavaScript (Simplified version without seeds)
 <br>
 <textarea title='Code to play the selected sound with the micro version' id=textarea_codeMicro cols=80 disabled></textarea>
-<br><button title='Eval the actual ZzFXmicro code' onclick='RandomizeLogo();eval(textarea_codeMicro.value)'>Test Code</button>
+<br>
+<button title='Copy ZzFXmicro code to clipboard' onclick='CopyToCliboard(textarea_codeMicro.value);PlaySoundEval(textarea_codeMicro);'>Copy to Cliboard</button>
+<button title='Eval the actual ZzFXmicro code' onclick='PlaySoundEval(textarea_codeMicro);'>Test Code</button>
 <a href="ZzFX.micro.js" style="font-size:25px" target="_blank">Download ZzFX.micro.js</a>
 <br><br>
 <a href="https://github.com/KilledByAPixel/ZzFX">ZzFX is Open Source on GitHub!</a>
@@ -152,6 +154,12 @@ ZzFX © <a href="http://www.frankforce.com">Frank Force</a> 2019 ☮♥☻␌
 ///////////////////////////////////////////////////////////////////////////////
 // ZzFX audio code
 
+function PlaySoundEval(textArea)
+{
+    RandomizeLogo();
+    eval(textArea.value);
+}
+
 function PlaySound()
 {
     if (lastPlayedSound)
@@ -162,7 +170,7 @@ function PlaySound()
     
     let sound = BuildSound();
     lastPlayedSound = ZZFX.z(sound.seed, sound);
-    DrawSoundWave(ZZFX.b, ZZFX.volume, sound);
+    DrawSoundWave(ZZFX.buffer, ZZFX.volume, sound);
     RandomizeLogo();
 }
 
@@ -172,7 +180,7 @@ function BuildSeededSound(sound)
         return sound;
 
     // apply overrides
-    let s = ZZFX.G(sound['seed']);
+    let s = ZZFX.Generate(sound['seed']);
     for(let setting in sound)
         s[setting] = sound[setting];
     return s;
@@ -193,7 +201,7 @@ function BuildSound()
 
 function GetCode(sound)
 {
-    let seedSound = ZZFX.G(sound.seed);
+    let seedSound = ZZFX.Generate(sound.seed);
     let code = 'ZZFX.z(';
     let onlyHasSeed = 1;
     let first = 1;
@@ -217,13 +225,32 @@ function GetCode(sound)
     }
     if (!first)
         code += '}';
-    code += ');';
+    code += '); // ZZFX.Z(';
+    
+    // show full parameters as comment
+    first = 1;
+    for(let setting in sound)
+    {
+        if (setting == 'seed' || setting == 'favorite')
+            continue;
+            
+        let value = sound[setting] + '';
+        value = value.replace(/^0+/, ''); // remove leading 0's
+        if (value=='')
+            value='0';
+        if (!first)
+            code += ','
+        code += value;
+        first = 0;
+    }
+    
+    code += '); // ZzFX ' + sound.seed;
     return code;
 }
 
 function GetCodeMicro(sound)
 {
-    let seedSound = ZZFX.G(sound.seed);
+    let seedSound = ZZFX.Generate(sound.seed);
     let code = 'zzfx(';
     let first = 1;
     for(let setting in sound)
@@ -241,8 +268,18 @@ function GetCodeMicro(sound)
         first = 0;
     }
     
-    code += ');';
+    code += '); // ZzFX ' + sound.seed;
     return code;
+}
+
+function CopyToCliboard(text)
+{
+    if (!navigator.clipboard)
+    {
+        alert('Unable to copy to clipboard.');
+        return;
+    }
+    navigator.clipboard.writeText(text);
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -292,7 +329,7 @@ function UpdateSettings(rebuildSound)
         if (selectedWasChanged)
             sounds[index] = sound;
         
-        let seedSound = ZZFX.G(sound.seed);
+        let seedSound = ZZFX.Generate(sound.seed);
         for(let s in sound)
         {
             let changed = sound[s] != seedSound[s];
@@ -349,7 +386,7 @@ function DrawSoundWave(b, volume, sound)
 function NewSound()
 {
     let seed = ZZFX.R()*1e5|0;
-    let sound = ZZFX.G(seed);
+    let sound = ZZFX.Generate(seed);
     AddToList(sound, 1);
     PlaySound();
     SaveLocalStorage();
@@ -379,7 +416,7 @@ function SelectedWasChanged(name)
 {
     if (name == 'seed')
     {
-        let seedSound = ZZFX.G(parseInt(input_seed.value));
+        let seedSound = ZZFX.Generate(parseInt(input_seed.value));
         let index = select_soundList.options[select_soundList.selectedIndex].value;
         sounds[index] = seedSound;
         LoadSelected(1);
@@ -457,7 +494,7 @@ function RemoveButton()
     select_soundList.options.remove(i);
     
     if (select_soundList.length==0) // always keep one in list
-        AddToList(ZZFX.G(0));
+        AddToList(ZZFX.Generate(0));
     
     if (i>=select_soundList.length)
         i--;
@@ -496,7 +533,7 @@ function ResetSetting(name, dontRefresh)
         document.getElementById("input_lock_"+name).checked = 0;
 
     let sound = GetSelectedSound();
-    let seedSound = ZZFX.G(sound.seed);
+    let seedSound = ZZFX.Generate(sound.seed);
     document.getElementById('input_'+name).value = seedSound[name];
     if (!dontRefresh)
         SelectedWasChanged();
@@ -509,7 +546,7 @@ function MutateSetting(name, step, dontRefresh)
     
     let sound = GetSelectedSound();
     let v = sound[name];
-    let seedSound = ZZFX.G(sound.seed);
+    let seedSound = ZZFX.Generate(sound.seed);
     
     // mutate value
     let r = (Math.random())*(dontRefresh?2:10)|0
@@ -562,8 +599,10 @@ function MutateAllSettings()
         if (s.name != 'seed' && !IsLocked(s.name))
             MutateSetting(s.name, s.step, 1);
            
-    document.getElementById('input_volume').value = 1;
-    document.getElementById('input_randomness').value = ZZFX.randomness;
+    if (!IsLocked('volume'))
+        document.getElementById('input_volume').value = 1;
+    if (!IsLocked('randomness'))
+        document.getElementById('input_randomness').value = ZZFX.randomness;
     SelectedWasChanged();
 }
 
@@ -584,7 +623,7 @@ function ClearSounds(clearFavorites, clearAll)
     }
     
     if (sounds.length == 0 && !clearAll)
-        AddToList(ZZFX.G(0));
+        AddToList(ZZFX.Generate(0));
     selectedWasChanged = 0;
     canvas_soundWave.width |= 0;
     UpdateSettings();
@@ -719,7 +758,7 @@ function LoadLocalStorage()
 function SaveWave()
 {    
     PlaySound();
-    let buffer = ZZFX.b;
+    let buffer = ZZFX.buffer;
     let volume = ZZFX.volume;
     if (!buffer || !buffer.length || !volume)
         return;
