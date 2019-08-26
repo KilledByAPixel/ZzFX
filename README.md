@@ -10,8 +10,8 @@ ZzFX Features
 - Can produce a wide variety of sound effect types.
 - Seeded sounds can be played with a tiny function call, ex: ZZFX.z(6)
 - Seeded sound paramerters can be overridden, ex: ZZFX.z(26,{frequency:600})
-- Random number generator ZZFX.R can be used in place of Math.random().
-- Use ZZFX.M to make music notes, ex: ZZFX.m(440, 7) // 7 semitons above 440hz (A4)
+- Random number generator ZZFX.R() can be used in place of Math.random().
+- Use ZZFX.Note to make music notes, ex: ZZFX.Note(440, 7) // 7 semitons above A4
 
 ZzFX UI Features
 
@@ -23,6 +23,7 @@ ZzFX UI Features
 - Sounds can be download as a wave file.
 - Mark sounds as favorites to keep them from being cleared.
 - List of sounds can be exported and imported.
+- Supports drag-and-drop of exported files into sound list.
 
 **Here's the latest version of the ZzFXmicro you can use directly!**
 
