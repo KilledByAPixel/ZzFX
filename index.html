@@ -151,6 +151,8 @@ ZzFX © <a href="http://www.frankforce.com">Frank Force</a> 2019 ☮♥☻␌
 <script src="ZzFX.micro.js"></script>
 <script>
 
+"use strict"; // strict mode
+
 ///////////////////////////////////////////////////////////////////////////////
 // ZzFX audio code
 
@@ -225,7 +227,10 @@ function GetCode(sound)
     }
     if (!first)
         code += '}';
-    code += '); // ZZFX.Z(';
+    code += ');';
+    
+    /*
+    code += '// ZZFX.Z(';
     
     // show full parameters as comment
     first = 1;
@@ -244,7 +249,7 @@ function GetCode(sound)
         first = 0;
     }
     
-    code += '); // ZzFX ' + sound.seed;
+    code += '); // ZzFX ' + sound.seed;*/
     return code;
 }
 

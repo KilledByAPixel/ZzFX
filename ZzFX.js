@@ -28,6 +28,8 @@
   
 */
 
+"use strict"; // strict mode
+
 // ==ClosureCompiler==
 // @compilation_level ADVANCED_OPTIMIZATIONS
 // @output_file_name ZzFx.min.js
@@ -170,9 +172,9 @@ let ZZFX = new ZZFXLib;
 // @output_file_name ZzFx.micro.js
 // @js_externs zzfx, zzfx_x, zzfx_v
 // ==/ClosureCompiler==
-zzfx_v = .5;               // volume
-zzfx_x = new AudioContext; // audio context
-zzfx = function            // play a sound
+let zzfx_v = .5;               // volume
+let zzfx_x = new AudioContext; // audio context
+function zzfx                  // play a sound
 (
     volume, 
     randomness,
