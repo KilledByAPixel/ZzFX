@@ -1,7 +1,7 @@
 # ZzFX - Zuper Zmall Zeeded Zound Zynth
 By Frank Force - 2019
 
-# [LIVE DEMO!](http://zzfx.3d2k.com)
+# [LIVE DEMO!](https://zzfx.3d2k.com)
 
 ZzFX Features
 
