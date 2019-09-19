@@ -1,7 +1,5 @@
 # ZzFX - Zuper Zmall Zeeded Zound Zynth
-
-![ZzFX Image](/favicon.png) 
-By Frank Force
+By Frank Force 2019
 
 # [LIVE DEMO!](https://zzfx.3d2k.com)
 
@@ -51,3 +49,5 @@ zzfx_v=.5;zzfx_x=new AudioContext;zzfx=(e,f,a,b=1,d=.1,g=0,h=0,k=0,l=0)=>{let S=
 - [Back To The Stars](https://js13kgames.com/entries/back-to-the-stars)
 - [Can't Get Back](https://js13kgames.com/entries/cant-get-back)
 - [Letchworth Village](https://js13kgames.com/entries/letchworth-village)
+
+![ZzFX Image](/favicon.png) 
