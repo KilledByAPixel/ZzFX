@@ -60,15 +60,15 @@ class ZZFXLib
         // play sound
         return this.Z
         (
-            sound['volume'], 
-            sound['randomness'],
-            sound['frequency'], 
-            sound['length'],
-            sound['attack'],
-            sound['slide'], 
-            sound['noise'],
-            sound['modulation'],
-            sound['modulationPhase']
+            sound.volume, 
+            sound.randomness,
+            sound.frequency, 
+            sound.length,
+            sound.attack,
+            sound.slide, 
+            sound.noise,
+            sound.modulation,
+            sound.modulationPhase
         );
     }
     
@@ -87,15 +87,17 @@ class ZZFXLib
     )
     {
         // normalize parameters
-        let sampleRate = 44100;
+        const random = r=>r*(Math.random()*2-1);
+        const sampleRate = 44100;
+        const PI2 = Math.PI*2;
         volume *= this.volume;
-        frequency *= 2*Math.PI / sampleRate;
-        frequency *= (1 + randomness*(this.R()*2-1));
-        slide *= Math.PI * 1e3 / sampleRate**2;
+        frequency *= PI2 / sampleRate;
+        frequency *= 1 + random(randomness);
+        slide *= PI2 * 500 / sampleRate**2;
         length = length>0? (length>10?10:length) * sampleRate | 0 : 1;
-        attack *= length | 0;
-        modulation *= 2*Math.PI / sampleRate;
-        modulationPhase *= Math.PI;
+        attack = attack*length | 0;
+        modulation *= PI2 / sampleRate;
+        modulationPhase *= PI2/2;
          
         // generate waveform
         let b = [], f = 0, fm = 0;
@@ -106,8 +108,8 @@ class ZZFXLib
                 Math.cos(fm * modulation + modulationPhase)) * // modulation
                 (F < attack ? F / attack:                      // attack
                 1 - (F - attack)/(length - attack));           // decay
-            f += 1+noise*(this.R()*2-1);                       // noise
-            fm += 1+noise*(this.R()*2-1);                      // modulation noise
+            f += 1+random(noise);                              // noise
+            fm += 1+random(noise);                             // modulation noise
             frequency += slide;                                // frequency slide
         }
         
@@ -130,17 +132,19 @@ class ZZFXLib
         for(let i=9;i--;)this.R();  // warm it up
         
         // generate parameters
-        let sound = {};
-        sound['seed']               = seed;
-        sound['volume']             = 1;
-        sound['randomness']         = seed?this.randomness:0;
-        sound['frequency']          = seed?this.R()**2*2e3|0:220;
-        sound['slide']              = seed?parseFloat(((this.R()**3)*10).toFixed(1)):0;
-        sound['length']             = seed?parseFloat((.1+this.R()).toFixed(1)):1;
-        sound['attack']             = seed?parseFloat((this.R()).toFixed(2)):.1;
-        sound['noise']              = seed?parseFloat((this.R()**3*5).toFixed(1)):0; 
-        sound['modulation']         = seed?parseFloat((this.R()**5*99).toFixed(1)):0; 
-        sound['modulationPhase']    = seed?parseFloat((this.R()).toFixed(2)):0;
+        let sound = 
+        {
+            seed:               seed,
+            volume:             1,
+            randomness:         seed?this.randomness:0,
+            frequency:          seed?this.R()**2*2e3|0:220,
+            slide:              seed?(this.R()**3*10).toFixed(1):0,
+            length:             seed?(.1+this.R()).toFixed(1):1,
+            attack:             seed?(this.R()).toFixed(2):.1,
+            noise:              seed?(this.R()**3*5).toFixed(1):0,
+            modulation:         seed?(this.R()**5*99).toFixed(1):0,
+            modulationPhase:    seed?(this.R()).toFixed(2):0,
+        };
         
         this.r = rSave;             // restore rand seed
         return sound;
@@ -161,6 +165,7 @@ class ZZFXLib
         return Math.abs(this.r)%1e9/1e9;
     }
 }
+
 let ZZFX = new ZZFXLib;
 
 //////////////////////////////////////////////////////////////////////////////////////
@@ -186,15 +191,17 @@ function zzfx                  // play a sound
     modulation=0,
     modulationPhase=0
 )
-{
+{   
+    let random = r=>r*(Math.random()*2-1);
     let sampleRate = 44100;
-    frequency *= 2*Math.PI / sampleRate;
-    frequency *= (1 + randomness*(Math.random()*2-1));
-    slide *= Math.PI * 1e3 / sampleRate**2;
-    length = length>0? (length>10?10:length) * sampleRate | 0 : 1;
-    attack *= length | 0;
-    modulation *= 2*Math.PI / sampleRate;
-    modulationPhase *= Math.PI;
+    let PI2 = Math.PI*2;
+    frequency *= PI2 / sampleRate;
+    frequency *= 1 + random(randomness);
+    slide *= PI2 * 500 / sampleRate**2;
+    length = length * sampleRate | 0;
+    attack = attack * length | 0;
+    modulation *= PI2 / sampleRate;
+    modulationPhase *= PI2 / 2;
 
     // generate the waveform
     let b = [], f = 0, fm = 0;
@@ -205,8 +212,8 @@ function zzfx                  // play a sound
             Math.cos(fm * modulation + modulationPhase)) * // modulation
             (F < attack ? F / attack:                      // attack
             1 - (F - attack)/(length - attack));           // decay
-        f += 1+noise*(Math.random()*2-1);                  // noise
-        fm += 1+noise*(Math.random()*2-1);                 // modulation noise
+        f += 1+random(noise);                              // noise
+        fm += 1+random(noise);                             // modulation noise
         frequency += slide;                                // frequency slide
     }
 
