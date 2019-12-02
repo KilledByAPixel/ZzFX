@@ -60,15 +60,15 @@ class ZZFXLib
         // play sound
         return this.Z
         (
-            sound.volume, 
-            sound.randomness,
-            sound.frequency, 
-            sound.length,
-            sound.attack,
-            sound.slide, 
-            sound.noise,
-            sound.modulation,
-            sound.modulationPhase
+            sound['volume'], 
+            sound['randomness'],
+            sound['frequency'], 
+            sound['length'],
+            sound['attack'],
+            sound['slide'], 
+            sound['noise'],
+            sound['modulation'],
+            sound['modulationPhase']
         );
     }
     
@@ -134,16 +134,16 @@ class ZZFXLib
         // generate parameters
         let sound = 
         {
-            seed:               seed,
-            volume:             1,
-            randomness:         seed?this.randomness:0,
-            frequency:          seed?this.R()**2*2e3|0:220,
-            slide:              seed?(this.R()**3*10).toFixed(1):0,
-            length:             seed?(.1+this.R()).toFixed(1):1,
-            attack:             seed?(this.R()).toFixed(2):.1,
-            noise:              seed?(this.R()**3*5).toFixed(1):0,
-            modulation:         seed?(this.R()**5*99).toFixed(1):0,
-            modulationPhase:    seed?(this.R()).toFixed(2):0,
+            'seed':               seed,
+            'volume':             1,
+            'randomness':         seed?this.randomness:0,
+            'frequency':          seed?this.R()**2*2e3|0:220,
+            'slide':              seed?(this.R()**3*10).toFixed(1):0,
+            'length':             seed?(.1+this.R()).toFixed(1):1,
+            'attack':             seed?(this.R()).toFixed(2):.1,
+            'noise':              seed?(this.R()**3*5).toFixed(1):0,
+            'modulation':         seed?(this.R()**5*99).toFixed(1):0,
+            'modulationPhase':    seed?(this.R()).toFixed(2):0,
         };
         
         this.r = rSave;             // restore rand seed
