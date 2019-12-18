@@ -224,5 +224,4 @@ function zzfx                  // play a sound
     S.buffer = B;
     S.connect(zzfx_x.destination);
     S.start();
-    return S;
 }
