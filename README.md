@@ -19,7 +19,7 @@ zzfx_v=.5;zzfx_x=new AudioContext;zzfx=(g,h,a,b=1,c=.1,k=0,f=0,l=0,m=0)=>{let q=
 - Seeded sounds can be played with a tiny function call, ex: ZZFX.z(6)
 - Seeded sound paramerters can be overridden, ex: ZZFX.z(26,{frequency:600})
 - Random number generator ZZFX.R() can be used in place of Math.random().
-- Use ZZFX.Note to make music notes, ex: ZZFX.Note(440, 7) // 7 semitons above A4
+- Use ZZFX.Note to get music frequencies, ex: ZZFX.Note(440, 7) // 7 semitons above A4 aka E4
 
 ## ZzFX UI Features
 
