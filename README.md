@@ -38,6 +38,8 @@ zzfx_v=.5;zzfx_x=new AudioContext;zzfx=(g,h,a,b=1,c=.1,k=0,f=0,l=0,m=0)=>{let q=
 - [Bogus Roads](https://www.newgrounds.com/portal/view/747570)
 - [The Wandering Wraith](https://js13kgames.com/entries/the-wandering-wraith)
 - [Bounce Back](https://js13kgames.com/entries/bounce-back)
+- [Egg Time Rewind](https://killedbyapixel.itch.io/egg-time)
+- [Hue Jumper](https://killedbyapixel.itch.io/hue-jumper)
 - [Bubba's Back Room](https://js13kgames.com/entries/bubbas-back-room)
 - [Backstabber Hero](https://js13kgames.com/entries/backstabber-hero)
 - [Spendotron: 2019](https://killedbyapixel.itch.io/currency-wars)
