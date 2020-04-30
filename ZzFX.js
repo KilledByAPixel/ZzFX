@@ -217,7 +217,7 @@ class _ZZFX
            R()<.8?0: Fixed(R()**4*99),               // modulation
            0,                                        // modPhase
            R()<.5?0: R()**3*2e3|0,                   // bitCrush
-           R()<.5?0: Fixed(R()**2*3,2),              // delay
+           R()<.5?0: Fixed(R()**2*9,2),              // delay
         );
         
         const length = parseFloat(sound['attack']) 
