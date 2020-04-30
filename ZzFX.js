@@ -47,7 +47,7 @@ ZzFX Features
 // ==ClosureCompiler==
 // @compilation_level ADVANCED_OPTIMIZATIONS
 // @output_file_name zzfx.min.js
-// @js_externs zzfx, _ZZFX.samples, _ZZFX.volume, _ZZFX.randomness, ZZFX, _ZZFX, _ZZFX.Play, _ZZFX.PlaySamples, _ZZFX.BuildSamples, _ZZFX.BuildRandomSound, _ZZFX.BuildSound, _ZZFX.GetNote, _ZZFX.SoundToArray, _ZZFX.CreateAudioContext, _ZZFX.BuildWaveDataUrl
+// @js_externs zzfx, _ZZFX.samples, _ZZFX.volume, _ZZFX.randomness, ZZFX, _ZZFX, _ZZFX.Play, _ZZFX.PlaySamples, _ZZFX.BuildSamples, _ZZFX.BuildRandomSound, _ZZFX.BuildSound, _ZZFX.GetNote, _ZZFX.SoundToArray, _ZZFX.CreateAudioContext
 // @language_out ECMASCRIPT_2019
 // ==/ClosureCompiler==
 
@@ -312,68 +312,6 @@ class _ZZFX
         );
         
         return audioContext;
-    }
-
-    BuildWaveDataUrl(sound)
-    {
-        const samples = this.BuildSamples(...this.SoundToArray(sound));
-    
-        // adapted from https://gist.github.com/asanoboy/3979747
-        const channels = 1;
-        const length = samples.length;
-        const buffer = new Int16Array(length + 23);
-        const sampleRate = this.sampleRate;
-
-        // wave header
-        buffer[ 0] = 0x4952; // "RI"
-        buffer[ 1] = 0x4646; // "FF"
-        buffer[ 2] = (2*length + 15) & 0x0000ffff; // RIFF size
-        buffer[ 3] = ((2*length + 15) & 0xffff0000) >> 16; // RIFF size
-        buffer[ 4] = 0x4157; // "WA"
-        buffer[ 5] = 0x4556; // "VE"
-        buffer[ 6] = 0x6d66; // "fm"
-        buffer[ 7] = 0x2074; // "t "
-        buffer[ 8] = 0x0012; // fmt chunksize: 18
-        buffer[ 9] = 0x0000; //
-        buffer[10] = 0x0001; // format tag : 1 
-        buffer[11] = channels; // channels: 2
-        buffer[12] = sampleRate & 0x0000ffff; // sample per sec
-        buffer[13] = (sampleRate & 0xffff0000) >> 16; // sample per sec
-        buffer[14] = (2*channels*sampleRate) & 0x0000ffff; // byte per sec
-        buffer[15] = ((2*channels*sampleRate) & 0xffff0000) >> 16; // byte per sec
-        buffer[16] = 0x0004; // block align
-        buffer[17] = 0x0010; // bit per sample
-        buffer[18] = 0x0000; // cb size
-        buffer[19] = 0x6164; // "da"
-        buffer[20] = 0x6174; // "ta"
-        buffer[21] = (2*length) & 0x0000ffff; // data size[byte]
-        buffer[22] = ((2*length) & 0xffff0000) >> 16; // data size[byte]	
-
-        // copy samples to buffer
-        for (let i = 0; i < length; i++)
-        {
-            const s = samples[i];
-            buffer[i+23] = s>=1 ? (1<<15) - 1 : Math.round(s * (1<<15));
-        }
-
-        // build the blob
-        let eof = 0;
-        let bufferNeedle = 0;
-        const GetBuffer = (length) =>
-        {
-            eof = bufferNeedle + length >= buffer.length;
-            const rt = new Int16Array(eof?buffer.length - bufferNeedle:length);
-            for(let i=0; i<rt.length; i++)
-                rt[i] = buffer[i+bufferNeedle];
-            bufferNeedle += rt.length;
-            return rt.buffer;
-        }
-
-        const blobData = [];
-        while ( !eof ) { blobData.push(GetBuffer(1e3)); }
-        const b = new Blob(blobData, {type:'audio/wav'});
-        const URLObject = webkitURL || URL;
-        return URLObject.createObjectURL(b);
     }
 }
 
