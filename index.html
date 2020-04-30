@@ -61,14 +61,15 @@ button.large                 { height:30px; }
 button.rand                  { width:20px; height:20px; background:#FF4; }
 button.reset                 { width:20px; height:20px; background:#4F4; }
 .soundSelect                 { overflow-x:hidden; width:350px; height:350px; }
-.slider                      { cursor: pointer; width:100% }
+.slider                      { cursor: pointer; width:100%; }
 input.lock                   { width:20px; height:20px; }
 .setting                     { width:200px; }
 textarea                     { height:50px; cursor:text; resize:none; }
 body,input,select,textarea   { color:#FFF; font-size:20px; }
 select,input,textarea,canvas { background:#000; border:1px solid #FFF; }
-option:hover                 { background: #333 }
-option:checked               { background: #FF0; color:#F00 }
+option:hover                 { background:#333; }
+option:checked               { background:#FF0; color:#F00; }
+body                         { user-select:none; }
 </style>
 </head>
 <body bgcolor=#222>
@@ -106,8 +107,8 @@ option:checked               { background: #FF0; color:#F00 }
 <button class=large title='Generate random explosion sound' onclick="AddPresetSound('Explosion')">Explosion</button>
 <br>
 <button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button>
-<button class=large title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button>
 <button class=large title='Make a new sound with mutated parameters [M]' onclick=CopySelected(1)>Mutate</button>
+<button class=large title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button>
 <br>
 <select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2 style=margin:5px></select></td>
 </tr>
@@ -131,7 +132,7 @@ option:checked               { background: #FF0; color:#F00 }
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?39337></script>
+<script src=ZzFX.js?59337></script>
 <script>
 
 'use strict'; // strict mode
@@ -161,16 +162,16 @@ BuildSetting(.05,-1e9,1e9,'randomness','Randomness','How much to randomize frequ
 BuildSetting(50,-1e9,1e9,'frequency','Frequency','Frequency of sound (Hz)'),
 BuildSetting(1,0,0,'shape','Wave Shape','Shape of the sound wave',1,2),
 BuildSetting(.1,0,1e9,'shapeCurve','Shape Curve','Squarenes of wave (0=square, 1=normal, 2=pointy)'),
-BuildSetting(.01,0,3,'attack','Attack','Attack time (seconds)'),
-BuildSetting(.01,0,3,'sustain','Sustain','Sustain time (seconds)'),
-BuildSetting(.01,0,3,'release','Release','Release time (seconds)'),
+BuildSetting(.01,0,3,'attack','Attack','Attack time, how fast sound starts (seconds)'),
+BuildSetting(.01,0,3,'sustain','Sustain','Sustain time, how long sound holds (seconds)'),
+BuildSetting(.01,0,3,'release','Release','Release time, how fast sound fades out (seconds)'),
 BuildSetting(.1,-1e9,1e9,'slide','Slide','How much to slide frequency (kHz/s)'),
 BuildSetting(.1,-1e9,1e9,'deltaSlide','Delta Slide','How much to change slide (kHz/s/s)'),
 BuildSetting(.1,-1e9,1e9,'noise','Noise','How much random noise to add (percent)'),
 BuildSetting(50,-1e9,1e9,'pitchJump','Pitch Jump','Frequency of pitch jump (Hz)'),
 BuildSetting(.01,-1e9,1e9,'pitchJumpTime','Pitch Jump Time','Time of pitch jump (seconds)'),
 BuildSetting(.01,-1e9,1e9,'repeatTime','Repeat Time','Resets some parameters periodically (seconds)'),
-BuildSetting(1,-1e9,1e9,'modulation','Modulation','Frequency of modulation wave (Hz)'),
+BuildSetting(1,-1e9,1e9,'modulation','Modulation','Frequency of modulation wave, negative flips phase (Hz)'),
 BuildSetting(1,-1e9,1e9,'bitCrush','Bit Crush','Resamples at a lower frequency in (samples*100)'),
 BuildSetting(.01,0,1e9,'delay','Delay','Overlap with itself for reverb and flanger effects (seconds)'),
 ]
@@ -330,7 +331,7 @@ function AddPresetSound(presetName='Random')
             sound.sustain = R(.1);
             sound.release = R(.1,.3);
             sound.noise =  R()<.8 ? 0 : R(.1,0,1);
-            sound.pitchJump = R(300,1000,0);
+            sound.pitchJump = R()<.5 ? 0 : R(200,1000,0);
             sound.pitchJumpTime = R(0,.1);
             sound.repeatTime = R()<.8 ? 0 : R(0,.2);
             sound.bitCrush = R()<.5 ? 0 : R(.1);
@@ -343,14 +344,14 @@ function AddPresetSound(presetName='Random')
             sound.shape = 3*Math.random()|0;
             sound.shapeCurve = R(2);
             sound.attack = R(.05);
-            sound.sustain = R(.5,.1,1);
+            sound.sustain = R(.5,0,1);
             sound.release = R(.5,1,1);
             sound.pitchJump = R(-1000,1000,0);
             sound.pitchJumpTime = !sound.pitchJump ? 0 : R(0,.1);
             sound.delay = R()<.8 ? 0 : R(.2);
             sound.repeatTime = R()<.2 ? 0 : R(.3);
-            sound.slide = R()<.5 ? 0 : R(0,10);
-            sound.deltaSlide = R()<.5 ? 0 : R(0,10);
+            sound.slide = R()<.5 ? 0 : R(-10,10);
+            sound.deltaSlide = R()<.5 ? 0 : R(-10,10);
             sound.noise =  R()<.8 ? 0 : R(.2,0,1);
             sound.modulation = R()<.8 ? 0 : R(-.2,.2);
             sound.bitCrush = R()<.5 ? 0 : R(.1);
@@ -365,10 +366,11 @@ function AddPresetSound(presetName='Random')
             sound.sustain = R(.1);
             sound.release = R(.1,.5);
             sound.noise =  R()<.8 ? 0 : R(.5,0,1);
-            sound.delay = R()<.5 ? 0 : R(.01);
+            sound.slide = R(-10,10);
+            sound.deltaSlide = R()<.8 ? 0 : R(-5,5);
+            sound.modulation = R()<.8 ? 0 : R(-1,1);
             sound.bitCrush = R()<.5 ? 0 : R(.1);
-            sound.slide = R(1,10);
-            sound.deltaSlide = R()<.5 ? 0 : R(-sound.slide,10);
+            sound.delay = R()<.8 ? 0 : R(.05);
             break;
         }
         case 'Shoot':
@@ -383,17 +385,17 @@ function AddPresetSound(presetName='Random')
             sound.slide = R()<.5 ? 0 : R(-1,1);
             sound.deltaSlide = R()<.5 ? 0 : R(-1,1);
             sound.noise =  R()<.8 ? 0 : R(1,0,1);
-            sound.modulation = R()<.8 ? 0 : R(-10,10);
-            sound.bitCrush = R()<.5 ? 0 : R(.2);
+            sound.repeatTime = R()<.5 ? 0 : R(.1);
+            sound.modulation = R()<.8 ? 0 : R(-100,100);
+            sound.bitCrush = R()<.5 ? 0 : R(.1);
             break;
         }
         case 'Blip':
         {
             sound = ZZFX.BuildRandomSound();
-            sound.frequency = R(0,1000,0);
-            sound.attack = R(.03);
+            sound.attack = R(.05);
             sound.sustain = 0;
-            sound.release = R(.04,.1);
+            sound.release = R(.05,.1);
             sound.bitCrush = R()<.5 ? 0 : R(.5);
             break;
         }
@@ -404,13 +406,13 @@ function AddPresetSound(presetName='Random')
             sound.shapeCurve = R(2);
             sound.attack = 0;
             sound.sustain = R(.1);
-            sound.release = R(.2,.6);
+            sound.release = R(.1,.5);
             sound.delay = R()<.3 ? 0 : R(.2);
-            sound.slide = R()<.8 ? 0 : R();
-            sound.deltaSlide = R()<.8 ? 0 : R();
+            sound.slide = R()<.8 ? 0 : R(-10,10,1);
+            sound.deltaSlide = R()<.8 ? 0 : R(-10,10,1);
             sound.noise = R(1,0,1);
             sound.modulation = R()<.8 ? 0 : R(-.2,.2);
-            sound.bitCrush = R(2);
+            sound.bitCrush = R(2,0,1);
             break;
         }
         case 'Explosion':
@@ -425,8 +427,8 @@ function AddPresetSound(presetName='Random')
             sound.deltaSlide = R()<.8 ? 0 : R();
             sound.delay = R()<.5 ? 0 : R(.5);
             sound.noise = R(1,0,1);
-            sound.modulation = R()<.8 ? 0 : R(-20,20);
-            sound.bitCrush = R(2,.1);
+            sound.modulation = R()<.8 ? 0 : R(-100,100);
+            sound.bitCrush = R(2,.1,1);
             break;
         }
     }
@@ -984,7 +986,7 @@ onkeydown =e=>
     const selected = document.activeElement;
     if (selected.tagName != 'INPUT' && selected.tagName != 'TEXTAREA')
     {
-        if (e.keyCode == 32) // space
+        if (e.keyCode == 32 && selected.tagName != 'BUTTON') // space
             PlaySelected();
         if (e.keyCode == 45) // ins
             AddPresetSound();

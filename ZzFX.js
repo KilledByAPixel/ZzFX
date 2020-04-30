@@ -209,13 +209,13 @@ class _ZZFX
            Fixed(.01 + R()**3,2),                    // release
            R()*5|0,                                  // shape
            R()<.2?1: Fixed(R()*2),                   // shape curve
-           R()<.5?0: Fixed(R()**3*10*(R()<.5?-1:1)), // slide
-           R()<.5?0: Fixed(R()**3*10*(R()<.5?-1:1)), // deltaSlide
+           R()<.5?0: Fixed(R()**3*100*(R()<.5?-1:1)),// slide
+           R()<.5?0: Fixed(R()**3*100*(R()<.5?-1:1)),// deltaSlide
            0,                                        // pitchJump
            0,                                        // pitchJumpTime
            0,                                        // repeatTime
            R()<.5?0: Fixed(R()**3*5),                // noise
-           R()<.8?0: Fixed(R()**3*99),               // modulation
+           R()<.8?0: Fixed(R()**3*100),              // modulation
            R()<.5?0: Fixed(R()**3*5,2),              // bitCrush
            R()<.5?0: Fixed(R()**3*.5,2),             // delay
         );
