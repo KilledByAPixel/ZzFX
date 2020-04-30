@@ -19,7 +19,7 @@ zzfx=    // play sound
 - Small code footprint, the micro version is under 1 kilobyte!
 - Can produce a huge variety of sound effect types.
 - Sounds can be played with a short function call.
-- Use ZZFX.GetNote to make music, ex: ZZFX.GetNote(440, 7) // 7 semitons above A4
+- Use ZZFX.GetNote to get frequencies on a 12 tone scale.
 - Sounds can be saved out as wav files for offline playback.
 - Open source with MIT license, you can use this for anything!
 
