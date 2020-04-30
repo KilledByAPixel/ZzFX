@@ -141,8 +141,8 @@ let lastPlayedSound;
 function Init()
 {
     BuildSettingsTable();
-    LoadLocalStorage();
     RandomizeLogo();
+    LoadLocalStorage();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -392,10 +392,10 @@ function AddPresetSound(presetName='Random')
         {
             sound = ZZFX.BuildRandomSound();
             sound.frequency = R(0,1000,0);
-            sound.attack = R(.02);
+            sound.attack = R(.03);
             sound.sustain = 0;
-            sound.release = R(.05,.1);
-            sound.bitCrush = R()<.5 ? 0 : R(50,0,0);
+            sound.release = R(.04,.1);
+            sound.bitCrush = R()<.5 ? 0 : R(10,0,0);
             break;
         }
         case 'Hit':
@@ -405,13 +405,13 @@ function AddPresetSound(presetName='Random')
             sound.shapeCurve = R(2);
             sound.attack = 0;
             sound.sustain = R(.1);
-            sound.release = R(.1,.5);
+            sound.release = R(.2,.6);
             sound.slide = R()<.8 ? 0 : R();
             sound.deltaSlide = R()<.8 ? 0 : R();
-            sound.noise = R(0.1,1,1);
+            sound.noise = R(0.2,1,1);
             sound.modulation = R()<.8 ? 0 : R(0,.2);
             sound.modPhase = !sound.modulation ? 0 : R();
-            sound.bitCrush = R(100,0,0);
+            sound.bitCrush = R(100,5,0);
             break;
         }
         case 'Explosion':
