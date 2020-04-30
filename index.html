@@ -129,7 +129,7 @@ option:checked               { background: #FF0; color:#F00 }
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?6337></script>
+<script src=ZzFX.js?7337></script>
 <script>
 
 'use strict'; // strict mode
@@ -170,7 +170,7 @@ BuildSetting(.01,-1e9,1e9,'pitchJumpTime','Pitch Jump Time','Time of pitch jump 
 BuildSetting(.01,-1e9,1e9,'repeatTime','Repeat Time','Resets some parameters periodically'),
 BuildSetting(1,-1e9,1e9,'modulation','Modulation','Frequency of modulation wave in Hz'),
 BuildSetting(.01,-1e9,1e9,'modPhase','Modulation Phase','Phase of modulation frequency in percent'),
-BuildSetting(.1,-1e9,1e9,'bitCrush','Bit Crush','Reduces fidelity in percent'),
+BuildSetting(1,-1e9,1e9,'bitCrush','Bit Crush','Resamples at a lower frequency'),
 BuildSetting(.01,0,1e9,'delay','Delay','Overlap delay for reverb and flanger effects'),
 ]
 
@@ -332,7 +332,7 @@ function AddPresetSound(presetName='Random')
             sound.pitchJump = R(300,1000,0);
             sound.pitchJumpTime = R()<.3 ? 0 : R(0,.1);
             sound.repeatTime = R()<.8 ? 0 : R(0,.2);
-            sound.bitCrush = R()<.5 ? 0 : R();
+            sound.bitCrush = R()<.5 ? 0 : R(10,0,0);
             sound.delay = R()<.5 ? 0 : R();
             break;
         }
@@ -353,7 +353,7 @@ function AddPresetSound(presetName='Random')
             sound.noise =  R()<.8 ? 0 : R(.2,0,1);
             sound.modulation = R()<.8 ? 0 : R(0,.2,1);
             sound.modPhase = !sound.modulation ? 0 : R(.25,.5);
-            sound.bitCrush = R()<.5 ? 0 : R();
+            sound.bitCrush = R()<.5 ? 0 : R(10,0,0);
             break;
         }
         case 'Jump':
@@ -366,7 +366,7 @@ function AddPresetSound(presetName='Random')
             sound.release = R(.1,.5);
             sound.noise =  R()<.8 ? 0 : R(.5,0,1);
             sound.delay = R()<.5 ? 0 : R();
-            sound.bitCrush = R()<.5 ? 0 : R();
+            sound.bitCrush = R()<.5 ? 0 : R(10,0,0);
             sound.slide = R(1,10);
             sound.deltaSlide = R()<.5 ? 0 : R(-sound.slide,10);
             break;
@@ -385,7 +385,7 @@ function AddPresetSound(presetName='Random')
             sound.noise =  R()<.8 ? 0 : R(1,0,1);
             sound.modulation = R()<.8 ? 0 : R(10,0,1);
             sound.modPhase = !sound.modulation ? 0 : R();
-            sound.bitCrush = R()<.5 ? 0 : R();
+            sound.bitCrush = R()<.5 ? 0 : R(50,0,0);
             break;
         }
         case 'Blip':
@@ -410,22 +410,22 @@ function AddPresetSound(presetName='Random')
             sound.noise = R(1,5,1);
             sound.modulation = R()<.8 ? 0 : R(0,.2);
             sound.modPhase = !sound.modulation ? 0 : R();
-            sound.bitCrush = R(1,0,1);
+            sound.bitCrush = R(100,0,0);
             break;
         }
         case 'Explosion':
         {
-            sound.frequency = R(0,200,0);
+            sound.frequency = R(0,1e3,0);
             sound.shape = 5*Math.random()|0;
             sound.shapeCurve = R(2);
             sound.attack = R(.05);
             sound.sustain = R(.4,0,1);
             sound.release = R(.5,2,1);
             sound.delay = R(1,0,1);
-            sound.noise = R(.5,5,1);
+            sound.noise = R(0,5,1);
             sound.modulation = R()<.8 ? 0 : R(0,20,1);
             sound.modPhase = !sound.modulation ? 0 : R();
-            sound.bitCrush = R(1,0,1);
+            sound.bitCrush = R(300,10,0);
             break;
         }
     }

@@ -47,9 +47,9 @@ ZzFX Features
 // ==ClosureCompiler==
 // @compilation_level ADVANCED_OPTIMIZATIONS
 // @output_file_name zzfx.min.js
-// @js_externs zzfx, ZZFX, _ZZFX.samples, _ZZFX.volume, 
-// @js_externs _ZZFX, _ZZFX.Play, _ZZFX.PlaySamples, _ZZFX.BuildSamples, 
-// @js_externs _ZZFX.BuildRandomSound, _ZZFX.BuildSound, _ZZFX.GetNote, 
+// @js_externs zzfx, ZZFX, _ZZFX.samples, _ZZFX.volume
+// @js_externs _ZZFX, _ZZFX.Play, _ZZFX.PlaySamples, _ZZFX.BuildSamples
+// @js_externs _ZZFX.BuildRandomSound, _ZZFX.BuildSound, _ZZFX.GetNote
 // @js_externs _ZZFX.SoundToArray, _ZZFX.CreateAudioContext, _ZZFX.randomness
 // @language_out ECMASCRIPT_2019
 // ==/ClosureCompiler==
@@ -132,37 +132,40 @@ class _ZZFX
         deltaSlide *= PI2 * 500 / sampleRate**3;
         modulation *= PI2 / sampleRate;
         pitchJump *= PI2 / sampleRate;
-        pitchJumpTime = pitchJumpTime*sampleRate | 0;
-        repeatTime = repeatTime*sampleRate | 0;
+        pitchJumpTime = pitchJumpTime*sampleRate;
+        repeatTime = repeatTime*sampleRate;
         modPhase *= PI2;
         const length = Math.max(1, Math.min(attack + sustain + release, sampleRate * 10));
         
         // generate waveform
-        let b=[], t=0, tm=0, i=0, j=1, r=0, s, e;
+        let b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, e;
         for(; i < length;b[i++] = s)
         {
-            s = t * frequency *                          // frequency
-                Math.cos(tm * modulation + modPhase);    // modulation
+            if (++c>bitCrush)                                // bit crush
+            {
+                c = 0;
+                s = t * frequency *                          // frequency
+                    Math.cos(tm * modulation + modPhase);    // modulation
 
-            s = shape ? shape>1 ? shape>2 ? shape>3 ?    // wave shape
-                 Math.sign(Math.cos((s%PI2)**3)) :       // 4 noise
-                 Math.max(Math.min(Math.tan(s),1),-1) :  // 3 tan
-                 1-(2*s/PI2%2+2)%2:                      // 2 saw
-                 1-4*Math.abs(Math.round(s/PI2)-s/PI2) : // 1 triangle
-                 Math.cos(s);                            // 0 sin
-            s = Math.sign(s)*(Math.abs(s)**shapeCurve);  // shape curve (0=square)
-            
-            e =                                          // envelope
-                i<attack ? i/attack :                    // attack
-                i<attack+sustain ? 1 :                   // sustain
-                1 - (i-attack-sustain)/release;          // release
-            s *= e * volume * volumeScale;               // envelope
-            s = bitCrush?(s/bitCrush*9|0)*bitCrush/9:s;  // bit crush
-            s = delay ?                                  // delay
-                s/2 + (delay > i ? 0 :
-                (i<attack+sustain?1:e)*b[i-delay]/2) :   // release delay  
-                s;
-            
+                s = shape ? shape>1 ? shape>2 ? shape>3 ?    // wave shape
+                     Math.sign(Math.cos((s%PI2)**3)) :       // 4 noise
+                     Math.max(Math.min(Math.tan(s),1),-1) :  // 3 tan
+                     1-(2*s/PI2%2+2)%2:                      // 2 saw
+                     1-4*Math.abs(Math.round(s/PI2)-s/PI2) : // 1 triangle
+                     Math.cos(s);                            // 0 sin
+                s = Math.sign(s)*(Math.abs(s)**shapeCurve);  // shape curve (0=square)
+
+                e =                                          // envelope
+                    i<attack ? i/attack :                    // attack
+                    i<attack+sustain ? 1 :                   // sustain
+                    1 - (i-attack-sustain)/release;          // release
+                s *= e * volume * volumeScale;               // envelope
+                s = delay ?                                  // delay
+                    s/2 + (delay > i ? 0 :
+                    (i<attack+sustain?1:e)*b[i-delay]/2) :   // release delay  
+                    s;
+            }
+
             t += 1 + random(noise);                      // noise
             tm += 1 + random(noise);                     // modulation noise
             frequency += slide += deltaSlide;            // frequency slide
@@ -213,7 +216,7 @@ class _ZZFX
            R()<.5?0: Fixed(R()**3*5),                // noise
            R()<.8?0: Fixed(R()**4*99),               // modulation
            0,                                        // modPhase
-           R()<.5?0: Fixed(R()**2,2),                // bitCrush
+           R()<.5?0: R()**3*2e3|0,                   // bitCrush
            R()<.5?0: Fixed(R()**2*3,2),              // delay
         );
         
@@ -364,7 +367,7 @@ let zzfxP =     // play a sound
     startFrequency = frequency *= 
         (1 + random(randomness)) * PI2 / sampleRate,
     length,
-    b=[], t=0, tm=0, i=0, j=1, r=0, s, e,
+    b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, e,
     buffer,
     source = zzfxX.createBufferSource()
 ) =>
@@ -378,34 +381,37 @@ let zzfxP =     // play a sound
     length = attack + sustain + release;
     modulation *= PI2 / sampleRate;
     pitchJump *= PI2 / sampleRate;
-    pitchJumpTime = pitchJumpTime*sampleRate | 0;
-    repeatTime = repeatTime*sampleRate | 0;
+    pitchJumpTime = pitchJumpTime*sampleRate;
+    repeatTime = repeatTime*sampleRate;
     modPhase *= PI2;
 
     // generate waveform
     for(; i < length;b[i++] = s)
     {
-        s = t * frequency *                          // frequency
-            Math.cos(tm * modulation + modPhase);    // modulation
+        if (++c>bitCrush)                                // bit crush
+        {
+            s = t * frequency *                          // frequency
+                Math.cos(tm * modulation + modPhase);    // modulation
 
-        s = shape ? shape>1 ? shape>2 ? shape>3 ?    // wave shape
-             Math.sign(Math.cos((s%PI2)**3)) :       // 4 noise
-             Math.max(Math.min(Math.tan(s),1),-1) :  // 3 tan
-             1-(2*s/PI2%2+2)%2 :                     // 2 saw
-             1-4*Math.abs(Math.round(s/PI2)-s/PI2) : // 1 triangle
-             Math.cos(s);                            // 0 sin
-        s = Math.sign(s)*(Math.abs(s)**shapeCurve);  // shape curve (0=square)
+            s = shape ? shape>1 ? shape>2 ? shape>3 ?    // wave shape
+                 Math.sign(Math.cos((s%PI2)**3)) :       // 4 noise
+                 Math.max(Math.min(Math.tan(s),1),-1) :  // 3 tan
+                 1-(2*s/PI2%2+2)%2 :                     // 2 saw
+                 1-4*Math.abs(Math.round(s/PI2)-s/PI2) : // 1 triangle
+                 Math.cos(s);                            // 0 sin
+            s = Math.sign(s)*(Math.abs(s)**shapeCurve);  // shape curve (0=square)
 
-        e =                                          // envelope
-            i<attack ? i/attack :                    // attack
-            i<attack+sustain ? 1 :                   // sustain
-            1 - (i-attack-sustain)/release;          // release
-        s *= e * volume * zzfxV;                     // envelope
-        s = bitCrush?(s/bitCrush*9|0)*bitCrush/9:s;  // bit crush
-        s = delay ?                                  // delay
-            s/2 + (delay > i ? 0 :
-            (i<attack+sustain?1:e)*b[i-delay]/2) :   // release delay  
-            s;
+            e =                                          // envelope
+                i<attack ? i/attack :                    // attack
+                i<attack+sustain ? 1 :                   // sustain
+                1 - (i-attack-sustain)/release;          // release
+            s *= e * volume * zzfxV;                     // envelope
+            s = bitCrush?(s/bitCrush*9|0)*bitCrush/9:s;  // bit crush
+            s = delay ?                                  // delay
+                s/2 + (delay > i ? 0 :
+                (i<attack+sustain?1:e)*b[i-delay]/2) :   // release delay  
+                s;
+        }
 
         t += 1 + random(noise);                      // noise
         tm += 1 + random(noise);                     // modulation noise
