@@ -34,6 +34,7 @@ zzfx=    // play sound
 - Displays image of sound wave when played.
 - Sounds can be download as a wave file.
 - Sounds can be marked as favorites to prevent removal.
+- Sounds can be loaded by pasting zzfx code for easy sharing.
 - List of sounds can be exported and imported.
 - Supports drag-and-drop of exported files into sound list.
 
