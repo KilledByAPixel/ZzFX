@@ -1,6 +1,6 @@
 # ZzFX - Zuper Zmall Zound Zynth
 
-# [LIVE DEMO!](https://zzfx.3d2k.com)
+# [TRY THE LIVE DEMO!](https://zzfx.3d2k.com)
 
 
 ## Here's the code for the ZzFXmicro, this all you need to play ZzFX sounds!
