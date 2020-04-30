@@ -1,6 +1,20 @@
 /*
-    ZzFX - Zuper Zmall Zeeded Zound Zynth
-    By Frank Force 2019
+
+ZzFX - Zuper Zmall Zound Zynth
+By Frank Force 2019
+
+ZzFX Features
+
+- Tiny synth engine with 18 controllable parameters.
+- Play sounds via code, no need for wave files!
+- Compatible with nearly all web browsers.
+- Small code footprint, the micro version is under 1 kilobyte!
+- Can produce a huge variety of sound effect types.
+- Sounds can be played with a short function call.
+- Use ZZFX.GetNote to make music, ex: ZZFX.GetNote(440, 7) // 7 semitons above A4
+- Sounds can be saved out as wav files for offline playback.
+- Open source with MIT license, you can use this for anything!
+
 */
 /*
 
@@ -28,200 +42,457 @@
   
 */
 
-"use strict"; // strict mode
+'use strict';
 
 // ==ClosureCompiler==
 // @compilation_level ADVANCED_OPTIMIZATIONS
-// @output_file_name ZzFx.min.js
-// @js_externs ZZFX, ZZFXLib, ZZFXLib.z, ZZFXLib.Z, ZZFXLib.Generate, ZZFXLib.Note
-// @js_externs ZZFXLib.R, ZZFXLib.x, ZZFXLib.r, ZZFXLib.buffer, ZZFXLib.volume, ZZFXLib.randomness
+// @output_file_name zzfx.min.js
+// @js_externs zzfx, _ZZFX.samples, _ZZFX.volume, _ZZFX.randomness, ZZFX, _ZZFX, _ZZFX.Play, _ZZFX.PlaySamples, _ZZFX.BuildSamples, _ZZFX.BuildRandomSound, _ZZFX.BuildSound, _ZZFX.GetNote, _ZZFX.SoundToArray, _ZZFX.CreateAudioContext, _ZZFX.BuildWaveDataUrl
+// @language_out ECMASCRIPT_2019
 // ==/ClosureCompiler==
-class ZZFXLib
+
+class _ZZFX
 {
     constructor()
     {
-        this.x = new AudioContext;      // shared audio context
-        this.r = Date.now();            // starting value for random numbers
-        this.buffer = 0;                // last sound buffer
-        this.volume = .5;               // master volume scale
-        this.randomness = .1;           // default frequency randomness
+        this.x = this.CreateAudioContext(); // shared audio context
+        this.samples = 0;                   // last played samples
+        this.volume = .3;                   // master volume scale
+        this.sampleRate = 44100;            // sample rate for audio
     }
-
-    // play seeded sound with overrides applied
-    z(seed, soundOverrides) 
+    
+    Play(sound)
     {
-        // generate sound from seed
-        let sound = this.Generate(seed);
-        
-        // copy overrides to sound
-        for(let setting in soundOverrides)
-            sound[setting] = soundOverrides[setting];
-    
-        // play sound
-        return this.Z
-        (
-            sound['volume'], 
-            sound['randomness'],
-            sound['frequency'], 
-            sound['length'],
-            sound['attack'],
-            sound['slide'], 
-            sound['noise'],
-            sound['modulation'],
-            sound['modulationPhase']
-        );
+        // check if sound object was passed in
+        if (!sound || typeof sound != 'object')
+        {
+            // replace with defaults
+            const defaultSound = this.BuildSound();
+            sound = this.BuildSound(...arguments);
+            for (const key in sound)
+                if (typeof sound[key] == 'undefined')
+                    sound[key] = defaultSound[key];
+        }
+            
+        // build samples and start sound
+        const params = this.SoundToArray(sound);
+        const samples = this.BuildSamples(...params, this.volume);
+        return this.PlaySamples(samples);
     }
     
-    // play sound with full parameter control
-    Z
+    PlaySamples(samples)
+    {
+        const buffer = this.x.createBuffer(1, samples.length, this.sampleRate);
+        const source = this.x.createBufferSource();
+        buffer.getChannelData(0).set(samples);
+        source.buffer = buffer;
+        source.connect(this.x.destination);
+        source.start();
+        this.samples = samples;
+        return source;
+    }
+    
+    BuildSamples
     (
         volume, 
         randomness,
         frequency,
-        length=1,
-        attack=.1,
-        slide=0, 
-        noise=0,
-        modulation=0,
-        modulationPhase=0
+        attack,
+        sustain,
+        release,
+        shape,
+        shapeCurve,
+        slide, 
+        deltaSlide,
+        pitchJump,
+        pitchJumpTime,
+        repeatTime,
+        noise,
+        modulation,
+        modPhase,
+        bitCrush,
+        delay,
+        volumeScale = 1
     )
     {
-        // normalize parameters
-        const random = r=>r*(Math.random()*2-1);
-        const sampleRate = 44100;
+        // init parameters
         const PI2 = Math.PI*2;
-        volume *= this.volume;
-        frequency *= PI2 / sampleRate;
-        frequency *= 1 + random(randomness);
-        slide *= PI2 * 500 / sampleRate**2;
-        length = length>0? (length>10?10:length) * sampleRate | 0 : 1;
-        attack = attack*length | 0;
+        const sampleRate = this.sampleRate;
+        const random = r => r*(Math.random()*2-1);
+        const startSlide = slide *= PI2 * 500 / sampleRate**2;
+        let startFrequency = frequency *= 
+            (1 + random(randomness)) * PI2 / sampleRate;
+        attack = 50 + attack*sampleRate | 0;
+        sustain = sustain*sampleRate | 0;
+        release = release*sampleRate | 0;
+        delay = delay*sampleRate / 1e3 | 0;
+        deltaSlide *= PI2 * 500 / sampleRate**3;
         modulation *= PI2 / sampleRate;
-        modulationPhase *= PI2/2;
-         
+        pitchJump *= PI2 / sampleRate;
+        pitchJumpTime = pitchJumpTime*sampleRate | 0;
+        repeatTime = repeatTime*sampleRate | 0;
+        modPhase *= PI2;
+        const length = Math.max(1, Math.min(attack + sustain + release, sampleRate * 10));
+        
         // generate waveform
-        let b = [], f = 0, fm = 0;
-        for(let F = 0; F < length; ++F)
+        let b=[], t=0, tm=0, i=0, j=1, r=0, s, e;
+        for(; i < length;b[i++] = s)
         {
-            b[F] = volume *                                    // volume
-                Math.cos(f * frequency *                       // frequency
-                Math.cos(fm * modulation + modulationPhase)) * // modulation
-                (F < attack ? F / attack:                      // attack
-                1 - (F - attack)/(length - attack));           // decay
-            f += 1+random(noise);                              // noise
-            fm += 1+random(noise);                             // modulation noise
-            frequency += slide;                                // frequency slide
+            s = t * frequency *                          // frequency
+                Math.cos(tm * modulation + modPhase);    // modulation
+
+            s = shape ? shape>1 ? shape>2 ? shape>3 ?    // wave shape
+                 Math.sign(Math.cos((s%PI2)**3)) :       // 4 noise
+                 Math.max(Math.min(Math.tan(s),1),-1) :  // 3 tan
+                 (2*s/PI2)%2+(s<0?1:-1) :                // 2 saw
+                 1-4*Math.abs(Math.round(s/PI2)-s/PI2) : // 1 triangle
+                 Math.cos(s);                            // 0 sin
+            s = Math.sign(s)*(Math.abs(s)**shapeCurve);  // shape curve (0=square)
+            
+            e =                                          // envelope
+                i<attack ? i/attack :                    // attack
+                i<attack+sustain ? 1 :                   // sustain
+                1 - (i-attack-sustain)/release;          // release
+            s *= e * volume * volumeScale;               // envelope
+            s = bitCrush?(s/bitCrush*9|0)*bitCrush/9:s;  // bit crush
+            s = delay ?                                  // delay
+                s/2 + (delay > i ? 0 :
+                (i<attack+sustain?1:e)*b[i-delay]/2) :   // release delay  
+                s;
+            
+            t += 1 + random(noise);                      // noise
+            tm += 1 + random(noise);                     // modulation noise
+            frequency += slide += deltaSlide;            // frequency slide
+            
+            if (j && ++j > pitchJumpTime)                // pitch jump
+            {
+                startFrequency += pitchJump;
+                frequency += pitchJump;
+                j = 0;
+            };
+                
+            if (repeatTime && ++r > repeatTime)           // repeat
+            {
+                frequency = startFrequency;
+                slide = startSlide;
+                r = 1;
+                j = j||1;
+            }
         }
         
-        // play sound
-        this.buffer = b;
-        let B = this.x.createBuffer(1, b.length, sampleRate);
-        let S = this.x.createBufferSource();
-        B.getChannelData(0).set(b);
-        S.buffer = B;
-        S.connect(this.x.destination);
-        S.start();
-        return S;
+        return b;
     }
     
-    // generate sound from seed
-    Generate(seed)
+    BuildRandomSound()
     {
-        let rSave = this.r;         // save the seed
-        this.r = seed;              // set our seed
-        for(let i=9;i--;)this.R();  // warm it up
-        
-        // generate parameters
-        let sound = 
+        // generate a random sound
+        const R =()=> Math.random();
+        const Fixed =(v,l=1)=>
         {
-            'seed':               seed,
-            'volume':             1,
-            'randomness':         seed?this.randomness:0,
-            'frequency':          seed?this.R()**2*2e3|0:220,
-            'slide':              seed?(this.R()**3*10).toFixed(1):0,
-            'length':             seed?(.1+this.R()).toFixed(1):1,
-            'attack':             seed?(this.R()).toFixed(2):.1,
-            'noise':              seed?(this.R()**3*5).toFixed(1):0,
-            'modulation':         seed?(this.R()**5*99).toFixed(1):0,
-            'modulationPhase':    seed?(this.R()).toFixed(2):0,
+            const f = v.toFixed(l);
+            return !parseFloat(f) ? '0': f;
+        }
+        const sound = this.BuildSound
+        (
+           1,                                        // volume
+           .05,                                      // randomness
+           R()**2*2e3|0,                             // frequency
+           Fixed(.01 + R()**2,2),                    // attack
+           Fixed(R()**2,2),                          // sustain
+           Fixed(.01 + R()**2,2),                    // release
+           R()*5|0,                                  // shape
+           R()<.2?1: Fixed(R()*2),                   // shape curve
+           R()<.5?0: Fixed(R()**3*10*(R()<.5?-1:1)), // slide
+           R()<.5?0: Fixed(R()**3*10*(R()<.5?-1:1)), // deltaSlide
+           0,                                        // pitchJump
+           0,                                        // pitchJumpTime
+           0,                                        // repeatTime
+           R()<.5?0: Fixed(R()**3*5),                // noise
+           R()<.8?0: Fixed(R()**4*99),               // modulation
+           0,                                        // modPhase
+           R()<.5?0: Fixed(R()**2,2),                // bitCrush
+           R()<.5?0: Fixed(R()**2*3,2),              // delay
+        );
+        
+        const length = parseFloat(sound['attack']) 
+            + parseFloat(sound['sustain']) 
+            + parseFloat(sound['release']);
+        
+        if (parseFloat(sound['smodulation']))
+            sound['smodPhase'] = Fixed(R(),2);               // modPhase
+            
+        if (R() < .3)
+        {
+            sound['pitchJump'] = R()**2*1e3*(R()<.5?-1:1)|0;// pitchJump
+            sound['pitchJumpTime'] = Fixed(R()*length,2);   // pitchJumpTime  
+        }
+        
+        if (R() < .3)
+            sound['repeatTime'] = Fixed(R()*length,2);      // repeatTime
+        
+        return sound;
+    }
+    
+    // build sound object
+    BuildSound
+    (
+        volume = 1, 
+        randomness = .05,
+        frequency = 220,
+        attack = .1,
+        sustain = .1,
+        release = .2,
+        shape = 0,
+        shapeCurve = 1,
+        slide = 0, 
+        deltaSlide = 0, 
+        pitchJump = 0, 
+        pitchJumpTime = 0, 
+        repeatTime = 0, 
+        noise = 0,
+        modulation = 0,
+        modPhase = 0,
+        bitCrush = 0,
+        delay = 0
+    )
+    {
+        const sound = 
+        {
+            'volume':       volume,
+            'randomness':   randomness,
+            'frequency':    frequency,
+            'attack':       attack,
+            'sustain':      sustain,
+            'release':      release,
+            'shape':        shape,
+            'shapeCurve':   shapeCurve,
+            'slide':        slide,
+            'deltaSlide':   deltaSlide,
+            'pitchJump':    pitchJump,
+            'pitchJumpTime':pitchJumpTime,
+            'repeatTime':   repeatTime,
+            'noise':        noise,
+            'modulation':   modulation,
+            'modPhase':     modPhase,
+            'bitCrush':     bitCrush,
+            'delay':        delay
         };
         
-        this.r = rSave;             // restore rand seed
         return sound;
     }
     
     // get frequency of a musical note
-    Note(rootNoteFrequency, semitoneOffset)
+    GetNote(rootNoteFrequency, semitoneOffset)
     {
-        return rootNoteFrequency*2**(semitoneOffset/12);
+        return rootNoteFrequency * 2**(semitoneOffset/12);
     }
     
-    // random seeded float
-    R()
-    { 
-        this.r^=this.r<<13
-        this.r^=this.r>>7
-        this.r^=this.r<<17
-        return Math.abs(this.r)%1e9/1e9;
+    // convert sound parameters object to array
+    SoundToArray(sound)
+    {
+        // use default sound for keys and order
+        const defaultSound = this.BuildSound();
+        const array = [];
+        for(const key in defaultSound)
+            array.push(sound[key]);
+        return array
+    }
+    
+    CreateAudioContext()
+    {
+        // fix compatibility issues with old web audio
+        const audioContext = new (window.AudioContext || webkitAudioContext);
+        audioContext.Z = audioContext.createBufferSource;
+        audioContext.createBufferSource =
+        (s = audioContext.Z())=>
+        (
+            s.start = s.start || (t => audioContext.noteOn (t)),
+            s.stop  = s.stop  || (t => audioContext.noteOff(t)),
+            s
+        );
+        
+        return audioContext;
+    }
+
+    BuildWaveDataUrl(sound)
+    {
+        const samples = this.BuildSamples(...this.SoundToArray(sound));
+    
+        // adapted from https://gist.github.com/asanoboy/3979747
+        const channels = 1;
+        const length = samples.length;
+        const buffer = new Int16Array(length + 23);
+        const sampleRate = this.sampleRate;
+
+        // wave header
+        buffer[ 0] = 0x4952; // "RI"
+        buffer[ 1] = 0x4646; // "FF"
+        buffer[ 2] = (2*length + 15) & 0x0000ffff; // RIFF size
+        buffer[ 3] = ((2*length + 15) & 0xffff0000) >> 16; // RIFF size
+        buffer[ 4] = 0x4157; // "WA"
+        buffer[ 5] = 0x4556; // "VE"
+        buffer[ 6] = 0x6d66; // "fm"
+        buffer[ 7] = 0x2074; // "t "
+        buffer[ 8] = 0x0012; // fmt chunksize: 18
+        buffer[ 9] = 0x0000; //
+        buffer[10] = 0x0001; // format tag : 1 
+        buffer[11] = channels; // channels: 2
+        buffer[12] = sampleRate & 0x0000ffff; // sample per sec
+        buffer[13] = (sampleRate & 0xffff0000) >> 16; // sample per sec
+        buffer[14] = (2*channels*sampleRate) & 0x0000ffff; // byte per sec
+        buffer[15] = ((2*channels*sampleRate) & 0xffff0000) >> 16; // byte per sec
+        buffer[16] = 0x0004; // block align
+        buffer[17] = 0x0010; // bit per sample
+        buffer[18] = 0x0000; // cb size
+        buffer[19] = 0x6164; // "da"
+        buffer[20] = 0x6174; // "ta"
+        buffer[21] = (2*length) & 0x0000ffff; // data size[byte]
+        buffer[22] = ((2*length) & 0xffff0000) >> 16; // data size[byte]	
+
+        // copy samples to buffer
+        for (let i = 0; i < length; i++)
+        {
+            const s = samples[i];
+            buffer[i+23] = s>=1 ? (1<<15) - 1 : Math.round(s * (1<<15));
+        }
+
+        // build the blob
+        let eof = 0;
+        let bufferNeedle = 0;
+        const GetBuffer = (length) =>
+        {
+            eof = bufferNeedle + length >= buffer.length;
+            const rt = new Int16Array(eof?buffer.length - bufferNeedle:length);
+            for(let i=0; i<rt.length; i++)
+                rt[i] = buffer[i+bufferNeedle];
+            bufferNeedle += rt.length;
+            return rt.buffer;
+        }
+
+        const blobData = [];
+        while ( !eof ) { blobData.push(GetBuffer(1e3)); }
+        const b = new Blob(blobData, {type:'audio/wav'});
+        const URLObject = webkitURL || URL;
+        return URLObject.createObjectURL(b);
     }
 }
 
-let ZZFX = new ZZFXLib;
+const ZZFX = new _ZZFX;
 
-//////////////////////////////////////////////////////////////////////////////////////
+// shortcut to play sounds
+function zzfx() { ZZFX.Play(...arguments); }
 
-// ZZFXmicro - lightweight version with just a Z function to play sounds
+///////////////////////////////////////////////////////////////////////////////
+
+// ZzFXMicro - super tiny version with only a function to play sounds
 
 // ==ClosureCompiler==
 // @compilation_level ADVANCED_OPTIMIZATIONS
-// @output_file_name ZzFx.micro.js
-// @js_externs zzfx, zzfx_x, zzfx_v
+// @output_file_name zzfx.micro.js
+// @js_externs zzfxP, zzfxV, zzfxX
+// @language_out ECMASCRIPT_2019
 // ==/ClosureCompiler==
-let zzfx_v = .5;               // volume
-let zzfx_x = new AudioContext; // audio context
-function zzfx                  // play a sound
-(
-    volume, 
-    randomness,
-    frequency, 
-    length=1,
-    attack=.1,
-    slide=0,
-    noise=0,
-    modulation=0,
-    modulationPhase=0
-)
-{   
-    let random = r=>r*(Math.random()*2-1);
-    let sampleRate = 44100;
-    let PI2 = Math.PI*2;
-    frequency *= PI2 / sampleRate;
-    frequency *= 1 + random(randomness);
-    slide *= PI2 * 500 / sampleRate**2;
-    length = length * sampleRate | 0;
-    attack = attack * length | 0;
-    modulation *= PI2 / sampleRate;
-    modulationPhase *= PI2 / 2;
 
-    // generate the waveform
-    let b = [], f = 0, fm = 0;
-    for(let F = 0; F < length; ++F)
+let zzfxV = .3; // volume
+let zzfxP =     // play a sound
+(
+    volume = 1, 
+    randomness = .05,
+    frequency = 220,
+    attack = .1,
+    sustain = .1,
+    release = .2,
+    shape = 0,
+    shapeCurve = 1,
+    slide = 0, 
+    deltaSlide = 0, 
+    pitchJump = 0, 
+    pitchJumpTime = 0, 
+    repeatTime = 0, 
+    noise = 0,
+    modulation = 0,
+    modPhase = 0,
+    bitCrush = 0,
+    delay = 0,
+
+    // locals
+    PI2 = Math.PI*2,
+    sampleRate = 44100,
+    random = r => r*2*Math.random()-r,
+    startSlide = slide *= PI2 * 500 / sampleRate**2,
+    startFrequency = frequency *= 
+        (1 + random(randomness)) * PI2 / sampleRate,
+    length,
+    b=[], t=0, tm=0, i=0, j=1, r=0, s, e,
+    buffer,
+    source = zzfxX.createBufferSource()
+) =>
+{
+    // init parameters
+    attack = 50 + attack*sampleRate | 0;
+    sustain = sustain*sampleRate | 0;
+    release = release*sampleRate | 0;
+    delay = delay*sampleRate / 1e3 | 0;
+    deltaSlide *= PI2 * 500 / sampleRate**3;
+    length = attack + sustain + release;
+    modulation *= PI2 / sampleRate;
+    pitchJump *= PI2 / sampleRate;
+    pitchJumpTime = pitchJumpTime*sampleRate | 0;
+    repeatTime = repeatTime*sampleRate | 0;
+    modPhase *= PI2;
+
+    // generate waveform
+    for(; i < length;b[i++] = s)
     {
-        b[F] = volume * zzfx_v *                           // volume
-            Math.cos(f * frequency *                       // frequency
-            Math.cos(fm * modulation + modulationPhase)) * // modulation
-            (F < attack ? F / attack:                      // attack
-            1 - (F - attack)/(length - attack));           // decay
-        f += 1+random(noise);                              // noise
-        fm += 1+random(noise);                             // modulation noise
-        frequency += slide;                                // frequency slide
+        s = t * frequency *                          // frequency
+            Math.cos(tm * modulation + modPhase);    // modulation
+
+        s = shape ? shape>1 ? shape>2 ? shape>3 ?    // wave shape
+             Math.sign(Math.cos((s%PI2)**3)) :       // 4 noise
+             Math.max(Math.min(Math.tan(s),1),-1) :  // 3 tan
+             (2*s/PI2)%2+(s<0?1:-1) :                // 2 saw
+             1-4*Math.abs(Math.round(s/PI2)-s/PI2) : // 1 triangle
+             Math.cos(s);                            // 0 sin
+        s = Math.sign(s)*(Math.abs(s)**shapeCurve);  // shape curve (0=square)
+
+        e =                                          // envelope
+            i<attack ? i/attack :                    // attack
+            i<attack+sustain ? 1 :                   // sustain
+            1 - (i-attack-sustain)/release;          // release
+        s *= e * volume * zzfxV;                     // envelope
+        s = bitCrush?(s/bitCrush*9|0)*bitCrush/9:s;  // bit crush
+        s = delay ?                                  // delay
+            s/2 + (delay > i ? 0 :
+            (i<attack+sustain?1:e)*b[i-delay]/2) :   // release delay  
+            s;
+
+        t += 1 + random(noise);                      // noise
+        tm += 1 + random(noise);                     // modulation noise
+        frequency += slide += deltaSlide;            // frequency slide
+
+        if (j && ++j > pitchJumpTime)                // pitch jump
+        {
+            startFrequency += pitchJump;
+            frequency += pitchJump;
+            j = 0;
+        };
+
+        if (repeatTime && ++r > repeatTime)           // repeat
+        {
+            frequency = startFrequency;
+            slide = startSlide;
+            r = 1;
+            j = j||1;
+        }
     }
 
-    // play the sound
-    let B = zzfx_x.createBuffer(1, length, sampleRate);
-    let S = zzfx_x.createBufferSource();
-    B.getChannelData(0).set(b);
-    S.buffer = B;
-    S.connect(zzfx_x.destination);
-    S.start();
+    buffer = zzfxX.createBuffer(1, b.length, sampleRate);
+    buffer.getChannelData(0).set(b);
+    source.buffer = buffer;
+    source.connect(zzfxX.destination);
+    source.start();
 }
+const zzfxX = new AudioContext;
+
+// fix compatibility issues with old web audio (optional)
+//const zzfxX=new(window.AudioContext||webkitAudioContext);zzfxX.Z=zzfxX.createBufferSource;zzfxX.createBufferSource=(s=zzfxX.Z())=>(s.start=s.start||(t=>zzfxX.noteOn(t)),s.stop=s.stop||(t=>zzfxX.noteOff(t)),s)

@@ -1,27 +1,19 @@
 <!--
 
-ZzFX - Zuper Zmall Zeeded Zound Zynth
+ZzFX - Zuper Zmall Zound Zynth
 By Frank Force 2019
-    
-ZzFX Features
-
-- Tiny synth engine with 9 controllable parameters.
-- Small code footprint for full version and the micro version is under 500 bytes!
-- Can produce a wide variety of sound effect types.
-- Seeded sounds can be played with a tiny function call, ex: ZZFX.z(6)
-- Seeded sound paramerters can be overridden, ex: ZZFX.z(26,{frequency:600})
-- Random number generator ZZFX.R() can be used in place of Math.random().
-- Use ZZFX.Note to make music notes, ex: ZZFX.Note(440, 7) // 7 semitons above A4
 
 ZzFX UI Features
 
-- Generate random sounds from seed.
-- Stores sounds in list with local storage persistence.
-- Parameters can be modified for more control.
-- Lock, reset and mutate buttons for each parameter.
+- Generates random sounds from presets.
+- Sound list is saved automatically.
+- Each parameter can be modified with constraints.
+- Lock and mutate buttons for each parameter.
+- Sound name can be changed for easier workflow.
+- Shortens code for zzfx sound calls.
 - Displays image of sound wave when played.
 - Sounds can be download as a wave file.
-- Mark sounds as favorites to keep them from being cleared.
+- Sounds can be marked as favorites to prevent removal.
 - List of sounds can be exported and imported.
 - Supports drag-and-drop of exported files into sound list.
 
@@ -55,116 +47,187 @@ GitHub Corner is Copyright (c) 2016 Tim Holman - http://tholman.com
 --> 
 <!doctype html>
 <html>
-<meta charset="utf-8">
 <head>
-<title>ZzFX - Zuper Zmall Zeeded Zound Zynth</title>
+<title>ZzFX - Zuper Zmall Zound Zynth</title>
+<meta charset="utf-8">
+<meta name="google" content="notranslate">
 <link rel="shortcut icon" type="image/x-icon" href="favicon.png"/>
 <style>
 *                            { font-family: "courier"; }
 a                            { color:#5AF; }
-button                       { font-size:20px; margin: 4px;}
-select                       { overflow-x:hidden; width:100%; height:330px; }
+button                       { font-size:20px; margin:4px;}
+button.large                 { height:30px; }
+button.rand                  { width:20px; height:20px; background:#4F4; }
+.soundSelect                 { overflow-x:hidden; width:350px; height:380px; }
 .slider                      { cursor: pointer; width:100% }
-button.large                 { height:50px; }
-button.reset                 { width:20px; height:20px; }
-button.rand                  { width:20px; height:20px; background-color: #4F4; }
-button.resetDefault          { background-color: #44F; }
-button.resetLocked           { background-color: #F44; }
-button.resetChanged          { background-color: #FF4; }
 input.lock                   { width:20px; height:20px; }
-input.setting                { width:150px; }
-textarea                     { height:40px; cursor: text; }
-body,input,select,textarea   { color: #FFF; font-size:20px; }
-select,input,textarea,canvas { background-color: #0B0B0B; border:1px solid #FFF; }
+.setting                     { width:200px; }
+textarea                     { height:50px; cursor:text; resize:none; }
+body,input,select,textarea   { color:#FFF; font-size:20px; }
+select,input,textarea,canvas { background:#000; border:1px solid #FFF; }
+option:hover                 { background: #333 }
+option:checked               { background: #FF0; color:#F00 }
 </style>
-<meta name="google" content="notranslate">
 </head>
-<body bgcolor="#222">
+<body bgcolor=#222>
 <center>
-<table border=0 style='max-width:1100px'>
+<table>
 <tr>
-<td style='text-align:right;width:100px'>
-<font size=7><b><div style="display:inline;" id=div_logo>ℤ𝕫𝔽𝕏</div></b></font>
+<td style=text-align:right;>
+<font size=7><b><div id=div_logo style='display:inline'>ℤ𝕫𝔽𝕏</div></b></font>
 </td>
-<td style='text-align:left;width:450px'>
-<div style="display:inline;" id=div_logo2>
-<i>Zuper Zmall Zeeded Zound Zynth</i>
+<td style=text-align:left>
+<div style=display:inline id=div_logo2>
+<i>Zuper Zmall Zound Zynth</i>
 </div>
 </td>
-<td style='text-align:center;'>
-Master Volume 
-<input title='Volume to scale all sounds by in percent' type="range" min="0" max="100" value="50" class="slider" id="slider_masterVolume" onchange="UpdateSettings();SaveLocalStorage()">
-<div id=div_masterVolume style="display:inline;"></div>
+<td style=text-align:center>
+<div id=div_masterVolume style='display:inline'></div>
+<input id=slider_masterVolume title='Volume to scale all sounds by in percent' type=range min=0 max=100 value=30 class=slider onchange=UpdateSettings();SaveLocalStorage()>
 </td></tr>
-<tr>
-<td></td>
-<td style='text-align:center'>
-<button class="large" title='Make copy of selected sound' onclick=CopySound()>Copy</button>
-<button class="large" title='Toggle favorite on current sound' onclick=FavoriteButton()>Favorite</button>
-<!--<button title='Play selected sound' onclick=PlaySound()>Play</button>-->
-<button class="large" title='Create new random sound' onclick=NewSound()>Random</button>
-<br>
-<button title='Clear all sounds' onclick=ClearButton(1)>Clear All</button>
-<button title='Clear non-favorite sounds' onclick=ClearButton()>Clear</button>
-<button title='Remove selected sound' onclick=RemoveButton()>Remove</button>
-<br>
-<button title='Import all sounds from a text file.' onclick=Import()>Import</button>
-<button title='Export all sounds to a text file.' onclick=Export()>Export</button>
-<button title='Download the selected wave file' onclick=SaveWave()>Save Wav</button>
-<br>
-</td>
-<td rowspan=1 style='text-align:center'>
-<canvas title='Image of sound wave, click to play the sound.' id=canvas_soundWave style='width:100%' width=600 height=120></canvas>
-</td>
-</tr>
-<tr></tr>
 <tr>
 <td colspan=2>
 <div id=div_settingsTable></div>
-</td>
-<td ><select id=select_soundList onclick='LoadSelected();PlaySound();' onchange='LoadSelected();PlaySound();' size=2></select></td>
+</td><td style=text-align:center>
+<canvas title='Image of sound wave, click to play the sound.' id=canvas_soundWave width=350 height=80></canvas>
+<br>
+<button class=large title='Toggle favorite on current sound' onclick=FavoriteSelected()>Favorite</button>
+<button class=large title='Make copy of selected sound' onclick=CopySound()>Copy</button>
+<button title='Remove selected sound' class=large onclick=RemoveSelected()>Remove</button>
+<br>
+<button class=large title='' onclick="AddPresetSound('Pickup')">Pickup</button>
+<button class=large title='' onclick="AddPresetSound('Powerup')">Powerup</button>
+<button class=large title='' onclick="AddPresetSound('Jump')">Jump</button>
+<br>
+<button class=large title='' onclick="AddPresetSound('Blip')">Blip</button>
+<button class=large title='' onclick="AddPresetSound('Hit')">Hit</button>
+<button class=large title='' onclick="AddPresetSound('Explosion')">Explosion</button>
+<br>
+<button class=large title='' onclick="AddPresetSound('Shoot')">Shoot</button>
+<button class=large title='Create new random sound' onclick=AddPresetSound()>Random</button>
+<button class=large title='Make a new sound with mutated parameters' onclick=CopySound(1)>Mutate</button>
+<br>
+<select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2 style=margin:5px></select></td>
 </tr>
-<tr><td height=100%></td></tr>
-<tr><td colspan=3>
-<center>ZzFX JavaScript (Use this code to play the sound)
-<textarea title='Code to play the selected sound' id=textarea_code style='width:100%' disabled></textarea>
-<br>
-<button title='Copy ZzFX code to clipboard' onclick='CopyToCliboard(textarea_code.value);PlaySoundEval(textarea_code);'>Copy to Cliboard</button>
-<button title='Eval the actual ZzFX code' onclick='PlaySoundEval(textarea_code);'>Test Code</button>
-<a href="ZzFX.min.js" style="font-size:25px" target="_blank">Download ZzFX.min.js</a>
-<br>
-<br>
-ZzFXmicro JavaScript (Simplified version without seeds)
-<textarea title='Code to play the selected sound with the micro version' id=textarea_codeMicro style='width:100%' disabled></textarea>
-<br>
-<button title='Copy ZzFXmicro code to clipboard' onclick='CopyToCliboard(textarea_codeMicro.value);PlaySoundEval(textarea_codeMicro);'>Copy to Cliboard</button>
-<button title='Eval the actual ZzFXmicro code' onclick='PlaySoundEval(textarea_codeMicro);'>Test Code</button>
-<a href="ZzFX.micro.js" style="font-size:25px" target="_blank">Download ZzFX.micro.js</a>
+<tr><td colspan=3 style=padding:5px>
+<center>
+<button title='Download the selected wave file' onclick=SaveWave()>Save Wav</button>
+<button title='Import all sounds from a text file.' onclick=Import()>Import</button>
+<button title='Export all sounds to a text file.' onclick=Export()>Export</button>
+<button title='Clear non-favorite sounds' onclick=ClearSoundsButton()>Clear</button>
+<button title='Clear all sounds' onclick=ClearSoundsButton(1)>Clear All</button>
+<button title='Copy ZzFX code to clipboard' onclick=if(CopyToCliboard(textarea_code.value))eval(textarea_code.value)>Copy to Cliboard</button>
+</center>
+</td></tr>
+<tr><td colspan=3 style=padding:5px>
+<center>ZzFX JavaScript - Use this code to play the sound
+<br><textarea title='Code to play the selected sound' id=textarea_code style=width:90% disabled></textarea>
 </center>
 </td></tr>
 </table>
-<br>
-<a href="https://github.com/KilledByAPixel/ZzFX" target="_blank">ZzFX is Open Source on GitHub!</a>
-<br>
-ZzFX © <a href="http://www.frankforce.com" target="_blank">Frank Force</a> 2019 ☮♥☻␌
+ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
-<input id=input_importFile type="file" accept=".txt" hidden>
-<a href="https://github.com/KilledByAPixel/ZzFX" target="_blank" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#5AF; color:#222; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
-<script src="ZzFX.js?2"></script>
+<input hidden id=input_importFile type=file accept=.txt>
+<script src=ZzFX.js?1337></script>
 <script>
 
-"use strict"; // strict mode
+'use strict'; // strict mode
+let sounds = [];
+let generatedSoundCount = 0;
+let loadedSound;
+let lastPlayedSound;
 
-///////////////////////////////////////////////////////////////////////////////
-// ZzFX audio code
-
-function PlaySoundEval(textArea)
+function Init()
 {
+    BuildSettingsTable();
+    LoadLocalStorage();
     RandomizeLogo();
-    eval(textArea.value);
 }
 
-function PlaySound()
+///////////////////////////////////////////////////////////////////////////////
+// settings
+
+function BuildSetting(step, min, max, name, niceName, help, canMutate=1, type=0)
+{ return {name, step, min, max, niceName, help, type, canMutate}; }
+
+const settings = 
+[
+BuildSetting(0,0,0,'name','Name','Name in editor',0,1),
+BuildSetting(.1,-1e9,1e9,'volume','Volume','Volume scale in percent',0),
+BuildSetting(.05,-1e9,1e9,'randomness','Randomness','How much to randomize frequency in percent',0),
+BuildSetting(50,-1e9,1e9,'frequency','Frequency','Frequency of sound in Hz'),
+BuildSetting(1,0,0,'shape','Wave Shape','Shape of the sound wave',1,2),
+BuildSetting(.1,0,1e9,'shapeCurve','Shape Curve','Squarenes of wave (0=square, 1=normal)'),
+BuildSetting(.01,0,3,'attack','Attack','Attack time in seconds'),
+BuildSetting(.01,0,3,'sustain','Sustain','Sustain time in seconds'),
+BuildSetting(.01,0,3,'release','Release','Release time in seconds'),
+BuildSetting(.1,-1e9,1e9,'slide','Slide','How much to slide frequency in kHz/s'),
+BuildSetting(.1,-1e9,1e9,'deltaSlide','Delta Slide','How much to change slide in kHz/s/s'),
+BuildSetting(.1,-1e9,1e9,'noise','Noise','How much random noise to add in percent'),
+BuildSetting(50,-1e9,1e9,'pitchJump','Pitch Jump','Frequency of pitch jump in Hz'),
+BuildSetting(.01,-1e9,1e9,'pitchJumpTime','Pitch Jump Time','Time of pitch jump in seconds'),
+BuildSetting(.01,-1e9,1e9,'repeatTime','Repeat Time','Resets some parameters periodically'),
+BuildSetting(1,-1e9,1e9,'modulation','Modulation','Frequency of modulation wave in Hz'),
+BuildSetting(.01,-1e9,1e9,'modPhase','Modulation Phase','Phase of modulation frequency in percent'),
+BuildSetting(.1,-1e9,1e9,'bitCrush','Bit Crush','Reduces fidelity in percent'),
+BuildSetting(.01,0,1e9,'delay','Delay','Overlap delay for reverb and flanger effects'),
+]
+
+function BuildSettingsTable()
+{
+    const s = settings[0];
+    let html = '<center style=width:550px><table style=text-align:center>';
+    html += '<tr><td style=text-align:right>' + s.niceName + '&nbsp;</td><td>'
+    html += `<input title='${s.help}' class=setting step=${s.step} id=input_${s.name} oninput=SelectedWasChanged('${s.name}')>`
+    
+    html += '</td><td>';
+    html += '<button title="Toggle lock all parameters" onclick=ToggleLockAll()>🔒</button></td><td>'
+    html += '<button title="Mutate all unlocked parameters" onclick=MutateAllSettings();PlaySelected()>🎲</button>';
+    html += '</td></tr>';
+    
+    for(const i in settings)
+    {
+        const s = settings[i];
+        if (s.name == 'name')
+            continue;
+    
+        html += '<tr>';
+        html += '<td style=text-align:right>';
+        html += s.niceName + '&nbsp;';
+        html += '</td><td>';
+        
+        if (s.type == 0)
+            html += `<input id=input_${s.name} class=setting title='${s.help}' type=number step=${s.step} oninput=SelectedWasChanged('${s.name}') onfocusout=UpdateSettings()>`
+        else if (s.type == 2)
+        {
+            html += `<select id=input_${s.name} class=setting title='${s.help}' oninput=SelectedWasChanged('${s.name}')>`;
+            html += `<option value=0>sin</option>`;
+            html += `<option value=1>triangle</option>`;
+            html += `<option value=2>saw</option>`;
+            html += `<option value=3>tan</option>`;
+            html += `<option value=4>bit noise</option>`;
+            html += `</select>`;
+        }
+        
+        html += '</td><td>';
+        html += `<input id=input_lock_${s.name} class=lock title='Lock ${s.niceName}' oninput=SelectedWasChanged('${s.name}') type=checkbox>`;
+        html += '</td><td>';
+        
+        html += `<button id=input_mutate_${s.name} class=rand title='Mutate ${s.niceName}' onclick=MutateSetting(settings[${i}]);PlaySelected()></button>`;
+        html += '</td></tr>';
+    }
+    
+    html += '</table></center>'
+    div_settingsTable.innerHTML = html;
+}
+
+function GetSelectedSound()
+{
+    const index = select_soundList.options[select_soundList.selectedIndex].value;
+    return sounds[index];
+}
+
+function PlaySelected()
 {
     if (lastPlayedSound)
     {
@@ -172,294 +235,269 @@ function PlaySound()
         lastPlayedSound = 0;
     }
     
-    let sound = BuildSound();
-    lastPlayedSound = ZZFX.z(sound.seed, sound);
-    DrawSoundWave(ZZFX.buffer, ZZFX.volume, sound);
+    const sound = BuildSoundFromSettings();
+    lastPlayedSound = ZZFX.Play(sound);
+    DrawSoundWave(ZZFX.samples, ZZFX.volume, sound);
     RandomizeLogo();
 }
 
-function BuildSeededSound(sound)
+function BuildSoundFromSettings()
 {
-    if (sound['seed'] === undefined)
-        return sound;
-
-    // apply overrides
-    let s = ZZFX.Generate(sound['seed']);
-    for(let setting in sound)
-        s[setting] = sound[setting];
-    return s;
-}
-
-function BuildSound()
-{
-    let sound = {};
-    for(let s of settings)
+    const sound = {};
+    for(const s of settings)
     {
-        let v = parseFloat(document.getElementById("input_"+s.name).value);
-        if (!Number.isFinite(v))
-            v = 0;
+        let v = document.getElementById("input_"+s.name).value;
+        if (s.type!=1)
+            v = parseFloat(v);
+        
         sound[s.name] = v;
     }
+
     return sound;
 }
 
-function GetCode(sound)
+function UpdateSettings()
 {
-    let seedSound = ZZFX.Generate(sound.seed);
-    let code = 'ZZFX.z(';
-    let onlyHasSeed = 1;
-    let first = 1;
-    code += sound.seed;
-    for(let setting in sound)
-    {
-        if (setting == 'seed' || setting == 'favorite')
-            continue;
-            
-        if (seedSound[setting] == sound[setting])
-            continue;
-        onlyHasSeed = 0;
-
-        let value = sound[setting] + '';
-        value = value.replace(/^0+/, ''); // remove leading 0's
-        if (value == '')
-            value = '0';
-        code += first? ',{':',';
-        code += setting + ':' + value;
-        first = 0;
-    }
-    if (!first)
-        code += '}';
-    code += ');';
-    
-    /*
-    code += '// ZZFX.Z(';
-    
-    // show full parameters as comment
-    first = 1;
-    for(let setting in sound)
-    {
-        if (setting == 'seed' || setting == 'favorite')
-            continue;
-            
-        let value = sound[setting] + '';
-        value = value.replace(/^0+/, ''); // remove leading 0's
-        if (value=='')
-            value='0';
-        if (!first)
-            code += ','
-        code += value;
-        first = 0;
-    }
-    
-    code += '); // ZzFX ' + sound.seed;*/
-    return code;
-}
-
-function GetCodeMicro(sound)
-{
-    let seedSound = ZZFX.Generate(sound.seed);
-    let code = 'zzfx(';
-    let first = 1;
-    for(let setting in sound)
-    {
-        if (setting == 'seed' || setting == 'favorite')
-            continue;
-            
-        let value = sound[setting] + '';
-        value = value.replace(/^0+/, ''); // remove leading 0's
-        if (value=='')
-            value='0';
-        if (!first)
-            code += ','
-        code += value;
-        first = 0;
-    }
-    
-    code += '); // ZzFX ' + sound.seed;
-    return code;
-}
-
-function CopyToCliboard(text)
-{
-    if (!navigator.clipboard)
-    {
-        alert('Unable to copy to clipboard.');
-        return;
-    }
-    navigator.clipboard.writeText(text);
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// UI
-
-// click on canvas to play sound
-canvas_soundWave.onmousedown=e=>{e.preventDefault();}
-canvas_soundWave.onclick=e=>{PlaySound();e.preventDefault();}
-
-// drag and drop exported files into the sound list
-select_soundList.addEventListener('dragover', function(e) 
-{
-    e.stopPropagation();
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-    select_soundList.style.background="#F00"
-});
-select_soundList.addEventListener('dragleave', function(e) 
-{
-    select_soundList.style.background=""
-});
-select_soundList.addEventListener('drop', function(e) 
-{
-    e.stopPropagation();
-    e.preventDefault();
-    LoadFile(e.dataTransfer.files[0]);
-    select_soundList.style.background=""
-});
-
-function UpdateSettings(rebuildSound)
-{
-    let v = slider_masterVolume.value;
-    div_masterVolume.innerHTML = v + '%';
+    const v = slider_masterVolume.value;
+    div_masterVolume.innerHTML = 'Master Volume ' + v + '%';
     ZZFX.volume = v / 100;
-    zzfx_v = v / 100;
     
-    if (select_soundList.selectedIndex >= 0)
+    const sound = GetSelectedSound();
+    if (sound)
     {
-        let option = select_soundList.options[select_soundList.selectedIndex];
-        let index = parseInt(option.value);
-        let buildSound = BuildSound();
-        buildSound.favorite = sounds[index].favorite;
-        let sound = rebuildSound? buildSound : sounds[index];
-        textarea_code.value = GetCode(buildSound);
-        textarea_codeMicro.value = GetCodeMicro(buildSound);
-        
-        if (selectedWasChanged)
-            sounds[index] = sound;
-        
-        let seedSound = ZZFX.Generate(sound.seed);
-        for(let s in sound)
+        // copy settings to selected
+        const option = select_soundList.options[select_soundList.selectedIndex];
+        const index = parseInt(option.value);
+    
+        for(const s of settings)
         {
-            let changed = sound[s] != seedSound[s];
-            UpdateResetButton(s, changed, IsLocked(s));
+            const element = document.getElementById("input_"+s.name);
+            let v = element.value;
+            if (s.type == 0 && element != document.activeElement)
+            {
+                // sanitize input
+                v = parseFloat(v);
+                if (isNaN(v) || !Number.isFinite(v))
+                    v = 0;
+                else
+                    v = Math.max(Math.min(v,s.max),s.min);
+                element.value = v;
+            }
+            sound[s.name] = v;
         }
         
-        let browserName = '';
-        if (sounds[index].favorite)
-        {
-            browserName += "* ";
-            option.style="color:#0F0";
-        }
-        else
-            option.style="color:white";
-        
-        let count = 0;
-        for(let s in sounds[index])
-        {
-            let changed = sound[s] != seedSound[s];
-            if (s == 'favorite' || s != 'seed' && !changed)
-                continue;
-            if (count++)
-                browserName+=', ';
-            browserName += s+':'+sound[s];
-        }
-        option.innerHTML = browserName;
+        option.style.color = sounds[index].favorite? "#0F0" : "white";
+        option.innerHTML = (sound.favorite?'-> ':sound.modified?'* ':'') + sound.name;
+        textarea_code.value = GetCode(sound);
     }
 }
 
-function DrawSoundWave(b, volume, sound)
+function AddPresetSound(presetName='Random')
 {
-    // draw sound wave
-    let x = canvas_soundWave.getContext('2d'); 
-    let w = canvas_soundWave.width;
-    let h = canvas_soundWave.height;
-    canvas_soundWave.width |= 0;
-    
-    if (!volume)
-        return;
-    
-    let saveSeed = ZZFX.r;
-    ZZFX.r = sound.seed;
-    
-    canvas_soundWave.style.background=`hsl(${ZZFX.R()*3e3},${ZZFX.R()*99}%,5%)`;
-    x.strokeStyle=`hsl(${ZZFX.R()*3e3},${ZZFX.R()*99}%,${60+ZZFX.R()*30}%)`;
-    x.beginPath();
-    for(let i=0; i<b.length; ++i)
-        x.lineTo(w*i/b.length, b[i]*h/2/volume+h/2);
-    x.stroke();
-    
-    ZZFX.r = saveSeed;
-}
-
-function NewSound()
-{
-    let seed = ZZFX.R()*1e5|0;
-    let sound = ZZFX.Generate(seed);
-    AddToList(sound, 1);
-    PlaySound();
-    SaveLocalStorage();
-}
-
-function CopySound()
-{
-    let sound = GetSelectedSound();
-    AddToList(sound);
-    PlaySound();
-    SaveLocalStorage();
-}
-
-function AddToList(sound, rebuildSound)
-{
-    let i = sounds.push(sound) - 1;
-    let option = document.createElement('option');
-    option.value = i;
-    select_soundList.appendChild(option);
-    select_soundList.selectedIndex = select_soundList.length-1;
-    LoadSelected();
-    selectedWasChanged = 1;
-    UpdateSettings(rebuildSound);
-}
-
-function SelectedWasChanged(name)
-{
-    if (name == 'seed')
+    let sound = ZZFX.BuildSound();
+    const Fixed = (v,l=2) =>
     {
-        let seedSound = ZZFX.Generate(parseInt(input_seed.value));
-        let index = select_soundList.options[select_soundList.selectedIndex].value;
-        sounds[index] = seedSound;
-        LoadSelected(1);
+        const f = v.toFixed(l);
+        return !parseFloat(f) ? '0': f;
+    }
+    const R =(a=1,b=0,l) => Fixed(b+(a-b)*Math.random(),l);
+    
+    switch (presetName)
+    {
+        case 'Random':
+        {
+            sound = ZZFX.BuildRandomSound();
+            break;
+        }
+        case 'Pickup':
+        {
+            sound.frequency = R(300,1000,0);
+            sound.shape = 3*Math.random()|0;
+            sound.shapeCurve = R(2);
+            sound.attack = 0;
+            sound.sustain = R(.1);
+            sound.release = R(.1,.3);
+            sound.noise =  R()<.8 ? 0 : R(.1,0,1);
+            sound.pitchJump = R(300,1000,0);
+            sound.pitchJumpTime = R()<.3 ? 0 : R(0,.1);
+            sound.repeatTime = R()<.8 ? 0 : R(0,.2);
+            sound.bitCrush = R()<.5 ? 0 : R();
+            sound.delay = R()<.5 ? 0 : R();
+            break;
+        }
+        case 'Powerup':
+        {
+            sound.frequency = R(0,1000,0);
+            sound.shape = 3*Math.random()|0;
+            sound.shapeCurve = R(2);
+            sound.attack = R(.05);
+            sound.sustain = R(.5,.1,1);
+            sound.release = R(.5,1,1);
+            sound.pitchJump = R(-1000,1000,0);
+            sound.pitchJumpTime = !sound.pitchJump ? 0 : R(0,.1);
+            sound.delay = R()<.5 ? 0 : R();
+            sound.repeatTime = R()<.2 ? 0 : R(.3);
+            sound.slide = R()<.5 ? 0 : R(0,10);
+            sound.deltaSlide = R()<.5 ? 0 : R(0,10);
+            sound.noise =  R()<.8 ? 0 : R(.2,0,1);
+            sound.modulation = R()<.8 ? 0 : R(0,.2,1);
+            sound.modPhase = !sound.modulation ? 0 : R(.25,.5);
+            sound.bitCrush = R()<.5 ? 0 : R();
+            break;
+        }
+        case 'Jump':
+        {
+            sound.frequency = R(0,1000,0);
+            sound.shape = 3*Math.random()|0;
+            sound.shapeCurve = R(2);
+            sound.attack = R(.05);
+            sound.sustain = R(.1);
+            sound.release = R(.1,.5);
+            sound.noise =  R()<.8 ? 0 : R(.5,0,1);
+            sound.delay = R()<.5 ? 0 : R();
+            sound.bitCrush = R()<.5 ? 0 : R();
+            sound.slide = R(1,10);
+            sound.deltaSlide = R()<.5 ? 0 : R(-sound.slide,10);
+            break;
+        }
+        case 'Shoot':
+        {
+            sound.frequency = R(0,700,0);
+            sound.shape = 5*Math.random()|0;
+            sound.shapeCurve = R(2);
+            sound.attack = R(.03);
+            sound.sustain = 0;
+            sound.release = R(.1,.5);
+            sound.delay = R()<.5 ? 0 : R(2);
+            sound.slide = R()<.5 ? 0 : R(-1,1);
+            sound.deltaSlide = R()<.5 ? 0 : R(-1,1);
+            sound.noise =  R()<.8 ? 0 : R(1,0,1);
+            sound.modulation = R()<.8 ? 0 : R(10,0,1);
+            sound.modPhase = !sound.modulation ? 0 : R();
+            sound.bitCrush = R()<.5 ? 0 : R();
+            break;
+        }
+        case 'Blip':
+        {
+            sound = ZZFX.BuildRandomSound();
+            sound.frequency = R(0,1000,0);
+            sound.attack = R(.02);
+            sound.sustain = 0;
+            sound.release = R(.05,.1);
+            break;
+        }
+        case 'Hit':
+        {
+            sound.frequency = R(50,500,0);
+            sound.shape = 5*Math.random()|0;
+            sound.shapeCurve = R(2);
+            sound.attack = 0;
+            sound.sustain = R(.1);
+            sound.release = R(.2,.4);
+            sound.slide = R()<.8 ? 0 : R();
+            sound.deltaSlide = R()<.8 ? 0 : R();
+            sound.noise = R(1,5,1);
+            sound.modulation = R()<.8 ? 0 : R(0,.2);
+            sound.modPhase = !sound.modulation ? 0 : R();
+            sound.bitCrush = R(1,0,1);
+            break;
+        }
+        case 'Explosion':
+        {
+            sound.frequency = R(0,200,0);
+            sound.shape = 5*Math.random()|0;
+            sound.shapeCurve = R(2);
+            sound.attack = R(.05);
+            sound.sustain = R(.4,0,1);
+            sound.release = R(.5,2,1);
+            sound.delay = R(1,0,1);
+            sound.noise = R(.5,5,1);
+            sound.modulation = R()<.8 ? 0 : R(0,20,1);
+            sound.modPhase = !sound.modulation ? 0 : R();
+            sound.bitCrush = R(1,0,1);
+            break;
+        }
     }
     
-    selectedWasChanged = 1;
-    UpdateSettings(1);
-    PlaySound();
-    SaveLocalStorage();
-}
-
-function LoadSelected(skipSeed)
-{
-    let sound = GetSelectedSound();
-    for(let s of settings)
-    {
+    // replace with locked
+    for(const s of settings)
         if (IsLocked(s.name))
-            continue;
-            
-        if (skipSeed && s.name == 'seed')
-            continue;
+            sound[s.name]=document.getElementById('input_'+s.name).value;
     
-        document.getElementById("input_"+s.name).value = sound[s.name];
+    sound.name = presetName + ' ' + generatedSoundCount++;
+    AddToList(sound);
+    PlaySelected();
+    SaveLocalStorage();
+}
+
+function CopySound(mutate=0)
+{
+    const sound = Object.assign({}, GetSelectedSound());
+    if (!sound.originalName)
+        sound.originalName = sound.name;
+    
+    sound.copyCount = !sound.copyCount ? 1 : sound.copyCount + 1;
+    sound.name = sound.originalName
+        + ` - ${mutate?'Mutation':'Copy'} ` 
+        + sound.copyCount;
+    delete sound.favorite;
+    
+    AddToList(sound);
+    if (mutate)
+    {
+        MutateAllSettings();
+        sound.modified = 0;
+        UpdateSettings();
+    }
+    PlaySelected();
+    SaveLocalStorage();
+}
+
+function AddToList(sound)
+{
+    // copy default values if missing
+    const defaultSound = ZZFX.BuildSound();
+    for(const key in defaultSound)
+    {
+        if (key in sound)
+            continue;
+        sound[key] = defaultSound[key];
     }
     
-    selectedWasChanged = 0;
+    const i = sounds.push(sound) - 1;
+    const option = document.createElement('option');
+    option.value = i;
+    option.innerHTML = (sound.favorite?'-> ':sound.modified?'* ':'') + sound.name;
+    select_soundList.add(option, 0);
+    select_soundList.selectedIndex = 0;
+    LoadSelected();
     UpdateSettings();
 }
 
-function RandomizeLogo()
+function SelectedWasChanged(settingName)
 {
-    div_logo.style.color=`hsl(${ZZFX.R()*3e3},${50+50*ZZFX.R()}%,${50+50*ZZFX.R()}%)`;
-    div_logo2.style.color=`hsl(${ZZFX.R()*3e3},${50+50*ZZFX.R()}%,${50+50*ZZFX.R()}%)`;
+    const sound = GetSelectedSound();
+    sound.modified = 1;
+    
+    UpdateSettings();
+    if (settingName != 'name')
+        PlaySelected();
+    SaveLocalStorage();
 }
 
-function FavoriteButton()
+function LoadSelected(playOnSelect = false)
+{
+    const sound = GetSelectedSound();
+    for(const s of settings)
+        document.getElementById("input_"+s.name).value = sound[s.name];
+    
+    UpdateSettings();
+    if (playOnSelect && loadedSound != sound)
+        PlaySelected();
+    loadedSound = sound;
+}
+
+function FavoriteSelected()
 {
     let i = select_soundList.selectedIndex;
     let index = select_soundList.options[i].value;
@@ -469,152 +507,98 @@ function FavoriteButton()
         
     s.favorite = !s.favorite
     UpdateSettings();
-    PlaySound();
+    PlaySelected();
     SaveLocalStorage();
 }
 
-function ClearButton(clearFavorites)
-{
-    if (clearFavorites)
-    {
-        if (!confirm('Are you sure you want clear all sounds?\nThis will DELETE your favorites!'))
-            return;
-        slider_masterVolume.value = 50;
-    }
-    ClearSounds(clearFavorites);
-    SaveLocalStorage();
-    PlaySound();
-}
-
-function RemoveButton()
+function RemoveSelected()
 {
     let i = select_soundList.selectedIndex;
     let index = select_soundList.options[i].value;
     
     if (sounds[index].favorite)
     {
-        alert('Favorited sounds can not be removed!\nYou must unfavorite it first.');
-        return;
+        if (!confirm('Are you sure you want remove this favorited sound?'))
+            return;
     }
     
     delete sounds[index];
     select_soundList.options.remove(i);
     
-    if (select_soundList.length==0) // always keep one in list
-        AddToList(ZZFX.Generate(0));
-    
-    if (i>=select_soundList.length)
-        i--;
+    AddDefaultIfEmpty();
+    i = Math.min(i, select_soundList.length-1);
     select_soundList.selectedIndex = i;
     LoadSelected();
     SaveLocalStorage();
-    PlaySound();
-}
-
-function GetSelectedSound()
-{
-    let index = select_soundList.options[select_soundList.selectedIndex].value;
-    let sound = BuildSeededSound(sounds[index]);
-    return sound;
-}
-
-function UpdateResetButton(name, changed, locked)
-{       
-    let resetButton = document.getElementById("input_reset_"+name);
-    if (!resetButton)
-        return;
-       
-    let className = locked? 'resetLocked' : changed? 'resetChanged' : 'resetDefault';
-    resetButton.className = 'reset ' + className;
 }
 
 function IsLocked(name)
 {
-    let lock = document.getElementById("input_lock_"+name);
+    const lock = document.getElementById("input_lock_"+name);
     return lock && lock.checked;
 }
 
-function ResetSetting(name, dontRefresh)
+function MutateAllSettings()
 {
-    if (IsLocked(name)) // unlock
-        document.getElementById("input_lock_"+name).checked = 0;
-
-    let sound = GetSelectedSound();
-    let seedSound = ZZFX.Generate(sound.seed);
-    document.getElementById('input_'+name).value = seedSound[name];
-    if (!dontRefresh)
-        SelectedWasChanged();
+    for(const s of settings)
+        if (s.canMutate && !IsLocked(s.name))
+            MutateSetting(s, 0);
+    
+    UpdateSettings();
 }
 
-function MutateSetting(name, step, dontRefresh)
+function MutateSetting(setting, refresh = true)
 {
+    const step = setting.step;
+    const name = setting.name;
     if (IsLocked(name)) // unlock
         document.getElementById("input_lock_"+name).checked = 0;
+ 
+    const sound = GetSelectedSound();
+    sound.modified = 1;
     
-    let sound = GetSelectedSound();
     let v = sound[name];
-    let seedSound = ZZFX.Generate(sound.seed);
+    if (setting.type == 2)
+        v = Math.random()*5|0;
+    else
+    {
+        let r = (Math.random())*(refresh?10:2)|0
+        if (refresh)
+            r += 1;
+        if (Math.random() > .5)
+            r *= -1;
+        v += r * step;
+        v = parseFloat(v.toFixed(4));
+    }
     
-    // mutate value
-    let r = (Math.random())*(dontRefresh?2:10)|0
-    if (!dontRefresh)
-        r += 1;
-    if (Math.random() > .5)
-        r *= -1;
-    v += r * step;
-    v = parseFloat(v.toFixed(4));
-    if (v<=0 && name != 'slide')
-        v = 2 * step;
-            
-    if (name == 'volume' || name == 'attack' || name == 'modulationPhase')
-        if (v > 1)
-            v = 1 - 2 * step;
-    
-    v = parseFloat(v.toFixed(4));
     document.getElementById('input_'+name).value = v;
-    if (!dontRefresh)
-        SelectedWasChanged();
+    sound[setting.name] = v;
+    
+    if (refresh)
+        UpdateSettings();
 }
 
 function ToggleLockAll()
 {
     let isLocked = 0;
-    for(let s of settings)
+    for(const s of settings)
         isLocked |= IsLocked(s.name);
         
-    for(let s of settings)
+    for(const s of settings)
     {
-        let lock = document.getElementById("input_lock_"+s.name);
+        const lock = document.getElementById("input_lock_"+s.name);
         if (lock)
             lock.checked = !isLocked;
     }
     
     UpdateSettings();
-    PlaySound();
+    PlaySelected();
 }
 
-function ResetAllSettings()
+function ClearSounds(clearFavorites)
 {
-    for(let s of settings)
-        ResetSetting(s.name, 1);
-    SelectedWasChanged();
-}
-
-function MutateAllSettings()
-{
-    for(let s of settings)
-        if (s.name != 'seed' && !IsLocked(s.name))
-            MutateSetting(s.name, s.step, 1);
-           
-    if (!IsLocked('volume'))
-        document.getElementById('input_volume').value = 1;
-    if (!IsLocked('randomness'))
-        document.getElementById('input_randomness').value = ZZFX.randomness;
-    SelectedWasChanged();
-}
-
-function ClearSounds(clearFavorites, clearAll)
-{
+    canvas_soundWave.width |= 0;
+    generatedSoundCount = 0;
     select_soundList.selectedIndex=-1;
     while(select_soundList.options.length>0)
         select_soundList.options.remove(0);
@@ -623,44 +607,191 @@ function ClearSounds(clearFavorites, clearAll)
     let oldSounds = sounds;
     sounds = [];
     if (!clearFavorites)
+        oldSounds.map(s=>s && s.favorite && AddToList(s));
+}
+
+function ClearSoundsButton(clearFavorites)
+{
+    if (clearFavorites)
     {
-        for(let s of oldSounds)
-            if (s && s.favorite)
-                AddToList(s);
+        if (!confirm('Are you sure you want clear all sounds?\nThis will DELETE your favorites!'))
+            return;
+        slider_masterVolume.value = 30;
     }
-    
-    if (sounds.length == 0 && !clearAll)
-        AddToList(ZZFX.Generate(0));
-    selectedWasChanged = 0;
-    canvas_soundWave.width |= 0;
+    ClearSounds(clearFavorites);
+    AddDefaultIfEmpty();
     UpdateSettings();
+    SaveLocalStorage();
+    PlaySelected();
+}
+
+function AddDefaultIfEmpty()
+{
+    if (select_soundList.length > 0)
+        return;
+
+    const sound = ZZFX.BuildSound();
+    sound.name = 'Sound Default';
+    AddToList(sound);
+}
+
+function CopyToCliboard(text)
+{
+    if (!navigator.clipboard)
+    {
+        alert('Unable to copy to clipboard.');
+        return false;
+    }
+    navigator.clipboard.writeText(text);
+    return true;
+}
+
+function GetCode(sound)
+{
+    // create code string
+    const parameters = ZZFX.SoundToArray(sound);
+        
+    // remove defaults
+    const defaults = ZZFX.SoundToArray(ZZFX.BuildSound());
+    let isEnd = 1;
+    for(let i = parameters.length-1; i>=0; --i)
+    {
+        if (parameters[i] == defaults[i])
+        {
+            if (isEnd)
+                --parameters.length;
+            else
+                parameters[i] = '';
+        }
+        else
+            isEnd = 0;
+    }
+      
+    // make parameters list
+    let code = '';
+    for(let i = 0; i < parameters.length; ++i)
+    {
+        let p = parameters[i].toString();
+        // remove leading 0
+        if (p.slice(0,2) == '0.')
+            p = p.slice(1);
+        
+        if (settings[i].type == 0)
+        {
+            let e = parseFloat(parameters[i]).toExponential();
+            e = e.replace('+','');
+            
+            if (e.length < p.length)
+                p = e;
+        }
+            
+        code += (i?',':'') + p;
+    }
+    if (code.length)
+        return `zzfx(...[${code}]); // ${sound.name.trim()}`;
+    else
+        return `zzfx(${code}); // ${sound.name.trim()}`;
+}
+
+function SaveWave()
+{    
+    PlaySelected();
+    
+    const sound = BuildSoundFromSettings();
+    a_downloadLink.href = ZZFX.BuildWaveDataUrl(sound);
+    a_downloadLink.download = "zzfx.wav";
+    a_downloadLink.click();
+}
+
+function DrawSoundWave(b, volume, sound)
+{
+    // set up canvas
+    const x = canvas_soundWave.getContext('2d'); 
+    const w = canvas_soundWave.width;
+    const h = canvas_soundWave.height;
+    canvas_soundWave.width |= 0;
+    
+    if (!volume)
+        return;
+    
+    // draw sound wave
+    const R =()=> Math.random();
+    canvas_soundWave.style.background=`hsl(${R()*3e3},${R()*99}%,5%)`;
+    x.strokeStyle=`hsl(${R()*3e3},${R()*99}%,${60+R()*30}%)`;
+    x.beginPath();
+    x.lineWidth=2;
+    for(let i=0; i<b.length; i+=10)
+        x.lineTo(w*i/b.length, .8*b[i]*h/2/volume+h/2);
+    x.stroke();
+}
+
+function RandomizeLogo()
+{
+    const R =()=> Math.random();
+    div_logo.style.color=`hsl(${R()*3e3},${50+50*R()}%,${50+50*R()}%)`;
+    div_logo2.style.color=`hsl(${R()*3e3},${50+50*R()}%,${50+50*R()}%)`;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// export/import
+// save & load
+
+function BuildSaveData()
+{
+    const data =
+    {
+        sounds,
+        generatedSoundCount,
+        volume:slider_masterVolume.value,
+    }
+    
+    return JSON.stringify(data);
+}
+
+function LoadSaveData(dataJSON)
+{
+    if (!dataJSON)
+    {
+        AddDefaultIfEmpty();
+        return;
+    }
+
+    const data = JSON.parse(dataJSON);
+    ClearSounds(1);
+
+    if (data.volume)
+        slider_masterVolume.value = data.volume;
+    if (data.generatedSoundCount)
+        generatedSoundCount = data.generatedSoundCount;
+    if (data.sounds)
+        data.sounds.forEach(o=>o&&AddToList(o));
+        
+    select_soundList.selectedIndex = 0;
+    AddDefaultIfEmpty();
+    UpdateSettings();
+    LoadSelected();
+}
+
+function SaveLocalStorage()
+{
+    localStorage.saveData = BuildSaveData();
+}
+
+function LoadLocalStorage()
+{
+    LoadSaveData(localStorage.saveData);
+}
 
 function Export()
 {
-    PlaySound();
-    let fileData = "1\n"; // version
-    for(let i in sounds)
-    {
-        // convert to string
-        let string = "";
-        let sound = sounds[i];
-        for(let s in sound)
-            string += `${s}:${sound[s]}, `;
-        fileData += string + '\n';
-    }
-    
+    const fileData = BuildSaveData();
     a_downloadLink.download = "zzfx.txt";
     a_downloadLink.href='data:application/octet-stream;charset=UTF-8,' + encodeURIComponent(fileData);
     a_downloadLink.click();
+    PlaySelected();
 }
 
 function Import()
 {
-    PlaySound();
     input_importFile.onchange=e=>LoadFile(e.target.files[0]);
     input_importFile.click();
 }
@@ -676,255 +807,67 @@ function LoadFile(file)
         return;
     }
 
-    let reader = new FileReader();
+    const reader = new FileReader();
     reader.readAsText(file,'UTF-8');
     reader.onload=readerEvent=>
     {
-        let fileData = readerEvent.target.result;
-        let fileLines = fileData.split('\n');
-        
-        let version = parseInt(fileLines[0]);
-        if (version != 1)
-        {
-            alert('Error! Data version mismatch.');
-            return;
-        }
-
-        ClearSounds(1, 1);
-        for(let i = 1; i < fileLines.length; ++i)
-        {
-            if (fileLines[i].length==0)
-                continue;
-            let string = fileLines[i];
-            let sound = {};
-            eval(`sound={${ string }}`);
-            AddToList(sound);
-        }
-    
+        const fileData = readerEvent.target.result;
+        LoadSaveData(fileData);
         SaveLocalStorage();
-        PlaySound();
+        PlaySelected();
     }
 }
 
 ///////////////////////////////////////////////////////////////////////////////
-// save/load local storage
+// shortcuts
 
-function SaveLocalStorage()
+onkeydown =e=>
 {
-    localStorage.clear();
-    
-    let j=0;
-    for(let i in sounds)
+    const selected = document.activeElement;
+    if (selected.tagName != 'INPUT')
     {
-        // convert to string
-        let string = "";
-        let sound = sounds[i];
-        for(let s in sound)
-            string += `${s}:${sound[s]}, `;
-        
-        localStorage['sound_'+j++]=string;
-    }
-    localStorage.soundCount = j;
-    localStorage.volume = slider_masterVolume.value;
-}
-
-function LoadLocalStorage()
-{
-    let soundCount = localStorage.soundCount;
-    if (soundCount > 1e3)
-        soundCount = 1e3;
-    else if (!(soundCount > 0))
-        return;
-        
-    sounds = [];
-    select_soundList.selectedIndex=-1;
-    while(select_soundList.options.length>0)
-        select_soundList.options.remove(0);
-
-    // convert from string
-    for(let i = 0; i < soundCount; ++i)
-    {
-        let sound = {};
-        let string = localStorage['sound_'+i];
-        eval(`sound={${ string }}`);
-        AddToList(sound);
+        if (e.keyCode == 32) // space
+            PlaySelected();
     }
     
-    select_soundList.selectedIndex=0;
-    LoadSelected();
-    
-    if (localStorage.volume)
-        slider_masterVolume.value = parseFloat(localStorage.volume);
-        
-    UpdateSettings();
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// save to wave
-
-function SaveWave()
-{    
-    PlaySound();
-    let buffer = ZZFX.buffer;
-    let volume = ZZFX.volume;
-    if (!buffer || !buffer.length || !volume)
-        return;
-        
-    // normalize volume
-    let bufferNormalized = [];
-    for(let i =0; i<buffer.length; ++i)
-        bufferNormalized[i] = buffer[i]/volume;
-    
-    a_downloadLink.download = "zzfx.wav";
-    a_downloadLink.href = BuildWavUrl(bufferNormalized);
-    a_downloadLink.click();
-}
-
-function BuildWavUrl(samples)
-{
-    // wave saving adapted from https://gist.github.com/asanoboy/3979747
-    let sampleRate = 44100;
-    let channels = 1;
-    let length = samples.length;
-    let buffer = new Int16Array(length + 23);
-    
-    // wave header
-    buffer[ 0] = 0x4952; // "RI"
-    buffer[ 1] = 0x4646; // "FF"
-    buffer[ 2] = (2*length + 15) & 0x0000ffff; // RIFF size
-    buffer[ 3] = ((2*length + 15) & 0xffff0000) >> 16; // RIFF size
-    buffer[ 4] = 0x4157; // "WA"
-    buffer[ 5] = 0x4556; // "VE"
-    buffer[ 6] = 0x6d66; // "fm"
-    buffer[ 7] = 0x2074; // "t "
-    buffer[ 8] = 0x0012; // fmt chunksize: 18
-    buffer[ 9] = 0x0000; //
-    buffer[10] = 0x0001; // format tag : 1 
-    buffer[11] = channels; // channels: 2
-    buffer[12] = sampleRate & 0x0000ffff; // sample per sec
-    buffer[13] = (sampleRate & 0xffff0000) >> 16; // sample per sec
-    buffer[14] = (2*channels*sampleRate) & 0x0000ffff; // byte per sec
-    buffer[15] = ((2*channels*sampleRate) & 0xffff0000) >> 16; // byte per sec
-    buffer[16] = 0x0004; // block align
-    buffer[17] = 0x0010; // bit per sample
-    buffer[18] = 0x0000; // cb size
-    buffer[19] = 0x6164; // "da"
-    buffer[20] = 0x6174; // "ta"
-    buffer[21] = (2*length) & 0x0000ffff; // data size[byte]
-    buffer[22] = ((2*length) & 0xffff0000) >> 16; // data size[byte]	
-
-    // copy samples to buffer
-    for (let i = 0; i < length; i++)
+    if (selected.id == 'select_soundList')
     {
-        let s = samples[i];
-        if (s >= 1)
-            buffer[i+23] = (1 << 15) - 1;
-        else if (sampleRate <= -1)
-            buffer[i+23] = -(1 << 15);
-        else
-            buffer[i+23] = Math.round(s * (1 << 15));
+        if (e.keyCode == 45) // ins
+            AddPresetSound();
+        if (e.keyCode == 46) // del
+            RemoveSelected();
+        if (e.keyCode == 70) // ins
+            FavoriteSelected();
     }
-
-    // build the blob
-    let eof = 0;
-    let bufferNeedle = 0;
-    let GetBuffer = (length) =>
-    {
-        eof = bufferNeedle + length >= buffer.length;
-        let rt = new Int16Array(eof?buffer.length - bufferNeedle:length);
-        for(let i=0; i<rt.length; i++)
-            rt[i] = buffer[i+bufferNeedle];
-        bufferNeedle += rt.length;
-        return rt.buffer;
-    }
-    
-    let blobData = [];
-    while ( !eof )
-        blobData.push(GetBuffer(1e3));
-    let b = new Blob(blobData, {type:'audio/wav'});
-    let URLObject = window.webkitURL || window.URL;
-    return URLObject.createObjectURL(b);
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// sound params
+// click on canvas to play sound
+canvas_soundWave.onmousedown =e=> {PlaySelected();e.preventDefault();}
 
-function BuildSettingsTable()
+// drag and drop exported files into the sound list
+select_soundList.addEventListener('dragover', e=>
 {
-    let html = '<table style="text-align:center">';
-    for(let s of settings)
-    {
-        html += '<tr>';
-        
-        html += '<td style="text-align:right">';
-        html += s.niceName + '&nbsp;';
-        html += '</td><td>';
-        html += `<input title='${s.help}' class="setting" type=number step=${s.step} id=input_${s.name} oninput=SelectedWasChanged('${s.name}')>`
-        
-        html += '<td>';
-        if (s.name == 'seed')
-        {
-            html += '<button title="Toggle lock all parameters" onclick=ToggleLockAll()>🔒</button></td><td>'
-            html += '<button title="Revert all parameters to seed" onclick=ResetAllSettings()>♻️</button></td><td>'
-            html += '<button title="Mutate all unlocked parameters" onclick=MutateAllSettings()>🎲</button>';
-        }
-        else
-        {
-            html += `<input title='Lock parameter' id=input_lock_${s.name} oninput=SelectedWasChanged() class="lock" type=checkbox>`;
-            html += '</td><td>';
-            html += `<button title='Revert to seed' id=input_reset_${s.name} onclick=ResetSetting('${s.name}')></button>`;
-            html += '</td><td>';
-            html += `<button class='rand' title='Mutate paramater' id=input_mutate_${s.name} onclick=MutateSetting('${s.name}',${s.step})></button>`;
-        }
-        html += '</td>';
-        html += '</tr>';
-    }
-    
-    html += '</table>'
-    div_settingsTable.innerHTML = html;
-}
-
-function BuildSetting(name, step, niceName, help)
+    e.stopPropagation();
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    select_soundList.style.background = '#800';
+});
+select_soundList.addEventListener('dragleave', e=>
 {
-    return {name:name, step:step, niceName:niceName, help:help};
-}
-
-let settings = 
-[
-    BuildSetting('seed',             1, 'Seed',                 'Seed used to randomize parameters' ),
-    BuildSetting('volume',          .1, 'Volume',               'Volume scale in percent'),
-    BuildSetting('randomness',      .1, 'Frequency Randomness', 'How much to randomize frequency in percent'),
-    BuildSetting('frequency',       50, 'Frequency',            'Frequency of sound in Hz'),
-    BuildSetting('length',          .1, 'Length',               'Sound length in seconds'),
-    BuildSetting('attack',         .01, 'Attack',               'Attack percent of length'),
-    BuildSetting('slide',           .1, 'Frequency Slide',      'How much to change frequency in kHz/s'),
-    BuildSetting('noise',           .1, 'Noise',                'How much random noise to add in percent'),
-    BuildSetting('modulation',       1, 'Modulation Frequency', 'Frequency of modulation wave in Hz'),
-    BuildSetting('modulationPhase',.01, 'Modulation Phase',     'Phase of modulation wave in percent'),
-]
-
-///////////////////////////////////////////////////////////////////////////////
-// input
-
-onkeydown = function(e) 
+    select_soundList.style.background = '';
+});
+select_soundList.addEventListener('drop', e=>
 {
-    // play when space is pressed
-    if (e.keyCode == 32)
-        PlaySound();
-}
+    e.stopPropagation();
+    e.preventDefault();
+    LoadFile(e.dataTransfer.files[0]);
+    select_soundList.style.background = '';
+});
 
-///////////////////////////////////////////////////////////////////////////////
-// init
-
-let lastPlayedSound = 0;
-let selectedWasChanged = 0;
-let sounds = [];
-BuildSettingsTable();
-ClearSounds();
-LoadLocalStorage();
-RandomizeLogo();
+Init();
 
 </script>
 </center>
+<a href="https://github.com/KilledByAPixel/ZzFX" target="_blank" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#5AF; color:#222; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
 </body>
 </html>
