@@ -4,7 +4,7 @@ By Frank Force 2019
 # [TRY THE LIVE DEMO!](https://zzfx.3d2k.com)
 
 
-## Here's the latest version of the ZzFXmicro, all you need to play ZzFX sounds!
+## Here's the code for the ZzFXmicro, this all you need to play ZzFX sounds!
 
 ```
 zzfxV=.3
