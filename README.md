@@ -1,4 +1,4 @@
-# ZzFX - Zuper Zmall Zeeded Zound Zynth
+# ZzFX - Zuper Zmall Zound Zynth
 By Frank Force 2019
 
 # [TRY THE LIVE DEMO!](https://zzfx.3d2k.com)
