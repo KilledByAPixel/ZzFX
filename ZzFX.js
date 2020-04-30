@@ -144,7 +144,7 @@ class _ZZFX
             s = shape ? shape>1 ? shape>2 ? shape>3 ?    // wave shape
                  Math.sign(Math.cos((s%PI2)**3)) :       // 4 noise
                  Math.max(Math.min(Math.tan(s),1),-1) :  // 3 tan
-                 1-2*s/PI2%2:                            // 2 saw
+                 1-(2*s/PI2%2+2)%2:                      // 2 saw
                  1-4*Math.abs(Math.round(s/PI2)-s/PI2) : // 1 triangle
                  Math.cos(s);                            // 0 sin
             s = Math.sign(s)*(Math.abs(s)**shapeCurve);  // shape curve (0=square)
@@ -388,7 +388,7 @@ let zzfxP =     // play a sound
         s = shape ? shape>1 ? shape>2 ? shape>3 ?    // wave shape
              Math.sign(Math.cos((s%PI2)**3)) :       // 4 noise
              Math.max(Math.min(Math.tan(s),1),-1) :  // 3 tan
-             1-2*s/PI2%2 :                           // 2 saw
+             1-(2*s/PI2%2+2)%2 :                     // 2 saw
              1-4*Math.abs(Math.round(s/PI2)-s/PI2) : // 1 triangle
              Math.cos(s);                            // 0 sin
         s = Math.sign(s)*(Math.abs(s)**shapeCurve);  // shape curve (0=square)
