@@ -8,7 +8,8 @@
 ```
 zzfxV=.3 // volume
 zzfx=    // play sound
-(I=1,J=.05,g=220,e=.1,f=.1,l=.1,m=0,K=1,p=0,y=0,q=0,z=0,r=0,A=0,t=0,L=0,h=0,c=2*Math.PI,b=44100,u=B=>2*B*Math.random()-B,M=p*=500*c/b**2,C=g*=(1+u(J))*c/b,N=(0<t?1:-1)*c/4,D,n=[],E=0,F=0,d=0,k=1,G=0,H=0,a=0,v,w,x=zzfxX.createBufferSource())=>{e=50+e*b|0;f=f*b|0;l=l*b|0;h=100*h|0;y*=500*c/b**3;D=e+f+l;t*=c/b;q*=c/b;z*=b;for(r*=b;d<D;n[d++]=a)++H>100*L&&(H=0,a=E*g*Math.sin(F*t+N),a=m?1<m?2<m?3<m?Math.sign(Math.sin((a%c)**3)):Math.max(Math.min(Math.tan(a),1),-1):1-(2*a/c%2+2)%2:1-4*Math.abs(Math.round(a/c)-a/c):Math.sin(a),a=Math.sign(a)*Math.abs(a)**K,v=d<e?d/e:d<e+f?1:1-(d-e-f)/l,a*=v*I*zzfxV,a=h?a/2+(h>d?0:(d<e+f?1:v)*n[d-h]/2):a),E+=1+u(A),F+=1+u(A),g+=p+=y,k&&++k>z&&(C+=q,g+=q,k=0),r&&++G>r&&(g=C,p=M,G=1,k=k||1);w=zzfxX.createBuffer(1,n.length,b);w.getChannelData(0).set(n);x.buffer=w;x.connect(zzfxX.destination);x.start()};zzfxX=new AudioContext
+(I=1,J=.05,g=220,f=.1,h=.1,l=.1,m=0,K=1,r=0,A=0,t=0,B=0,u=0,C=0,v=0,L=0,e=0,c=2*Math.PI,b=44100,w=n=>2*n*Math.random()-n,x=n=>0<n?1:-1,M=r*=500*c/b**2,D=g*=(1+w(J))*c/b,N=x(v)*c/4,p,q=[],E=0,F=0,d=0,k=1,G=0,H=0,a=0,y,z=zzfxX.createBufferSource())=>{f=50+f*b|0;h=h*b|0;l=l*b|0;e=e*b|0;A*=500*c/b**3;p=f+h+l+e;v*=c/b;t*=c/b;B*=b;for(u*=b;d<p;q[d++]=a)++H>100*L&&(H=0,a=E*g*Math.sin(F*v-N),a=m?1<m?2<m?3<m?x(Math.sin((a%c)**3)):Math.max(Math.min(Math.tan(a),1),-1):1-(2*a/
+c%2+2)%2:1-4*Math.abs(Math.round(a/c)-a/c):Math.sin(a),a=x(a)*Math.abs(a)**K,a*=I*zzfxV*(d<f?d/f:d<f+h?1:1-(d-f-h)/l),a=e?a/2+(e>d?0:(d<p-e?1:(d-p)/e)*q[d-e]/2):a),E+=1+w(C),F+=1+w(C),g+=r+=A,k&&++k>B&&(D+=t,g+=t,k=0),u&&++G>u&&(g=D,r=M,G=1,k=k||1);y=zzfxX.createBuffer(1,q.length,b);y.getChannelData(0).set(q);z.buffer=y;z.connect(zzfxX.destination);z.start()};new AudioContext
 ```
 
 ## ZzFX Features
