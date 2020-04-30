@@ -5,7 +5,7 @@ By Frank Force 2019
 
 ZzFX Features
 
-- Tiny synth engine with 18 controllable parameters.
+- Tiny synth engine with 17 controllable parameters.
 - Play sounds via code, no need for wave files!
 - Compatible with nearly all web browsers.
 - Small code footprint, the micro version is under 1 kilobyte!
@@ -112,7 +112,6 @@ class _ZZFX
         repeatTime,
         noise,
         modulation,
-        modPhase,
         bitCrush,
         delay,
         volumeScale = 1
@@ -123,36 +122,36 @@ class _ZZFX
         const sampleRate = this.sampleRate;
         const random = r => r*(Math.random()*2-1);
         const startSlide = slide *= PI2 * 500 / sampleRate**2;
+        const modPhase = (modulation>0?1:-1) * PI2/4
         let startFrequency = frequency *= 
             (1 + random(randomness)) * PI2 / sampleRate;
         attack = 50 + attack*sampleRate | 0;
         sustain = sustain*sampleRate | 0;
         release = release*sampleRate | 0;
-        delay = delay*sampleRate / 1e3 | 0;
+        delay = delay * 100 | 0;
         deltaSlide *= PI2 * 500 / sampleRate**3;
         modulation *= PI2 / sampleRate;
         pitchJump *= PI2 / sampleRate;
         pitchJumpTime = pitchJumpTime*sampleRate;
         repeatTime = repeatTime*sampleRate;
-        modPhase *= PI2;
         const length = Math.max(1, Math.min(attack + sustain + release, sampleRate * 10));
         
         // generate waveform
         let b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, e;
         for(; i < length;b[i++] = s)
         {
-            if (++c>bitCrush)                                // bit crush
+            if (++c>bitCrush*100)                            // bit crush
             {
                 c = 0;
                 s = t * frequency *                          // frequency
-                    Math.cos(tm * modulation + modPhase);    // modulation
+                    Math.sin(tm * modulation + modPhase);    // modulation
 
                 s = shape ? shape>1 ? shape>2 ? shape>3 ?    // wave shape
-                     Math.sign(Math.cos((s%PI2)**3)) :       // 4 noise
+                     Math.sign(Math.sin((s%PI2)**3)) :       // 4 noise
                      Math.max(Math.min(Math.tan(s),1),-1) :  // 3 tan
                      1-(2*s/PI2%2+2)%2:                      // 2 saw
                      1-4*Math.abs(Math.round(s/PI2)-s/PI2) : // 1 triangle
-                     Math.cos(s);                            // 0 sin
+                     Math.sin(s);                            // 0 sin
                 s = Math.sign(s)*(Math.abs(s)**shapeCurve);  // shape curve (0=square)
 
                 e =                                          // envelope
@@ -203,9 +202,9 @@ class _ZZFX
            1,                                        // volume
            .05,                                      // randomness
            R()**2*2e3|0,                             // frequency
-           Fixed(.01 + R()**2,2),                    // attack
-           Fixed(R()**2,2),                          // sustain
-           Fixed(.01 + R()**2,2),                    // release
+           Fixed(.01 + R()**3,2),                    // attack
+           Fixed(R()**3,2),                          // sustain
+           Fixed(.01 + R()**3,2),                    // release
            R()*5|0,                                  // shape
            R()<.2?1: Fixed(R()*2),                   // shape curve
            R()<.5?0: Fixed(R()**3*10*(R()<.5?-1:1)), // slide
@@ -214,18 +213,17 @@ class _ZZFX
            0,                                        // pitchJumpTime
            0,                                        // repeatTime
            R()<.5?0: Fixed(R()**3*5),                // noise
-           R()<.8?0: Fixed(R()**4*99),               // modulation
-           0,                                        // modPhase
-           R()<.5?0: R()**3*1e3|0,                   // bitCrush
-           R()<.5?0: Fixed(R()**2*9,2),              // delay
+           R()<.8?0: Fixed(R()**3*99),               // modulation
+           R()<.5?0: Fixed(R()**3*5,2),              // bitCrush
+           R()<.5?0: Fixed(R()**3*100,2),            // delay
         );
         
         const length = parseFloat(sound['attack']) 
             + parseFloat(sound['sustain']) 
             + parseFloat(sound['release']);
         
-        if (parseFloat(sound['smodulation']))
-            sound['smodPhase'] = Fixed(R(),2);               // modPhase
+        if (R() < .5)
+            sound['modulation'] *= -1;              // flip mod phase
             
         if (R() < .3)
         {
@@ -257,7 +255,6 @@ class _ZZFX
         repeatTime = 0, 
         noise = 0,
         modulation = 0,
-        modPhase = 0,
         bitCrush = 0,
         delay = 0
     )
@@ -279,7 +276,6 @@ class _ZZFX
             'repeatTime':   repeatTime,
             'noise':        noise,
             'modulation':   modulation,
-            'modPhase':     modPhase,
             'bitCrush':     bitCrush,
             'delay':        delay
         };
@@ -355,7 +351,6 @@ let zzfxP =     // play a sound
     repeatTime = 0, 
     noise = 0,
     modulation = 0,
-    modPhase = 0,
     bitCrush = 0,
     delay = 0,
 
@@ -366,6 +361,7 @@ let zzfxP =     // play a sound
     startSlide = slide *= PI2 * 500 / sampleRate**2,
     startFrequency = frequency *= 
         (1 + random(randomness)) * PI2 / sampleRate,
+    modPhase = (modulation>0?1:-1) * PI2/4,
     length,
     b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, e,
     buffer,
@@ -376,29 +372,29 @@ let zzfxP =     // play a sound
     attack = 50 + attack*sampleRate | 0;
     sustain = sustain*sampleRate | 0;
     release = release*sampleRate | 0;
-    delay = delay*sampleRate / 1e3 | 0;
+    delay = delay * 100 | 0;
     deltaSlide *= PI2 * 500 / sampleRate**3;
     length = attack + sustain + release;
     modulation *= PI2 / sampleRate;
     pitchJump *= PI2 / sampleRate;
     pitchJumpTime = pitchJumpTime*sampleRate;
     repeatTime = repeatTime*sampleRate;
-    modPhase *= PI2;
 
     // generate waveform
     for(; i < length;b[i++] = s)
     {
-        if (++c>bitCrush)                                // bit crush
+        if (++c>bitCrush*100)                            // bit crush
         {
+            c = 0;
             s = t * frequency *                          // frequency
-                Math.cos(tm * modulation + modPhase);    // modulation
+                Math.sin(tm * modulation + modPhase);    // modulation
 
             s = shape ? shape>1 ? shape>2 ? shape>3 ?    // wave shape
-                 Math.sign(Math.cos((s%PI2)**3)) :       // 4 noise
+                 Math.sign(Math.sin((s%PI2)**3)) :       // 4 noise
                  Math.max(Math.min(Math.tan(s),1),-1) :  // 3 tan
                  1-(2*s/PI2%2+2)%2 :                     // 2 saw
                  1-4*Math.abs(Math.round(s/PI2)-s/PI2) : // 1 triangle
-                 Math.cos(s);                            // 0 sin
+                 Math.sin(s);                            // 0 sin
             s = Math.sign(s)*(Math.abs(s)**shapeCurve);  // shape curve (0=square)
 
             e =                                          // envelope
@@ -406,7 +402,6 @@ let zzfxP =     // play a sound
                 i<attack+sustain ? 1 :                   // sustain
                 1 - (i-attack-sustain)/release;          // release
             s *= e * volume * zzfxV;                     // envelope
-            s = bitCrush?(s/bitCrush*9|0)*bitCrush/9:s;  // bit crush
             s = delay ?                                  // delay
                 s/2 + (delay > i ? 0 :
                 (i<attack+sustain?1:e)*b[i-delay]/2) :   // release delay  

@@ -59,7 +59,7 @@ button                       { font-size:20px; margin:4px;}
 button.large                 { height:30px; }
 button.rand                  { width:20px; height:20px; background:#FF4; }
 button.reset                 { width:20px; height:20px; background:#4F4; }
-.soundSelect                 { overflow-x:hidden; width:350px; height:380px; }
+.soundSelect                 { overflow-x:hidden; width:350px; height:350px; }
 .slider                      { cursor: pointer; width:100% }
 input.lock                   { width:20px; height:20px; }
 .setting                     { width:200px; }
@@ -90,23 +90,23 @@ option:checked               { background: #FF0; color:#F00 }
 <td colspan=2>
 <div id=div_settingsTable></div>
 </td><td style=text-align:center>
-<canvas title='Image of sound wave, click to play the sound.' id=canvas_soundWave width=350 height=80></canvas>
+<canvas title='Image of sound wave, click to play the sound [SPACE]' id=canvas_soundWave width=350 height=80></canvas>
 <br>
-<button class=large title='Toggle favorite on current sound' onclick=FavoriteSelected()>Favorite</button>
-<button class=large title='Make copy of selected sound' onclick=CopySound()>Copy</button>
-<button title='Remove selected sound' class=large onclick=RemoveSelected()>Remove</button>
+<button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button>
+<button class=large title='Make copy of selected sound [C]' onclick=CopySelected()>Copy</button>
+<button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
 <br>
-<button class=large title='' onclick="AddPresetSound('Pickup')">Pickup</button>
-<button class=large title='' onclick="AddPresetSound('Powerup')">Powerup</button>
-<button class=large title='' onclick="AddPresetSound('Jump')">Jump</button>
+<button class=large title='Generate random pickup sound' onclick="AddPresetSound('Pickup')">Pickup</button>
+<button class=large title='Generate random powerup sound' onclick="AddPresetSound('Powerup')">Powerup</button>
+<button class=large title='Generate random jump sound' onclick="AddPresetSound('Jump')">Jump</button>
 <br>
-<button class=large title='' onclick="AddPresetSound('Blip')">Blip</button>
-<button class=large title='' onclick="AddPresetSound('Hit')">Hit</button>
-<button class=large title='' onclick="AddPresetSound('Explosion')">Explosion</button>
+<button class=large title='Generate random blip sound' onclick="AddPresetSound('Blip')">Blip</button>
+<button class=large title='Generate random hit sound' onclick="AddPresetSound('Hit')">Hit</button>
+<button class=large title='Generate random explosion sound' onclick="AddPresetSound('Explosion')">Explosion</button>
 <br>
-<button class=large title='' onclick="AddPresetSound('Shoot')">Shoot</button>
-<button class=large title='Create new random sound' onclick=AddPresetSound()>Random</button>
-<button class=large title='Make a new sound with mutated parameters' onclick=CopySound(1)>Mutate</button>
+<button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button>
+<button class=large title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button>
+<button class=large title='Make a new sound with mutated parameters' onclick=CopySelected(1)>Mutate</button>
 <br>
 <select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2 style=margin:5px></select></td>
 </tr>
@@ -129,7 +129,7 @@ option:checked               { background: #FF0; color:#F00 }
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?9337></script>
+<script src=ZzFX.js?19337></script>
 <script>
 
 'use strict'; // strict mode
@@ -153,7 +153,7 @@ function BuildSetting(step, min, max, name, niceName, help, canMutate=1, type=0)
 
 const settings = 
 [
-BuildSetting(0,0,0,'name','Name','Name in editor',0,1),
+BuildSetting(0,0,0,'name','Name','Name of sound',0,1),
 BuildSetting(.1,-1e9,1e9,'volume','Volume','Volume scale in percent',0),
 BuildSetting(.05,-1e9,1e9,'randomness','Randomness','How much to randomize frequency in percent',0),
 BuildSetting(50,-1e9,1e9,'frequency','Frequency','Frequency of sound in Hz'),
@@ -169,7 +169,6 @@ BuildSetting(50,-1e9,1e9,'pitchJump','Pitch Jump','Frequency of pitch jump in Hz
 BuildSetting(.01,-1e9,1e9,'pitchJumpTime','Pitch Jump Time','Time of pitch jump in seconds'),
 BuildSetting(.01,-1e9,1e9,'repeatTime','Repeat Time','Resets some parameters periodically'),
 BuildSetting(1,-1e9,1e9,'modulation','Modulation','Frequency of modulation wave in Hz'),
-BuildSetting(.01,-1e9,1e9,'modPhase','Modulation Phase','Phase of modulation frequency in percent'),
 BuildSetting(1,-1e9,1e9,'bitCrush','Bit Crush','Resamples at a lower frequency'),
 BuildSetting(.01,0,1e9,'delay','Delay','Overlap delay for reverb and flanger effects'),
 ]
@@ -332,7 +331,7 @@ function AddPresetSound(presetName='Random')
             sound.pitchJump = R(300,1000,0);
             sound.pitchJumpTime = R()<.3 ? 0 : R(0,.1);
             sound.repeatTime = R()<.8 ? 0 : R(0,.2);
-            sound.bitCrush = R()<.5 ? 0 : R(10,0,0);
+            sound.bitCrush = R()<.5 ? 0 : R(.1);
             sound.delay = R()<.5 ? 0 : R();
             break;
         }
@@ -351,9 +350,8 @@ function AddPresetSound(presetName='Random')
             sound.slide = R()<.5 ? 0 : R(0,10);
             sound.deltaSlide = R()<.5 ? 0 : R(0,10);
             sound.noise =  R()<.8 ? 0 : R(.2,0,1);
-            sound.modulation = R()<.8 ? 0 : R(0,.2,1);
-            sound.modPhase = !sound.modulation ? 0 : R(.25,.5);
-            sound.bitCrush = R()<.5 ? 0 : R(10,0,0);
+            sound.modulation = R()<.8 ? 0 : R(-.2,.2);
+            sound.bitCrush = R()<.5 ? 0 : R(.1);
             break;
         }
         case 'Jump':
@@ -366,7 +364,7 @@ function AddPresetSound(presetName='Random')
             sound.release = R(.1,.5);
             sound.noise =  R()<.8 ? 0 : R(.5,0,1);
             sound.delay = R()<.5 ? 0 : R();
-            sound.bitCrush = R()<.5 ? 0 : R(10,0,0);
+            sound.bitCrush = R()<.5 ? 0 : R(.1);
             sound.slide = R(1,10);
             sound.deltaSlide = R()<.5 ? 0 : R(-sound.slide,10);
             break;
@@ -383,9 +381,8 @@ function AddPresetSound(presetName='Random')
             sound.slide = R()<.5 ? 0 : R(-1,1);
             sound.deltaSlide = R()<.5 ? 0 : R(-1,1);
             sound.noise =  R()<.8 ? 0 : R(1,0,1);
-            sound.modulation = R()<.8 ? 0 : R(10,0,1);
-            sound.modPhase = !sound.modulation ? 0 : R();
-            sound.bitCrush = R()<.5 ? 0 : R(50,0,0);
+            sound.modulation = R()<.8 ? 0 : R(-10,10);
+            sound.bitCrush = R()<.5 ? 0 : R(.2);
             break;
         }
         case 'Blip':
@@ -395,7 +392,7 @@ function AddPresetSound(presetName='Random')
             sound.attack = R(.03);
             sound.sustain = 0;
             sound.release = R(.04,.1);
-            sound.bitCrush = R()<.5 ? 0 : R(10,0,0);
+            sound.bitCrush = R()<.5 ? 0 : R(.2);
             break;
         }
         case 'Hit':
@@ -408,10 +405,9 @@ function AddPresetSound(presetName='Random')
             sound.release = R(.2,.6);
             sound.slide = R()<.8 ? 0 : R();
             sound.deltaSlide = R()<.8 ? 0 : R();
-            sound.noise = R(0.2,1,1);
-            sound.modulation = R()<.8 ? 0 : R(0,.2);
-            sound.modPhase = !sound.modulation ? 0 : R();
-            sound.bitCrush = R(100,5,0);
+            sound.noise = R(1,0,1);
+            sound.modulation = R()<.8 ? 0 : R(-.2,.2);
+            sound.bitCrush = R(2);
             break;
         }
         case 'Explosion':
@@ -422,11 +418,12 @@ function AddPresetSound(presetName='Random')
             sound.attack = R(.05);
             sound.sustain = R(.4,0,1);
             sound.release = R(.5,2,1);
-            sound.delay = R(100,0,0);
-            sound.noise = R(0.1,1,1);
-            sound.modulation = R()<.8 ? 0 : R(0,20,1);
-            sound.modPhase = !sound.modulation ? 0 : R();
-            sound.bitCrush = R(300,10,0);
+            sound.slide = R()<.8 ? 0 : R();
+            sound.deltaSlide = R()<.8 ? 0 : R();
+            sound.delay = R()<.5 ? 0 : R(500,0,0);
+            sound.noise = R(1,0,1);
+            sound.modulation = R()<.8 ? 0 : R(-20,20);
+            sound.bitCrush = R(2,.1);
             break;
         }
     }
@@ -442,7 +439,7 @@ function AddPresetSound(presetName='Random')
     SaveLocalStorage();
 }
 
-function CopySound(mutate=0)
+function CopySelected(mutate=0)
 {
     const sound = Object.assign({}, GetSelectedSound());
     if (!sound.originalName)
@@ -956,8 +953,10 @@ onkeydown =e=>
             AddPresetSound();
         if (e.keyCode == 46) // del
             RemoveSelected();
-        if (e.keyCode == 70) // ins
+        if (e.keyCode == 70) // f
             FavoriteSelected();
+        if (e.keyCode == 67) // c
+            CopySelected();
     }
 }
 
