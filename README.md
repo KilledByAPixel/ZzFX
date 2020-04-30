@@ -1,7 +1,7 @@
 # ZzFX - Zuper Zmall Zound Zynth
 ## By Frank Force 2019
 
-# [TRY THE LIVE DEMO!](https://zzfx.3d2k.com)
+# [TRY THE LIVE DEMO!](https://killedbyapixel.github.io/ZzFX)
 
 
 ## Here's the code for the ZzFXmicro, this all you need to play ZzFX sounds!
