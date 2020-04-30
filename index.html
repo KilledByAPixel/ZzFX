@@ -129,7 +129,7 @@ option:checked               { background: #FF0; color:#F00 }
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?8337></script>
+<script src=ZzFX.js?9337></script>
 <script>
 
 'use strict'; // strict mode
@@ -408,7 +408,7 @@ function AddPresetSound(presetName='Random')
             sound.release = R(.1,.5);
             sound.slide = R()<.8 ? 0 : R();
             sound.deltaSlide = R()<.8 ? 0 : R();
-            sound.noise = R(1,5,1);
+            sound.noise = R(0.1,1,1);
             sound.modulation = R()<.8 ? 0 : R(0,.2);
             sound.modPhase = !sound.modulation ? 0 : R();
             sound.bitCrush = R(100,0,0);
@@ -423,7 +423,7 @@ function AddPresetSound(presetName='Random')
             sound.sustain = R(.4,0,1);
             sound.release = R(.5,2,1);
             sound.delay = R(100,0,0);
-            sound.noise = R(0,5,1);
+            sound.noise = R(0.1,1,1);
             sound.modulation = R()<.8 ? 0 : R(0,20,1);
             sound.modPhase = !sound.modulation ? 0 : R();
             sound.bitCrush = R(300,10,0);
