@@ -57,7 +57,8 @@ GitHub Corner is Copyright (c) 2016 Tim Holman - http://tholman.com
 a                            { color:#5AF; }
 button                       { font-size:20px; margin:4px;}
 button.large                 { height:30px; }
-button.rand                  { width:20px; height:20px; background:#4F4; }
+button.rand                  { width:20px; height:20px; background:#FF4; }
+button.reset                 { width:20px; height:20px; background:#4F4; }
 .soundSelect                 { overflow-x:hidden; width:350px; height:380px; }
 .slider                      { cursor: pointer; width:100% }
 input.lock                   { width:20px; height:20px; }
@@ -128,7 +129,7 @@ option:checked               { background: #FF0; color:#F00 }
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?5337></script>
+<script src=ZzFX.js?6337></script>
 <script>
 
 'use strict'; // strict mode
@@ -176,13 +177,19 @@ BuildSetting(.01,0,1e9,'delay','Delay','Overlap delay for reverb and flanger eff
 function BuildSettingsTable()
 {
     const s = settings[0];
-    let html = '<center style=width:550px><table style=text-align:center>';
+    let html = '<center style=width:600px><table style=text-align:center>';
     html += '<tr><td style=text-align:right>' + s.niceName + '&nbsp;</td><td>'
     html += `<input title='${s.help}' class=setting step=${s.step} id=input_${s.name} oninput=SelectedWasChanged('${s.name}')>`
     
     html += '</td><td>';
-    html += '<button title="Toggle lock all parameters" onclick=ToggleLockAll()>🔒</button></td><td>'
-    html += '<button title="Mutate all unlocked parameters" onclick=MutateAllSettings();PlaySelected()>🎲</button>';
+    html += '<button title="Toggle lock all parameters" onclick=ToggleLockAll()>🔒</button>'
+    
+    html += '</td><td>';
+    html += '<button title="Sets all unlocked parameters to their default values." onclick=if(ResetAllSettings())PlaySelected()>♻️</button>';
+    
+    html += '</td><td>';
+    html += '<button title="Mutate all unlocked parameters" onclick=if(MutateAllSettings())PlaySelected()>🎲</button>';
+    
     html += '</td></tr>';
     
     for(const i in settings)
@@ -211,9 +218,13 @@ function BuildSettingsTable()
         
         html += '</td><td>';
         html += `<input id=input_lock_${s.name} class=lock title='Lock ${s.niceName}' oninput=SelectedWasChanged('${s.name}') type=checkbox>`;
-        html += '</td><td>';
         
+        html += '</td><td>';
+        html += `<button id=input_reset_${s.name} class=reset title='Reset ${s.niceName}' onclick=ResetSetting(settings[${i}]);PlaySelected()></button>`;
+        
+        html += '</td><td>';
         html += `<button id=input_mutate_${s.name} class=rand title='Mutate ${s.niceName}' onclick=MutateSetting(settings[${i}]);PlaySelected()></button>`;
+        
         html += '</td></tr>';
     }
     
@@ -539,12 +550,20 @@ function IsLocked(name)
 }
 
 function MutateAllSettings()
-{
+{    
+    const sound = GetSelectedSound();
+    if (sound.favorite)
+    {
+        if (!confirm('Are you sure you want mutate this favorite sound?'))
+            return false;
+    }
+    
     for(const s of settings)
         if (s.canMutate && !IsLocked(s.name))
             MutateSetting(s, 0);
     
     UpdateSettings();
+    return true;
 }
 
 function MutateSetting(setting, refresh = true)
@@ -570,6 +589,44 @@ function MutateSetting(setting, refresh = true)
         v += r * step;
         v = parseFloat(v.toFixed(4));
     }
+    
+    document.getElementById('input_'+name).value = v;
+    sound[setting.name] = v;
+    
+    if (refresh)
+        UpdateSettings();
+}
+
+function ResetAllSettings()
+{
+    const sound = GetSelectedSound();
+    if (sound.favorite)
+    {
+        if (!confirm('Are you sure you want reset this favorite sound?'))
+            return false;
+    }
+    
+    for(const s of settings)
+        if (!IsLocked(s.name))
+            ResetSetting(s, 0);
+    
+    UpdateSettings();
+    return true;
+}
+
+function ResetSetting(setting, refresh = true)
+{
+    const name = setting.name;
+    if (IsLocked(name)) // unlock
+        document.getElementById("input_lock_"+name).checked = 0;
+ 
+    const sound = GetSelectedSound();
+    const defaultSound = ZZFX.BuildSound();
+    sound.modified = 1;
+    
+    let v = sound[name];
+    if (setting.name in defaultSound)
+        v = defaultSound[setting.name];
     
     document.getElementById('input_'+name).value = v;
     sound[setting.name] = v;
