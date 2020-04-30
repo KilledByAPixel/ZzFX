@@ -47,7 +47,10 @@ ZzFX Features
 // ==ClosureCompiler==
 // @compilation_level ADVANCED_OPTIMIZATIONS
 // @output_file_name zzfx.min.js
-// @js_externs zzfx, _ZZFX.samples, _ZZFX.volume, _ZZFX.randomness, ZZFX, _ZZFX, _ZZFX.Play, _ZZFX.PlaySamples, _ZZFX.BuildSamples, _ZZFX.BuildRandomSound, _ZZFX.BuildSound, _ZZFX.GetNote, _ZZFX.SoundToArray, _ZZFX.CreateAudioContext
+// @js_externs zzfx, ZZFX, _ZZFX.samples, _ZZFX.volume, 
+// @js_externs _ZZFX, _ZZFX.Play, _ZZFX.PlaySamples, _ZZFX.BuildSamples, 
+// @js_externs _ZZFX.BuildRandomSound, _ZZFX.BuildSound, _ZZFX.GetNote, 
+// @js_externs _ZZFX.SoundToArray, _ZZFX.CreateAudioContext, _ZZFX.randomness
 // @language_out ECMASCRIPT_2019
 // ==/ClosureCompiler==
 
@@ -431,6 +434,3 @@ let zzfxP =     // play a sound
     source.start();
 }
 const zzfxX = new AudioContext;
-
-// fix compatibility issues with old web audio (optional)
-//const zzfxX=new(window.AudioContext||webkitAudioContext);zzfxX.Z=zzfxX.createBufferSource;zzfxX.createBufferSource=(s=zzfxX.Z())=>(s.start=s.start||(t=>zzfxX.noteOn(t)),s)
