@@ -138,7 +138,7 @@ class _ZZFX
         const length = Math.max(1, Math.min(attack+sustain+release+delay, sampleRate * 10));
         
         // generate waveform
-        let b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, e;
+        let b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0;
         for(; i < length;b[i++] = s)
         {
             if (++c>bitCrush*100)                            // bit crush
@@ -363,9 +363,8 @@ let zzfxP =     // play a sound
     startFrequency = frequency *= 
         (1 + random(randomness)) * PI2 / sampleRate,
     modPhase = sign(modulation) * PI2/4,
-    length,
     b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0,
-    buffer,
+    length, buffer,
     source = zzfxX.createBufferSource()
 ) =>
 {
@@ -398,10 +397,11 @@ let zzfxP =     // play a sound
                  Math.sin(s);                          // 0 sin
             s = sign(s)*(Math.abs(s)**shapeCurve);     // curve 0=square
 
-            s *= volume * zzfxV * (                      // envelope
-                i<attack ? i/attack :                    // attack
-                i<attack+sustain ? 1 :                   // sustain
-                1 - (i-attack-sustain)/release);         // release
+                s *= volume * zzfxV * (                      // envelope
+                    i<attack ? i/attack :                    // attack
+                    i<attack+sustain ? 1 :                   // sustain
+                    i<length-delay ?                         // post release
+                    1 - (i-attack-sustain)/release : 0);     // release
                 
             s = delay ?                                  // delay
                 s/2 + (delay > i ? 0 :
