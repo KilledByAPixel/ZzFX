@@ -14,6 +14,7 @@ ZzFX UI Features
 - Displays image of sound wave when played.
 - Sounds can be download as a wave file.
 - Sounds can be marked as favorites to prevent removal.
+- Sounds can be loaded by pasting zzfx code for easy sharing.
 - List of sounds can be exported and imported.
 - Supports drag-and-drop of exported files into sound list.
 
@@ -106,7 +107,7 @@ option:checked               { background: #FF0; color:#F00 }
 <br>
 <button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button>
 <button class=large title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button>
-<button class=large title='Make a new sound with mutated parameters' onclick=CopySelected(1)>Mutate</button>
+<button class=large title='Make a new sound with mutated parameters [M]' onclick=CopySelected(1)>Mutate</button>
 <br>
 <select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2 style=margin:5px></select></td>
 </tr>
@@ -155,23 +156,23 @@ function BuildSetting(step, min, max, name, niceName, help, canMutate=1, type=0)
 const settings = 
 [
 BuildSetting(0,0,0,'name','Name','Name of sound',0,1),
-BuildSetting(.1,-1e9,1e9,'volume','Volume','Volume scale in percent',0),
-BuildSetting(.05,-1e9,1e9,'randomness','Randomness','How much to randomize frequency in percent',0),
-BuildSetting(50,-1e9,1e9,'frequency','Frequency','Frequency of sound in Hz'),
+BuildSetting(.1,-1e9,1e9,'volume','Volume','Volume scale (percent)',0),
+BuildSetting(.05,-1e9,1e9,'randomness','Randomness','How much to randomize frequency (percent Hz)',0),
+BuildSetting(50,-1e9,1e9,'frequency','Frequency','Frequency of sound (Hz)'),
 BuildSetting(1,0,0,'shape','Wave Shape','Shape of the sound wave',1,2),
-BuildSetting(.1,0,1e9,'shapeCurve','Shape Curve','Squarenes of wave (0=square, 1=normal)'),
-BuildSetting(.01,0,3,'attack','Attack','Attack time in seconds'),
-BuildSetting(.01,0,3,'sustain','Sustain','Sustain time in seconds'),
-BuildSetting(.01,0,3,'release','Release','Release time in seconds'),
-BuildSetting(.1,-1e9,1e9,'slide','Slide','How much to slide frequency in kHz/s'),
-BuildSetting(.1,-1e9,1e9,'deltaSlide','Delta Slide','How much to change slide in kHz/s/s'),
-BuildSetting(.1,-1e9,1e9,'noise','Noise','How much random noise to add in percent'),
-BuildSetting(50,-1e9,1e9,'pitchJump','Pitch Jump','Frequency of pitch jump in Hz'),
-BuildSetting(.01,-1e9,1e9,'pitchJumpTime','Pitch Jump Time','Time of pitch jump in seconds'),
-BuildSetting(.01,-1e9,1e9,'repeatTime','Repeat Time','Resets some parameters periodically'),
-BuildSetting(1,-1e9,1e9,'modulation','Modulation','Frequency of modulation wave in Hz'),
-BuildSetting(1,-1e9,1e9,'bitCrush','Bit Crush','Resamples at a lower frequency'),
-BuildSetting(.01,0,1e9,'delay','Delay','Overlap delay for reverb and flanger effects in seconds'),
+BuildSetting(.1,0,1e9,'shapeCurve','Shape Curve','Squarenes of wave (0=square, 1=normal, 2=pointy)'),
+BuildSetting(.01,0,3,'attack','Attack','Attack time (seconds)'),
+BuildSetting(.01,0,3,'sustain','Sustain','Sustain time (seconds)'),
+BuildSetting(.01,0,3,'release','Release','Release time (seconds)'),
+BuildSetting(.1,-1e9,1e9,'slide','Slide','How much to slide frequency (kHz/s)'),
+BuildSetting(.1,-1e9,1e9,'deltaSlide','Delta Slide','How much to change slide (kHz/s/s)'),
+BuildSetting(.1,-1e9,1e9,'noise','Noise','How much random noise to add (percent)'),
+BuildSetting(50,-1e9,1e9,'pitchJump','Pitch Jump','Frequency of pitch jump (Hz)'),
+BuildSetting(.01,-1e9,1e9,'pitchJumpTime','Pitch Jump Time','Time of pitch jump (seconds)'),
+BuildSetting(.01,-1e9,1e9,'repeatTime','Repeat Time','Resets some parameters periodically (seconds)'),
+BuildSetting(1,-1e9,1e9,'modulation','Modulation','Frequency of modulation wave (Hz)'),
+BuildSetting(1,-1e9,1e9,'bitCrush','Bit Crush','Resamples at a lower frequency in (samples*100)'),
+BuildSetting(.01,0,1e9,'delay','Delay','Overlap with itself for reverb and flanger effects (seconds)'),
 ]
 
 function BuildSettingsTable()
@@ -870,7 +871,6 @@ function DrawSoundWave(b, volume, sound)
     canvas_soundWave.style.background=`hsl(${R()*3e3},${R()*99}%,5%)`;
     x.strokeStyle=`hsl(${R()*3e3},${R()*99}%,${60+R()*30}%)`;
     x.beginPath();
-    x.lineWidth=2;
     for(let i=0; i<b.length; i+=10)
         x.lineTo(w*i/b.length, .8*b[i]*h/2/volume+h/2);
     x.stroke();
@@ -974,15 +974,14 @@ function LoadFile(file)
 
 onkeydown =e=>
 {
+    if (e.ctrlKey || e.altKey)
+        return;
+
     const selected = document.activeElement;
-    if (selected.tagName != 'INPUT')
+    if (selected.tagName != 'INPUT' && selected.tagName != 'TEXTAREA')
     {
         if (e.keyCode == 32) // space
             PlaySelected();
-    }
-    
-    if (selected.id == 'select_soundList')
-    {
         if (e.keyCode == 45) // ins
             AddPresetSound();
         if (e.keyCode == 46) // del
@@ -990,6 +989,8 @@ onkeydown =e=>
         if (e.keyCode == 70) // f
             FavoriteSelected();
         if (e.keyCode == 67) // c
+            CopySelected();
+        if (e.keyCode == 77) // m
             CopySelected();
     }
 }
