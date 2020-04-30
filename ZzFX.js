@@ -216,7 +216,7 @@ class _ZZFX
            R()<.5?0: Fixed(R()**3*5),                // noise
            R()<.8?0: Fixed(R()**4*99),               // modulation
            0,                                        // modPhase
-           R()<.5?0: R()**3*2e3|0,                   // bitCrush
+           R()<.5?0: R()**3*1e3|0,                   // bitCrush
            R()<.5?0: Fixed(R()**2*9,2),              // delay
         );
         

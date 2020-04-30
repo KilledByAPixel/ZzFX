@@ -395,6 +395,7 @@ function AddPresetSound(presetName='Random')
             sound.attack = R(.02);
             sound.sustain = 0;
             sound.release = R(.05,.1);
+            sound.bitCrush = R()<.5 ? 0 : R(50,0,0);
             break;
         }
         case 'Hit':
