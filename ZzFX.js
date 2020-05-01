@@ -10,10 +10,12 @@ ZzFX Features
 - Compatible with nearly all web browsers.
 - Small code footprint, the micro version is under 1 kilobyte!
 - Can produce a huge variety of sound effect types.
-- Sounds can be played with a short function call.
-- se ZZFX.GetNote to get frequencies on a standard diatonic scale.
+- Sounds can be played with a short call. zzfx(...[,,,,.1,,,,9])
+- A small bit of randomness appied to sounds when played.
+- Use ZZFX.GetNote to get frequencies on a standard diatonic scale.
 - Sounds can be saved out as wav files for offline playback.
 - Both ZzFX and ZzFXMicro run in strict mode.
+- No additional libraries or dependencies are required.
 - Open source with MIT license, you can use this for anything!
 
 */
@@ -216,7 +218,7 @@ class _ZZFX
            0,                                        // pitchJumpTime
            0,                                        // repeatTime
            R()<.5?0: Fixed(R()**3*5),                // noise
-           R()<.8?0: Fixed(R()**3*100),              // modulation
+           R()<.5?0: Fixed(R()**3*100),              // modulation
            R()<.5?0: Fixed(R()**3*5,2),              // bitCrush
            R()<.5?0: Fixed(R()**3*.5,2),             // delay
         );

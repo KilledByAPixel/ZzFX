@@ -7,7 +7,7 @@
 // There is a small bit of optional code to improve compatibility.
 // Feel free to minify it further for your own needs!
 
-'use strict';let zzfx, zzfxV, zzfxX
+'use strict';let zzfx,zzfxV,zzfxX
 
 // ZzFXMicro - Zuper Zmall Zound Zynth 
 zzfxV=.3 // volume

@@ -85,7 +85,7 @@ body                         { user-select:none; }
 </div>
 </td>
 <td style=text-align:center>
-<div id=div_masterVolume style='display:inline'></div>
+<div id=div_masterVolume></div>
 <input id=slider_masterVolume title='Volume to scale all sounds by in percent' type=range min=0 max=100 value=30 class=slider onchange=UpdateSettings();SaveLocalStorage()>
 </td></tr>
 <tr>
@@ -133,7 +133,7 @@ body                         { user-select:none; }
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?879></script>
+<script src=ZzFX.js?881></script>
 <script>
 
 'use strict'; // strict mode
@@ -172,7 +172,7 @@ BuildSetting(.1,-1e9,1e9,'noise','Noise','How much random noise to add (percent)
 BuildSetting(50,-1e9,1e9,'pitchJump','Pitch Jump','Frequency of pitch jump (Hz)'),
 BuildSetting(.01,-1e9,1e9,'pitchJumpTime','Pitch Jump Time','Time of pitch jump (seconds)'),
 BuildSetting(.01,-1e9,1e9,'repeatTime','Repeat Time','Resets some parameters periodically (seconds)'),
-BuildSetting(1,-1e9,1e9,'modulation','Modulation','Frequency of modulation wave, negative flips phase (Hz)'),
+BuildSetting(.1,-1e9,1e9,'modulation','Modulation','Frequency of modulation wave, negative flips phase (Hz)'),
 BuildSetting(1,-1e9,1e9,'bitCrush','Bit Crush','Resamples at a lower frequency in (samples*100)'),
 BuildSetting(.0001,0,1e9,'delay','Delay','Overlap with itself for reverb and flanger effects (seconds)'),
 ]
@@ -351,7 +351,7 @@ function AddPresetSound(presetName='Random')
             sound.shapeCurve = R(2);
             sound.attack = R(.05);
             sound.sustain = R(.5,0,1);
-            sound.release = R(.5,1,1);
+            sound.release = R(.1,1,1);
             sound.pitchJump = R(-1000,1000,0);
             sound.pitchJumpTime = !sound.pitchJump ? 0 : R(0,.1);
             sound.delay = R()<.8 ? 0 : R(.2);
@@ -441,7 +441,22 @@ function AddPresetSound(presetName='Random')
     
     if (!parseFloat(sound.pitchJumpTime))
         sound.pitchJump = 0;
-    
+            
+    if (Math.abs(sound.modulation) >= 10)
+        sound.modulation = sound.modulation | 0;
+    if (Math.abs(sound.slide) >= 10)
+        sound.slide = sound.slide | 0;
+    if (Math.abs(sound.deltaSlide) >= 10)
+        sound.deltaSlide = sound.deltaSlide | 0;
+    if (Math.abs(sound.pitchJump) >= 10)
+        sound.pitchJump = sound.pitchJump | 0;
+    if (Math.abs(sound.noise) >= 1)
+        sound.noise = sound.noise | 0;
+
+    const length = parseFloat(sound.attack) + parseFloat(sound.sustain) + parseFloat(sound.delay);
+    if (sound.repeatTime > length)
+        sound.repeatTime = 0;
+
     // replace with locked
     for(const s of settings)
         if (IsLocked(s.name))
