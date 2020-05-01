@@ -54,7 +54,7 @@ GitHub Corner is Copyright (c) 2016 Tim Holman - http://tholman.com
 <meta name="google" content="notranslate">
 <link rel="shortcut icon" type="image/x-icon" href="favicon.png"/>
 <style>
-*                            { font-family: "courier"; }
+*                            { font-family:'courier'; }
 a                            { color:#5AF; }
 button                       { font-size:20px; margin:4px;}
 button.large                 { height:30px; }
@@ -94,21 +94,22 @@ body                         { user-select:none; }
 </td><td style=text-align:center>
 <canvas title='Image of sound wave, click to play the sound [SPACE]' id=canvas_soundWave width=350 height=80></canvas>
 <br>
-<button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button>
+<button class=large title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button>
+<button class=large title='Make a new sound with mutated parameters [M]' onclick=CopySelected(1)>Mutate</button>
 <button class=large title='Make copy of selected sound [C]' onclick=CopySelected()>Copy</button>
-<button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
 <br>
 <button class=large title='Generate random pickup sound' onclick="AddPresetSound('Pickup')">Pickup</button>
 <button class=large title='Generate random powerup sound' onclick="AddPresetSound('Powerup')">Powerup</button>
-<button class=large title='Generate random jump sound' onclick="AddPresetSound('Jump')">Jump</button>
+<button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button>
 <br>
+<button class=large title='Generate random jump sound' onclick="AddPresetSound('Jump')">Jump</button>
 <button class=large title='Generate random blip sound' onclick="AddPresetSound('Blip')">Blip</button>
 <button class=large title='Generate random hit sound' onclick="AddPresetSound('Hit')">Hit</button>
 <button class=large title='Generate random explosion sound' onclick="AddPresetSound('Explosion')">Explosion</button>
 <br>
-<button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button>
-<button class=large title='Make a new sound with mutated parameters [M]' onclick=CopySelected(1)>Mutate</button>
-<button class=large title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button>
+<button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button>
+<button class=large title='Generate default sound' onclick="SelectedToTop()()">Top</button>
+<button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
 <br>
 <select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2 style=margin:5px></select></td>
 </tr>
@@ -132,7 +133,7 @@ body                         { user-select:none; }
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?69337></script>
+<script src=ZzFX.js?879></script>
 <script>
 
 'use strict'; // strict mode
@@ -173,7 +174,7 @@ BuildSetting(.01,-1e9,1e9,'pitchJumpTime','Pitch Jump Time','Time of pitch jump 
 BuildSetting(.01,-1e9,1e9,'repeatTime','Repeat Time','Resets some parameters periodically (seconds)'),
 BuildSetting(1,-1e9,1e9,'modulation','Modulation','Frequency of modulation wave, negative flips phase (Hz)'),
 BuildSetting(1,-1e9,1e9,'bitCrush','Bit Crush','Resamples at a lower frequency in (samples*100)'),
-BuildSetting(.01,0,1e9,'delay','Delay','Overlap with itself for reverb and flanger effects (seconds)'),
+BuildSetting(.0001,0,1e9,'delay','Delay','Overlap with itself for reverb and flanger effects (seconds)'),
 ]
 
 function BuildSettingsTable()
@@ -187,10 +188,10 @@ function BuildSettingsTable()
     html += '<button title="Toggle lock all parameters" onclick=ToggleLockAll()>🔒</button>'
     
     html += '</td><td>';
-    html += '<button title="Mutate all unlocked parameters" onclick=if(MutateAllSettings())PlaySelected()>🎲</button>';
+    html += '<button title="Sets all unlocked parameters to their default values." onclick=if(ResetAllSettings())PlaySelected()>♻️</button>';
     
     html += '</td><td>';
-    html += '<button title="Sets all unlocked parameters to their default values." onclick=if(ResetAllSettings())PlaySelected()>♻️</button>';
+    html += '<button title="Mutate all unlocked parameters" onclick=if(MutateAllSettings())PlaySelected()>🎲</button>';
     
     html += '</td></tr>';
     
@@ -206,7 +207,7 @@ function BuildSettingsTable()
         html += '</td><td>';
         
         if (s.type == 0)
-            html += `<input id=input_${s.name} class=setting title='${s.help}' type=number step=${s.step} oninput=SelectedWasChanged('${s.name}') onfocusout=UpdateSettings()>`
+            html += `<input id=input_${s.name} class=setting title='${s.help}' type=number step=${s.step} oninput=SelectedWasChanged('${s.name}') min=${s.min} max=${s.max} onfocusout=UpdateSettings()>`
         else if (s.type == 2)
         {
             html += `<select id=input_${s.name} class=setting title='${s.help}' oninput=SelectedWasChanged('${s.name}')>`;
@@ -222,10 +223,10 @@ function BuildSettingsTable()
         html += `<input id=input_lock_${s.name} class=lock title='Lock ${s.niceName}' oninput=SelectedWasChanged('${s.name}') type=checkbox>`;
         
         html += '</td><td>';
-        html += `<button id=input_mutate_${s.name} class=rand title='Mutate ${s.niceName}' onclick=MutateSetting(settings[${i}]);PlaySelected()></button>`;
+        html += `<button id=input_reset_${s.name} class=reset title='Reset ${s.niceName}' onclick=ResetSetting(settings[${i}]);PlaySelected()></button>`;
         
         html += '</td><td>';
-        html += `<button id=input_reset_${s.name} class=reset title='Reset ${s.niceName}' onclick=ResetSetting(settings[${i}]);PlaySelected()></button>`;
+        html += `<button id=input_mutate_${s.name} class=rand title='Mutate ${s.niceName}' onclick=MutateSetting(settings[${i}]);PlaySelected()></button>`;
         
         html += '</td></tr>';
     }
@@ -320,6 +321,11 @@ function AddPresetSound(presetName='Random')
         case 'Random':
         {
             sound = ZZFX.BuildRandomSound();
+            break;
+        }
+        case 'Default':
+        {
+            sound = ZZFX.BuildSound();
             break;
         }
         case 'Pickup':
@@ -526,6 +532,18 @@ function FavoriteSelected()
     UpdateSettings();
     PlaySelected();
     SaveLocalStorage();
+}
+
+function SelectedToTop()
+{
+    const selectedSound = GetSelectedSound();
+    const sound = Object.assign({}, selectedSound);
+    selectedSound.favorite = 0;
+    
+    RemoveSelected();
+    AddToList(sound);
+    PlaySelected();
+    SaveLocalStorage();  
 }
 
 function RemoveSelected()
