@@ -18,6 +18,7 @@ zzfx=    // play sound
 - Compatible with nearly all web browsers.
 - Small code footprint, the micro version is under 1 kilobyte!
 - Can produce a huge variety of sound effect types.
+- Sounds can be played with a short call. zzfx(...[,,,,.1,,,,9])
 - Sounds can be played with a short function call.
 - Use ZZFX.GetNote to get frequencies on a standard diatonic scale.
 - Sounds can be saved out as wav files for offline playback.
