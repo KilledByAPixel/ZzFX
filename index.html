@@ -776,10 +776,11 @@ function GetCode(sound)
 
 function LoadSound()
 {    
-    const code = prompt('Enter zzfx code.');
+    let code = prompt('Enter zzfx code.');
     if (!code)
         return;
         
+    code = code.trim();
     const front = code.slice(0,9);
     if (front != 'zzfx(...[')
     {
@@ -1015,7 +1016,7 @@ onkeydown =e=>
         if (e.keyCode == 67) // c
             CopySelected();
         if (e.keyCode == 77) // m
-            CopySelected();
+            CopySelected(1);
     }
 }
 

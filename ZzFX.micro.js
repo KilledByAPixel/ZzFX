@@ -1,12 +1,13 @@
-// ZzFX - Zuper Zmall Zound Zynth - MIT License - Copyright 2019 Frank Force
+// ZzFX - Zuper Zmall Zound Zynth - Micro Edition
+// MIT License - Copyright 2019 Frank Force
+// https://github.com/KilledByAPixel/ZzFX
 
-// This build of zzfx is minified for used in tiny games.
-// It has only a zzfx to play sounds and zzfxV to set volume.
-// There is a small bit of optional code that increases compatibility.
+// This is a tiny build of zzfx with only a zzfx function to play sounds.
+// You can use zzfxV to set volume.
+// There is a small bit of optional code to improve compatibility.
 // Feel free to minify it further for your own needs!
 
-'use strict'
-let zzfx, zzfxV, zzfxX
+'use strict';let zzfx, zzfxV, zzfxX
 
 // ZzFXMicro - Zuper Zmall Zound Zynth 
 zzfxV=.3 // volume
