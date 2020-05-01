@@ -21,6 +21,7 @@ zzfx=    // play sound
 - Sounds can be played with a short function call.
 - Use ZZFX.GetNote to get frequencies on a standard diatonic scale.
 - Sounds can be saved out as wav files for offline playback.
+- Both ZzFX and ZzFXMicro run in strict mode.
 - Open source with MIT license, you can use this for anything!
 
 ## ZzFX UI Features
