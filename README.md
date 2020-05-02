@@ -83,7 +83,7 @@ zzfx=    // play sound
 
 ## [ZzFX Community Soundboard](https://codepen.io/KilledByAPixel/full/dyYVwGP)
 
-- Just for fun I created a soundboard for everyone to get one sound.
+- Just for fun I created a soundboard where everyone can have one sound.
 - Send me a zzfx code and emoji to get your sound added!
 
 ![ZzFX Image](/favicon.png) 
