@@ -3,8 +3,27 @@
 # [ZzFX Sound Designer](https://zzfx.3d2k.com)
 # [ZzFX Sound Board Demo](https://codepen.io/KilledByAPixel/pen/BaowKzv)
 
+### ZzFX is a JavaScript sound effect engine and creation tool supported by most modern broswers.
 
-## Here's the code for the ZzFXmicro, this all you need to play ZzFX sounds!
+Sound effects can be generated or manually created using the web based sound effect creation tool.
+
+Include ZzFX.min.js to load ZzFX, it does not need to be italized.
+
+Or you can use ZzFX.micro.js a tiny version that has only the ability to play sounds.
+
+To play a sound in code, just call a simple function! Here are some examples...
+
+```
+zzfx(...[,,537,.02,.02,.22,1,1.59,-6.98,4.97]); // Heart
+zzfx(...[,,925,.04,.3,.6,1,.3,,6.27,-184,.09,.17]); // Game Over
+zzfx(...[,,539,,.04,.29,1,1.92,,,567,.02,.02,,,,.04]); // Twinkle
+zzfx(...[,0,1600,.13,.52,.61,1,1.1,,,,,,.1,,.14]); // Phone Ring
+zzfx(...[,,709,,,.07,,,,3.7,,,,3.6,,,.11]); // Echo Click
+zzfx(...[1.5,.8,270,,.1,,1,1.5,,,,,,,,.1,.01]); // Piano
+zzfx(...[,,129,.01,,.15,,,,,,,,5]); // Drum
+```
+
+### Here's the code for the ZzFXmicro, this all you need to play ZzFX sounds!
 
 ```
 zzfxV=.3 // volume
