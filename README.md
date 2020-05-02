@@ -36,12 +36,11 @@ zzfx=    // play sound
 - Tiny synth engine with 17 controllable parameters.
 - Play sounds via code, no need for sound asset files!
 - Compatible with nearly all web browsers.
-- Small code footprint, the micro version is under 1 kilobyte!
-- Can produce a huge variety of sound effect types.
+- Small code footprint, the micro version is under 1 kilobyte.
+- Can produce a massive variety of sound effect types.
 - Sounds can be played with a short call. zzfx(...[,,,,.1,,,,9])
-- Sounds can be played with a short function call.
 - Use ZZFX.GetNote to get frequencies on a standard diatonic scale.
-- Sounds can be saved out as wav files for offline playback.
+- Supports saving sounds as wav files for offline playback.
 - Both ZzFX and ZzFXMicro run in strict mode.
 - No additional libraries or dependencies are required.
 - Open source with MIT license, you can use this for anything!
