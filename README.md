@@ -81,7 +81,7 @@ zzfx=    // play sound
 - [Letchworth Village](https://js13kgames.com/entries/letchworth-village)
 - [Noegnud](https://js13kgames.com/entries/noegnud)
 
-## [zFX Community Soundboard](https://codepen.io/KilledByAPixel/full/dyYVwGP)
+## [ZzFX Community Soundboard](https://codepen.io/KilledByAPixel/full/dyYVwGP)
 
 - Just for fun I created a soundboard for everyone to get one sound.
 - Send me a zzfx code and emoji to get your sound added!
