@@ -2,6 +2,7 @@
 
 # [ZzFX Sound Designer](https://zzfx.3d2k.com)
 # [ZzFX Sound Board Demo](https://codepen.io/KilledByAPixel/pen/BaowKzv?editors=1010)
+# [ZzFX Subreddit](https://www.reddit.com/r/zzfx/)
 
 ### ZzFX is a JavaScript sound effect engine and creation tool supported by most modern broswers.
 
