@@ -34,7 +34,7 @@ zzfx=    // play sound
 ## ZzFX Features
 
 - Tiny synth engine with 17 controllable parameters.
-- Play sounds via code, no need for wave files!
+- Play sounds via code, no need for sound asset files!
 - Compatible with nearly all web browsers.
 - Small code footprint, the micro version is under 1 kilobyte!
 - Can produce a huge variety of sound effect types.
