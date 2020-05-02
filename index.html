@@ -52,6 +52,10 @@ GitHub Corner is Copyright (c) 2016 Tim Holman - http://tholman.com
 <title>ZzFX - Zuper Zmall Zound Zynth</title>
 <meta charset="utf-8">
 <meta name="google" content="notranslate">
+<meta property="og:title" content="ZzFX - Zuper Zmall Zound Zynth">
+<meta property="og:description" content="A tiny sound effects generator for games and websites!">
+<meta name="twitter:image" content="screenshot.jpg">
+<meta property="og:image" content="screenshot.jpg">
 <link rel="shortcut icon" type="image/x-icon" href="favicon.png"/>
 <style>
 *                            { font-family:'courier'; }
@@ -86,7 +90,7 @@ body                         { user-select:none; }
 </td>
 <td style=text-align:center>
 <div id=div_masterVolume></div>
-<input id=slider_masterVolume title='Volume to scale all sounds by in percent' type=range min=0 max=100 value=30 class=slider onchange=UpdateSettings();SaveLocalStorage()>
+<input id=slider_masterVolume title='Volume to scale all sounds by in percent' type=range min=0 max=100 value=30 style=width:300px oninput=UpdateSettings();SaveLocalStorage()>
 </td></tr>
 <tr>
 <td colspan=2>
@@ -126,14 +130,14 @@ body                         { user-select:none; }
 </td></tr>
 <tr><td colspan=3 style=padding:5px>
 <center>ZzFX JavaScript - Use this code to play the sound
-<br><textarea title='Code to play the selected sound' id=textarea_code style=width:90% disabled></textarea>
+<br><textarea title='Code to play the selected sound' id=textarea_code style=width:90% readonly></textarea>
 </center>
 </td></tr>
 </table>
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?881></script>
+<script src=ZzFX.js?882></script>
 <script>
 
 'use strict'; // strict mode
@@ -173,7 +177,7 @@ BuildSetting(50,-1e9,1e9,'pitchJump','Pitch Jump','Frequency of pitch jump (Hz)'
 BuildSetting(.01,-1e9,1e9,'pitchJumpTime','Pitch Jump Time','Time of pitch jump (seconds)'),
 BuildSetting(.01,-1e9,1e9,'repeatTime','Repeat Time','Resets some parameters periodically (seconds)'),
 BuildSetting(.1,-1e9,1e9,'modulation','Modulation','Frequency of modulation wave, negative flips phase (Hz)'),
-BuildSetting(1,-1e9,1e9,'bitCrush','Bit Crush','Resamples at a lower frequency in (samples*100)'),
+BuildSetting(.1,-1e9,1e9,'bitCrush','Bit Crush','Resamples at a lower frequency in (samples*100)'),
 BuildSetting(.0001,0,1e9,'delay','Delay','Overlap with itself for reverb and flanger effects (seconds)'),
 ]
 
@@ -216,6 +220,7 @@ function BuildSettingsTable()
             html += `<option value=2>saw</option>`;
             html += `<option value=3>tan</option>`;
             html += `<option value=4>bit noise</option>`;
+            html += `<option value=5>duty sweep</option>`;
             html += `</select>`;
         }
         
@@ -304,6 +309,8 @@ function UpdateSettings()
         option.innerHTML = (sound.favorite?'-> ':sound.modified?'* ':'') + sound.name;
         textarea_code.value = GetCode(sound);
     }
+    
+    SaveLocalStorage();
 }
 
 function AddPresetSound(presetName='Random')
@@ -349,7 +356,7 @@ function AddPresetSound(presetName='Random')
             sound.frequency = R(0,1000,0);
             sound.shape = 3*Math.random()|0;
             sound.shapeCurve = R(2);
-            sound.attack = R(.05);
+            sound.attack = R(.5,0,1);
             sound.sustain = R(.5,0,1);
             sound.release = R(.1,1,1);
             sound.pitchJump = R(-1000,1000,0);
@@ -382,7 +389,7 @@ function AddPresetSound(presetName='Random')
         case 'Shoot':
         {
             sound.frequency = R(0,700,0);
-            sound.shape = 5*Math.random()|0;
+            sound.shape = 6*Math.random()|0;
             sound.shapeCurve = R(2);
             sound.attack = R(.03);
             sound.sustain = 0;
@@ -390,9 +397,9 @@ function AddPresetSound(presetName='Random')
             sound.delay = R()<.3 ? 0 : R(.2);
             sound.slide = R()<.5 ? 0 : R(-1,1);
             sound.deltaSlide = R()<.5 ? 0 : R(-1,1);
-            sound.noise =  R()<.8 ? 0 : R(1,0,1);
+            sound.noise =  R()<.8 ? 0 : R(5,0,1);
             sound.repeatTime = R()<.5 ? 0 : R(.1);
-            sound.modulation = R()<.8 ? 0 : R(-100,100);
+            sound.modulation = R()<.8 ? 0 : R(-10,10);
             sound.bitCrush = R()<.5 ? 0 : R(.1);
             break;
         }
@@ -408,7 +415,7 @@ function AddPresetSound(presetName='Random')
         case 'Hit':
         {
             sound.frequency = R(50,500,0);
-            sound.shape = 5*Math.random()|0;
+            sound.shape = 6*Math.random()|0;
             sound.shapeCurve = R(2);
             sound.attack = 0;
             sound.sustain = R(.1);
@@ -416,15 +423,15 @@ function AddPresetSound(presetName='Random')
             sound.delay = R()<.3 ? 0 : R(.2);
             sound.slide = R()<.8 ? 0 : R(-10,10,1);
             sound.deltaSlide = R()<.8 ? 0 : R(-10,10,1);
-            sound.noise = R(1,0,1);
-            sound.modulation = R()<.8 ? 0 : R(-.2,.2);
+            sound.noise = R(2,0,1);
+            sound.modulation = R()<.8 ? 0 : R(-1,1);
             sound.bitCrush = R(2,0,1);
             break;
         }
         case 'Explosion':
         {
             sound.frequency = R(0,1e3,0);
-            sound.shape = 5*Math.random()|0;
+            sound.shape = 6*Math.random()|0;
             sound.shapeCurve = R(2);
             sound.attack = R(.05);
             sound.sustain = R(.4,0,1);
@@ -433,7 +440,7 @@ function AddPresetSound(presetName='Random')
             sound.deltaSlide = R()<.8 ? 0 : R();
             sound.delay = R()<.5 ? 0 : R(.5);
             sound.noise = R(1,0,1);
-            sound.modulation = R()<.8 ? 0 : R(-100,100);
+            sound.modulation = R()<.5 ? 0 : R(-1,1);
             sound.bitCrush = R(2,.1,1);
             break;
         }
@@ -465,7 +472,6 @@ function AddPresetSound(presetName='Random')
     sound.name = presetName + ' ' + generatedSoundCount++;
     AddToList(sound);
     PlaySelected();
-    SaveLocalStorage();
 }
 
 function CopySelected(mutate=0)
@@ -488,7 +494,6 @@ function CopySelected(mutate=0)
         UpdateSettings();
     }
     PlaySelected();
-    SaveLocalStorage();
 }
 
 function AddToList(sound)
@@ -520,7 +525,6 @@ function SelectedWasChanged(settingName)
     UpdateSettings();
     if (settingName != 'name')
         PlaySelected();
-    SaveLocalStorage();
 }
 
 function LoadSelected(playOnSelect = false)
@@ -546,7 +550,6 @@ function FavoriteSelected()
     s.favorite = !s.favorite
     UpdateSettings();
     PlaySelected();
-    SaveLocalStorage();
 }
 
 function SelectedToTop()
@@ -558,7 +561,6 @@ function SelectedToTop()
     RemoveSelected();
     AddToList(sound);
     PlaySelected();
-    SaveLocalStorage();  
 }
 
 function RemoveSelected()
@@ -579,7 +581,7 @@ function RemoveSelected()
     i = Math.min(i, select_soundList.length-1);
     select_soundList.selectedIndex = i;
     LoadSelected();
-    SaveLocalStorage();
+    PlaySelected();
 }
 
 function IsLocked(name)
@@ -597,9 +599,21 @@ function MutateAllSettings()
             return false;
     }
     
+    let mutateCount = 0;
     for(const s of settings)
         if (s.canMutate && !IsLocked(s.name))
-            MutateSetting(s, 0);
+            ++mutateCount;
+            
+    for(let i=6;i--;)
+    {
+        if (mutateCount)
+        {
+            let mutateIndex = (Math.random()*1e5)%mutateCount|0;
+            for(const s of settings)
+                if (s.canMutate && !IsLocked(s.name) && !mutateIndex--)
+                    MutateSetting(s, 0);
+        }
+    }
     
     UpdateSettings();
     return true;
@@ -694,7 +708,6 @@ function ToggleLockAll()
 function ClearSounds(clearFavorites)
 {
     canvas_soundWave.width |= 0;
-    generatedSoundCount = 0;
     select_soundList.selectedIndex=-1;
     while(select_soundList.options.length>0)
         select_soundList.options.remove(0);
@@ -704,6 +717,8 @@ function ClearSounds(clearFavorites)
     sounds = [];
     if (!clearFavorites)
         oldSounds.map(s=>s && s.favorite && AddToList(s));
+    if (clearFavorites)
+        generatedSoundCount = 0;
 }
 
 function ClearSoundsButton(clearFavorites)
@@ -717,7 +732,6 @@ function ClearSoundsButton(clearFavorites)
     ClearSounds(clearFavorites);
     AddDefaultIfEmpty();
     UpdateSettings();
-    SaveLocalStorage();
     PlaySelected();
 }
 
@@ -817,7 +831,6 @@ function LoadSound()
     sound.name = sound.name.trim();
     AddToList(sound);
     PlaySelected();
-    SaveLocalStorage();
 }
 
 function SaveWave()
@@ -947,8 +960,6 @@ function LoadSaveData(dataJSON)
     }
 
     const data = JSON.parse(dataJSON);
-    ClearSounds(1);
-
     if (data.volume)
         slider_masterVolume.value = data.volume;
     if (data.generatedSoundCount)
@@ -969,6 +980,7 @@ function SaveLocalStorage()
 
 function LoadLocalStorage()
 {
+    ClearSounds(1);
     LoadSaveData(localStorage.saveData);
 }
 
@@ -1004,7 +1016,6 @@ function LoadFile(file)
     {
         const fileData = readerEvent.target.result;
         LoadSaveData(fileData);
-        SaveLocalStorage();
         PlaySelected();
     }
 }

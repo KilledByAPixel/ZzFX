@@ -141,7 +141,7 @@ class _ZZFX
         const length = Math.max(1, Math.min(attack+sustain+release+delay, sampleRate * 10));
         
         // generate waveform
-        let b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0;
+        let b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, d=.5;
         for(; i < length;b[i++] = s)
         {
             if (++c>bitCrush*100)                            // bit crush
@@ -150,14 +150,19 @@ class _ZZFX
                 s = t * frequency *                        // frequency
                     Math.sin(tm * modulation - modPhase);  // modulation
 
-                s = shape ? shape>1 ? shape>2 ? shape>3 ?  // wave shape
-                     sign(Math.sin((s%PI2)**3)) :          // 4 noise
-                     Math.max(Math.min(Math.tan(s),1),-1): // 3 tan
-                     1-(2*s/PI2%2+2)%2:                    // 2 saw
-                     1-4*Math.abs(Math.round(s/PI2)-s/PI2):// 1 triangle
-                     Math.sin(s);                          // 0 sin
-                s = sign(s)*(Math.abs(s)**shapeCurve);     // curve 0=square
-
+                if (shape > 4)                             // square duty sweep
+                    s = sign(s/PI2%1-(d+=shapeCurve*100/sampleRate)%1); // duty
+                else
+                {
+                    s = shape? shape>1? shape>2? shape>3?      // wave shape
+                         sign(Math.sin((s%PI2)**3)) :          // 4 noise
+                         Math.max(Math.min(Math.tan(s),1),-1): // 3 tan
+                         1-(2*s/PI2%2+2)%2:                    // 2 saw
+                         1-4*Math.abs(Math.round(s/PI2)-s/PI2):// 1 triangle
+                         Math.sin(s);                          // 0 sin
+                    s = sign(s)*(Math.abs(s)**shapeCurve);     // curve 0=square
+                }
+                  
                 s *= volume * volumeScale * (                // envelope
                     i<attack ? i/attack :                    // attack
                     i<attack+sustain ? 1 :                   // sustain
@@ -210,7 +215,7 @@ class _ZZFX
            Fixed(.01 + R()**3,2),                    // attack
            Fixed(R()**3,2),                          // sustain
            Fixed(.01 + R()**3,2),                    // release
-           R()*5|0,                                  // shape
+           R()*6|0,                                  // shape
            R()<.2?1: Fixed(R()*2),                   // shape curve
            R()<.5?0: Fixed(R()**3*100*(R()<.5?-1:1)),// slide
            R()<.5?0: Fixed(R()**3*100*(R()<.5?-1:1)),// deltaSlide
@@ -222,6 +227,9 @@ class _ZZFX
            R()<.5?0: Fixed(R()**3*5,2),              // bitCrush
            R()<.5?0: Fixed(R()**3*.5,2),             // delay
         );
+        
+        if (sound.shape == 5)
+            sound.shapeCurve = Fixed(R()**2*20,2);   // square duty sweep
         
         const length = parseFloat(sound['attack']) 
             + parseFloat(sound['sustain']) 
@@ -366,7 +374,7 @@ let zzfxP =     // play a sound
     startFrequency = frequency *= 
         (1 + random(randomness)) * PI2 / sampleRate,
     modPhase = sign(modulation) * PI2/4,
-    b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0,
+    b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, d=.5,
     length, buffer,
     source = zzfxX.createBufferSource()
 ) =>
@@ -392,19 +400,24 @@ let zzfxP =     // play a sound
             s = t * frequency *                          // frequency
                 Math.sin(tm * modulation - modPhase);    // modulation
 
-            s = shape ? shape>1 ? shape>2 ? shape>3 ?  // wave shape
-                 sign(Math.sin((s%PI2)**3)) :          // 4 noise
-                 Math.max(Math.min(Math.tan(s),1),-1): // 3 tan
-                 1-(2*s/PI2%2+2)%2:                    // 2 saw
-                 1-4*Math.abs(Math.round(s/PI2)-s/PI2):// 1 triangle
-                 Math.sin(s);                          // 0 sin
-            s = sign(s)*(Math.abs(s)**shapeCurve);     // curve 0=square
+            if (shape > 4)                             // square duty sweep
+                s = sign(s/PI2%1-(d+=shapeCurve*100/sampleRate)%1); // duty
+            else
+            {
+                s = shape? shape>1? shape>2? shape>3?      // wave shape
+                     sign(Math.sin((s%PI2)**3)) :          // 4 noise
+                     Math.max(Math.min(Math.tan(s),1),-1): // 3 tan
+                     1-(2*s/PI2%2+2)%2:                    // 2 saw
+                     1-4*Math.abs(Math.round(s/PI2)-s/PI2):// 1 triangle
+                     Math.sin(s);                          // 0 sin
+                s = sign(s)*(Math.abs(s)**shapeCurve);     // curve 0=square
+            }
 
-                s *= volume * zzfxV * (                      // envelope
-                    i<attack ? i/attack :                    // attack
-                    i<attack+sustain ? 1 :                   // sustain
-                    i<length-delay ?                         // post release
-                    1 - (i-attack-sustain)/release : 0);     // release
+            s *= volume * zzfxV * (                      // envelope
+                i<attack ? i/attack :                    // attack
+                i<attack+sustain ? 1 :                   // sustain
+                i<length-delay ?                         // post release
+                1 - (i-attack-sustain)/release : 0);     // release
                 
             s = delay ?                                  // delay
                 s/2 + (delay > i ? 0 :
