@@ -217,20 +217,25 @@ class _ZZFX
            Fixed(R()**3,2),                          // sustain
            Fixed(.01 + R()**3,2),                    // release
            R()*6|0,                                  // shape
-           R()<.2?1: Fixed(R()*2),                   // shape curve
+           R()<.2?1: Fixed(R()*2),                   // shapeCurve
            R()<.5?0: Fixed(R()**3*100*(R()<.5?-1:1)),// slide
            R()<.5?0: Fixed(R()**3*100*(R()<.5?-1:1)),// deltaSlide
            0,                                        // pitchJump
            0,                                        // pitchJumpTime
            0,                                        // repeatTime
-           R()<.5?0: Fixed(R()**3*5),                // noise
-           R()<.5?0: Fixed(R()**3*100),              // modulation
+           R()<.5?0: Fixed(R()**3*3),                // noise
+           R()<.5?0: Fixed(R()**4*1e3),              // modulation
            R()<.5?0: Fixed(R()**3*5,2),              // bitCrush
            R()<.5?0: Fixed(R()**3*.5,2),             // delay
         );
         
-        if (sound.shape == 5)
-            sound.shapeCurve = Fixed(R()**2*20,2);   // square duty sweep
+        if (sound['shape'] == 5)
+            sound['shapeCurve'] = Fixed(R()**3*100,2);   // square duty sweep
+        else if (R() < .1)
+            sound['shapeCurve'] = Fixed(R()**3*100,0);   // larger shape curve
+            
+        if (sound['shapeCurve'] >= 10)
+            sound['shapeCurve'] = parseInt(sound['shapeCurve']);
         
         const length = parseFloat(sound['attack']) 
             + parseFloat(sound['sustain']) 

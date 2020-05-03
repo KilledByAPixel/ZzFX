@@ -137,7 +137,7 @@ body                         { user-select:none; }
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?884></script>
+<script src=ZzFX.js?891></script>
 <script>
 
 'use strict'; // strict mode
@@ -145,6 +145,16 @@ let sounds = [];
 let generatedSoundCount = 0;
 let loadedSound;
 let lastPlayedSound;
+
+const SeededRandom=_=>
+(
+    randomSeed^=randomSeed<<13,
+    randomSeed^=randomSeed>>17,
+    randomSeed^=randomSeed<<5,
+    (randomSeed%1e9)/1e9
+)
+let randomSeed = Date.now();
+let loadedSoundSeed = 0;
 
 function Init()
 {
@@ -166,7 +176,7 @@ BuildSetting(.1,-1e9,1e9,'volume','Volume','Volume scale (percent)',0),
 BuildSetting(.05,-1e9,1e9,'randomness','Randomness','How much to randomize frequency (percent Hz)',0),
 BuildSetting(50,-1e9,1e9,'frequency','Frequency','Frequency of sound (Hz)'),
 BuildSetting(1,0,0,'shape','Wave Shape','Shape of the sound wave',1,2),
-BuildSetting(.1,0,1e9,'shapeCurve','Shape Curve','Squarenes of wave (0=square, 1=normal, 2=pointy)'),
+BuildSetting(.1,0,1e9,'shapeCurve','Shape Curve','Squarenes of wave (0=square, 1=normal, 2=pointy) or sweep speed if using duty sweep'),
 BuildSetting(.01,0,3,'attack','Attack','Attack time, how fast sound starts (seconds)'),
 BuildSetting(.01,0,3,'sustain','Sustain','Sustain time, how long sound holds (seconds)'),
 BuildSetting(.01,0,3,'release','Release','Release time, how fast sound fades out (seconds)'),
@@ -178,7 +188,7 @@ BuildSetting(.01,-1e9,1e9,'pitchJumpTime','Pitch Jump Time','Time of pitch jump 
 BuildSetting(.01,-1e9,1e9,'repeatTime','Repeat Time','Resets some parameters periodically (seconds)'),
 BuildSetting(.1,-1e9,1e9,'modulation','Modulation','Frequency of modulation wave, negative flips phase (Hz)'),
 BuildSetting(.1,-1e9,1e9,'bitCrush','Bit Crush','Resamples at a lower frequency in (samples*100)'),
-BuildSetting(.0001,0,1e9,'delay','Delay','Overlap with itself for reverb and flanger effects (seconds)'),
+BuildSetting(.01,0,1e9,'delay','Delay','Overlap with itself for reverb and flanger effects (seconds)'),
 ]
 
 function BuildSettingsTable()
@@ -416,7 +426,7 @@ function AddPresetSound(presetName='Random')
         {
             sound.frequency = R(50,500,0);
             sound.shape = 6*Math.random()|0;
-            sound.shapeCurve = R(2);
+            sound.shapeCurve = R(3);
             sound.attack = 0;
             sound.sustain = R(.1);
             sound.release = R(.1,.5);
@@ -432,7 +442,7 @@ function AddPresetSound(presetName='Random')
         {
             sound.frequency = R(0,1e3,0);
             sound.shape = 6*Math.random()|0;
-            sound.shapeCurve = R(2);
+            sound.shapeCurve = R(5);
             sound.attack = R(.05);
             sound.sustain = R(.4,0,1);
             sound.release = R(.5,2,1);
@@ -533,6 +543,8 @@ function LoadSelected(playOnSelect = false)
     for(const s of settings)
         document.getElementById("input_"+s.name).value = sound[s.name];
     
+    if (loadedSound != sound)
+        loadedSoundSeed = Date.now();
     UpdateSettings();
     if (playOnSelect && loadedSound != sound)
         PlaySelected();
@@ -580,8 +592,7 @@ function RemoveSelected()
     AddDefaultIfEmpty();
     i = Math.min(i, select_soundList.length-1);
     select_soundList.selectedIndex = i;
-    LoadSelected();
-    PlaySelected();
+    LoadSelected(1);
 }
 
 function IsLocked(name)
@@ -915,14 +926,33 @@ function DrawSoundWave(b, volume, sound)
     const w = canvas_soundWave.width;
     const h = canvas_soundWave.height;
     canvas_soundWave.width |= 0;
+    randomSeed = loadedSoundSeed;
+    const R =()=> SeededRandom();
     
     if (!volume)
         return;
     
-    // draw sound wave
-    const R =()=> Math.random();
-    canvas_soundWave.style.background=`hsl(${R()*3e3},${R()*99}%,5%)`;
-    x.strokeStyle=`hsl(${R()*3e3},${R()*99}%,${60+R()*30}%)`;
+    // show attack, sustain, release
+    let length = b.length;
+    let X, W;
+    let H=R()*3e3, S=R()*99;
+    x.fillStyle=`hsl(${H},${S}%,5%)`;
+    x.fillRect(0,0,w,h);
+    if (!length)
+        return;
+    x.fillStyle=`hsl(${H},${S}%,20%)`;
+    x.fillRect(X=0,0,W=w*sound.attack * ZZFX.sampleRate/b.length,h);
+    x.fillStyle=`hsl(${H},${S}%,15%)`;
+    x.fillRect(X+=W,0,W=w*sound.sustain * ZZFX.sampleRate/b.length,h);
+    x.fillStyle=`hsl(${H},${S}%,10%)`;
+    x.fillRect(X+=W,0,W=w*sound.release * ZZFX.sampleRate/b.length,h);
+    x.strokeStyle=`#FFF`;
+    x.strokeRect(X=0,0,W=w*sound.attack * ZZFX.sampleRate/b.length,h);
+    x.strokeRect(X+=W,0,W=w*sound.sustain * ZZFX.sampleRate/b.length,h);
+    x.strokeRect(X+=W,0,W=w*sound.release * ZZFX.sampleRate/b.length,h);
+    
+    // draw the wave
+    x.strokeStyle=`hsl(${H+180},${R()*99}%,${70+R()*20}%)`;
     x.beginPath();
     for(let i=0; i<b.length; i+=10)
         x.lineTo(w*i/b.length, .8*b[i]*h/2/volume+h/2);
@@ -1047,7 +1077,7 @@ onkeydown =e=>
 }
 
 // click on canvas to play sound
-canvas_soundWave.onmousedown =e=> {PlaySelected();e.preventDefault();}
+canvas_soundWave.onmousedown =e=> {loadedSound=0;LoadSelected(1);e.preventDefault();}
 
 // drag and drop exported files into the sound list
 select_soundList.addEventListener('dragover', e=>
