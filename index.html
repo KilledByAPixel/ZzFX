@@ -137,7 +137,7 @@ body                         { user-select:none; }
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?882></script>
+<script src=ZzFX.js?884></script>
 <script>
 
 'use strict'; // strict mode
@@ -631,7 +631,7 @@ function MutateSetting(setting, refresh = true)
     
     let v = sound[name];
     if (setting.type == 2)
-        v = Math.random()*5|0;
+        v = Math.random()*6|0;
     else
     {
         let r = (Math.random())*(refresh?10:2)|0

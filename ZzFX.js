@@ -151,7 +151,8 @@ class _ZZFX
                     Math.sin(tm * modulation - modPhase);  // modulation
 
                 if (shape > 4)                             // square duty sweep
-                    s = sign(s/PI2%1-(d+=shapeCurve*100/sampleRate)%1); // duty
+                    s = 
+                    sign((s/PI2%1+1)%1-(d+=shapeCurve*100/sampleRate)%1); // duty
                 else
                 {
                     s = shape? shape>1? shape>2? shape>3?      // wave shape
@@ -401,7 +402,7 @@ let zzfxP =     // play a sound
                 Math.sin(tm * modulation - modPhase);    // modulation
 
             if (shape > 4)                             // square duty sweep
-                s = sign(s/PI2%1-(d+=shapeCurve*100/sampleRate)%1); // duty
+                s = sign((s/PI2%1+1)%1-(d+=shapeCurve*100/sampleRate)%1); // duty
             else
             {
                 s = shape? shape>1? shape>2? shape>3?      // wave shape
