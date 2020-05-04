@@ -151,7 +151,7 @@ BuildSamples
                 Math.sin(tm * modulation - modPhase);  // modulation
 
             s = shape? shape>1? shape>2? shape>3? shape>4? // wave shape
-              sign((s/PI2%1+1)%1-(d+=shapeCurve*100/sampleRate)%1): // 5 duty
+              sign((s/PI2%1+1)%1-(d+=shapeCurve*1e3/sampleRate)%1): // 5 duty
               Math.sin((s%PI2)**3) :                // 4 noise
               Math.max(Math.min(Math.tan(s),1),-1): // 3 tan
               1-(2*s/PI2%2+2)%2:                    // 2 saw
@@ -221,7 +221,7 @@ BuildRandomSound()
     );
 
     if (sound['shape'] == 5 || R() < .1)
-        sound['shapeCurve'] = R()**3*100;    // larger shape curve
+        sound['shapeCurve'] = R()**2*10;     // larger shape curve
     if (sound['shapeCurve'] >= 10)
         sound['shapeCurve'] = sound['shapeCurve']|0;
 
@@ -392,7 +392,7 @@ let zzfxP =     // play a sound
                 Math.sin(tm * modulation - modPhase);    // modulation
 
             s = shape? shape>1? shape>2? shape>3? shape>4? // wave shape
-              sign((s/PI2%1+1)%1-(d+=shapeCurve*100/sampleRate)%1): // 5 duty
+              sign((s/PI2%1+1)%1-(d+=shapeCurve*1e3/sampleRate)%1): // 5 duty
               Math.sin((s%PI2)**3) :                // 4 noise
               Math.max(Math.min(Math.tan(s),1),-1): // 3 tan
               1-(2*s/PI2%2+2)%2:                    // 2 saw

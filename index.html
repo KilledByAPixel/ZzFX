@@ -137,7 +137,7 @@ body                         { user-select:none; }
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?892></script>
+<script src=ZzFX.js?894></script>
 <script>
 
 'use strict'; // strict mode
@@ -430,7 +430,7 @@ function AddPresetSound(presetName='Random')
             sound.deltaSlide = R()<.8 ? 0 : R(-10,10);
             sound.noise = R(2,0);
             sound.modulation = R()<.8 ? 0 : R(-1,1);
-            sound.bitCrush = R(2,0);
+            sound.bitCrush = R(1,.1);
             break;
         }
         case 'Explosion':
@@ -453,7 +453,7 @@ function AddPresetSound(presetName='Random')
     
     if (!sound.pitchJumpTime || !sound.pitchJump)
         sound.pitchJumpTime = sound.pitchJump = 0;
-
+        
     const length = sound.attack + sound.sustain + sound.delay;
     if (sound.repeatTime > length)
         sound.repeatTime = 0;
