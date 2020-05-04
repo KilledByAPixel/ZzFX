@@ -59,281 +59,266 @@ ZzFX Features
 
 class _ZZFX
 {
-    constructor()
-    {
-        this.x = this.CreateAudioContext(); // shared audio context
-        this.samples = 0;                   // last played samples
-        this.volume = .3;                   // master volume scale
-        this.sampleRate = 44100;            // sample rate for audio
-    }
-    
-    Play(sound)
-    {
-        // check if sound object was passed in
-        if (!sound || typeof sound != 'object')
-        {
-            // replace with defaults
-            const defaultSound = this.BuildSound();
-            sound = this.BuildSound(...arguments);
-            for (const key in sound)
-                if (typeof sound[key] == 'undefined')
-                    sound[key] = defaultSound[key];
-        }
-            
-        // build samples and start sound
-        const params = this.SoundToArray(sound);
-        const samples = this.BuildSamples(...params, this.volume);
-        return this.PlaySamples(samples);
-    }
-    
-    PlaySamples(samples)
-    {
-        const buffer = this.x.createBuffer(1, samples.length, this.sampleRate);
-        const source = this.x.createBufferSource();
-        buffer.getChannelData(0).set(samples);
-        source.buffer = buffer;
-        source.connect(this.x.destination);
-        source.start();
-        this.samples = samples;
-        return source;
-    }
-    
-    BuildSamples
-    (
-        volume, 
-        randomness,
-        frequency,
-        attack,
-        sustain,
-        release,
-        shape,
-        shapeCurve,
-        slide, 
-        deltaSlide,
-        pitchJump,
-        pitchJumpTime,
-        repeatTime,
-        noise,
-        modulation,
-        bitCrush,
-        delay,
-        volumeScale = 1
-    )
-    {
-        // init parameters
-        const PI2 = Math.PI*2;
-        const sampleRate = this.sampleRate;
-        const random = r => r*(Math.random()*2-1);
-        const sign = v => v>0?1:-1;
-        const startSlide = slide *= PI2 * 500 / sampleRate**2;
-        const modPhase = sign(modulation) * PI2/4
-        let startFrequency = frequency *= 
-            (1 + random(randomness)) * PI2 / sampleRate;
-        attack = 50 + attack * sampleRate | 0;
-        sustain = sustain * sampleRate | 0;
-        release = release * sampleRate | 0;
-        delay = delay * sampleRate | 0;
-        deltaSlide *= PI2 * 500 / sampleRate**3;
-        modulation *= PI2 / sampleRate;
-        pitchJump *= PI2 / sampleRate;
-        pitchJumpTime = pitchJumpTime * sampleRate;
-        repeatTime = repeatTime * sampleRate;
-        const length = Math.max(1, Math.min(attack+sustain+release+delay, sampleRate * 10));
-        
-        // generate waveform
-        let b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, d=.5;
-        for(; i < length;b[i++] = s)
-        {
-            if (++c>bitCrush*100)                            // bit crush
-            {
-                c = 0;
-                s = t * frequency *                        // frequency
-                    Math.sin(tm * modulation - modPhase);  // modulation
+constructor()
+{
+    this.x = this.CreateAudioContext(); // shared audio context
+    this.samples = 0;                   // last played samples
+    this.volume = .3;                   // master volume scale
+    this.sampleRate = 44100;            // sample rate for audio
+}
 
-                if (shape > 4)                             // square duty sweep
-                    s = 
-                    sign((s/PI2%1+1)%1-(d+=shapeCurve*100/sampleRate)%1); // duty
-                else
-                {
-                    s = shape? shape>1? shape>2? shape>3?      // wave shape
-                         sign(Math.sin((s%PI2)**3)) :          // 4 noise
-                         Math.max(Math.min(Math.tan(s),1),-1): // 3 tan
-                         1-(2*s/PI2%2+2)%2:                    // 2 saw
-                         1-4*Math.abs(Math.round(s/PI2)-s/PI2):// 1 triangle
-                         Math.sin(s);                          // 0 sin
-                    s = sign(s)*(Math.abs(s)**shapeCurve);     // curve 0=square
-                }
-                  
-                s *= volume * volumeScale * (                // envelope
-                    i<attack ? i/attack :                    // attack
-                    i<attack+sustain ? 1 :                   // sustain
-                    i<length-delay ?                         // post release
-                    1 - (i-attack-sustain)/release : 0);     // release
-                    
-                s = delay ?                                  // delay
-                    s/2 + (delay > i ? 0 :
-                    (i<length-delay? 1 : (i-length)/delay) * // release delay 
-                    b[i-delay]/2) : s;
-            }
-
-            t += 1 + random(noise);                      // noise
-            tm += 1 + random(noise);                     // modulation noise
-            frequency += slide += deltaSlide;            // frequency slide
-            
-            if (j && ++j > pitchJumpTime)                // pitch jump
-            {
-                startFrequency += pitchJump;
-                frequency += pitchJump;
-                j = 0;
-            };
-                
-            if (repeatTime && ++r > repeatTime)           // repeat
-            {
-                frequency = startFrequency;
-                slide = startSlide;
-                r = 1;
-                j = j||1;
-            }
-        }
-        
-        return b;
-    }
-    
-    BuildRandomSound()
+Play(sound)
+{
+    // check if sound object was passed in
+    if (!sound || typeof sound != 'object')
     {
-        // generate a random sound
-        function R() { return Math.random() }
-        const Fixed =(v,l=1)=>
-        {
-            const f = v.toFixed(l);
-            return !parseFloat(f) ? '0': f;
-        }
-        const sound = this.BuildSound
-        (
-           1,                                        // volume
-           .05,                                      // randomness
-           R()**2*2e3|0,                             // frequency
-           Fixed(.01 + R()**3,2),                    // attack
-           Fixed(R()**3,2),                          // sustain
-           Fixed(.01 + R()**3,2),                    // release
-           R()*6|0,                                  // shape
-           R()<.2?1: Fixed(R()*2),                   // shapeCurve
-           R()<.5?0: Fixed(R()**3*100*(R()<.5?-1:1)),// slide
-           R()<.5?0: Fixed(R()**3*100*(R()<.5?-1:1)),// deltaSlide
-           0,                                        // pitchJump
-           0,                                        // pitchJumpTime
-           0,                                        // repeatTime
-           R()<.5?0: Fixed(R()**3*3),                // noise
-           R()<.5?0: Fixed(R()**4*1e3),              // modulation
-           R()<.5?0: Fixed(R()**3*5,2),              // bitCrush
-           R()<.5?0: Fixed(R()**3*.5,2),             // delay
-        );
-        
-        if (sound['shape'] == 5)
-            sound['shapeCurve'] = Fixed(R()**3*100,2);   // square duty sweep
-        else if (R() < .1)
-            sound['shapeCurve'] = Fixed(R()**3*100,0);   // larger shape curve
-            
-        if (sound['shapeCurve'] >= 10)
-            sound['shapeCurve'] = parseInt(sound['shapeCurve']);
-        
-        const length = parseFloat(sound['attack']) 
-            + parseFloat(sound['sustain']) 
-            + parseFloat(sound['release']);
-        
-        if (R() < .5)
-            sound['modulation'] *= -1;              // flip mod phase
-            
-        if (R() < .3)
-        {
-            sound['pitchJump'] = R()**2*1e3*(R()<.5?-1:1)|0;// pitchJump
-            sound['pitchJumpTime'] = Fixed(R()*length,2);   // pitchJumpTime  
-        }
-        
-        if (R() < .3)
-            sound['repeatTime'] = Fixed(R()*length,2);      // repeatTime
-        
-        return sound;
-    }
-    
-    // build sound object
-    BuildSound
-    (
-        volume = 1, 
-        randomness = .05,
-        frequency = 220,
-        attack = 0,
-        sustain = 0,
-        release = .1,
-        shape = 0,
-        shapeCurve = 1,
-        slide = 0, 
-        deltaSlide = 0, 
-        pitchJump = 0, 
-        pitchJumpTime = 0, 
-        repeatTime = 0, 
-        noise = 0,
-        modulation = 0,
-        bitCrush = 0,
-        delay = 0
-    )
-    {
-        const sound = 
-        {
-            'volume':       volume,
-            'randomness':   randomness,
-            'frequency':    frequency,
-            'attack':       attack,
-            'sustain':      sustain,
-            'release':      release,
-            'shape':        shape,
-            'shapeCurve':   shapeCurve,
-            'slide':        slide,
-            'deltaSlide':   deltaSlide,
-            'pitchJump':    pitchJump,
-            'pitchJumpTime':pitchJumpTime,
-            'repeatTime':   repeatTime,
-            'noise':        noise,
-            'modulation':   modulation,
-            'bitCrush':     bitCrush,
-            'delay':        delay
-        };
-        
-        return sound;
-    }
-    
-    // get frequency of a musical note
-    GetNote(rootNoteFrequency, semitoneOffset)
-    {
-        return rootNoteFrequency * 2**(semitoneOffset/12);
-    }
-    
-    // convert sound parameters object to array
-    SoundToArray(sound)
-    {
-        // use default sound for keys and order
+        // replace with defaults
         const defaultSound = this.BuildSound();
-        const array = [];
-        for(const key in defaultSound)
-            array.push(sound[key]);
-        return array
+        sound = this.BuildSound(...arguments);
+        for (const key in sound)
+            if (typeof sound[key] == 'undefined')
+                sound[key] = defaultSound[key];
     }
-    
-    CreateAudioContext()
+
+    // build samples and start sound
+    const params = this.SoundToArray(sound);
+    const samples = this.BuildSamples(...params, this.volume);
+    return this.PlaySamples(samples);
+}
+
+PlaySamples(samples)
+{
+    const buffer = this.x.createBuffer(1, samples.length, this.sampleRate);
+    const source = this.x.createBufferSource();
+    buffer.getChannelData(0).set(samples);
+    source.buffer = buffer;
+    source.connect(this.x.destination);
+    source.start();
+    this.samples = samples;
+    return source;
+}
+
+BuildSamples
+(
+    volume, 
+    randomness,
+    frequency,
+    attack,
+    sustain,
+    release,
+    shape,
+    shapeCurve,
+    slide, 
+    deltaSlide,
+    pitchJump,
+    pitchJumpTime,
+    repeatTime,
+    noise,
+    modulation,
+    bitCrush,
+    delay,
+    volumeScale = 1
+)
+{
+    // init parameters
+    const PI2 = Math.PI*2;
+    const sampleRate = this.sampleRate;
+    const random = r => r*(Math.random()*2-1);
+    const sign = v => v>0?1:-1;
+    const startSlide = slide *= PI2 * 500 / sampleRate**2;
+    const modPhase = sign(modulation) * PI2/4
+    let startFrequency = frequency *= 
+        (1 + random(randomness)) * PI2 / sampleRate;
+    attack = 50 + attack * sampleRate | 0;
+    sustain = sustain * sampleRate | 0;
+    release = release * sampleRate | 0;
+    delay = delay * sampleRate | 0;
+    deltaSlide *= PI2 * 500 / sampleRate**3;
+    modulation *= PI2 / sampleRate;
+    pitchJump *= PI2 / sampleRate;
+    pitchJumpTime = pitchJumpTime * sampleRate;
+    repeatTime = repeatTime * sampleRate;
+    const length = Math.max(1, Math.min(attack+sustain+release+delay, sampleRate * 10));
+
+    // generate waveform
+    let b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, d=.5;
+    for(; i < length;b[i++] = s)
     {
-        // fix compatibility issues with old web audio
-        const audioContext = new (window.AudioContext || webkitAudioContext);
-        audioContext.Z = audioContext.createBufferSource;
-        audioContext.createBufferSource =
-        (s = audioContext.Z())=>
-        (
-            s.start = s.start || (t => audioContext.noteOn (t)),
-            s.stop  = s.stop  || (t => audioContext.noteOff(t)),
-            s
-        );
-        
-        return audioContext;
+        if (++c>bitCrush*100)                          // bit crush
+        {
+            c = 0;
+            s = t * frequency *                        // frequency
+                Math.sin(tm * modulation - modPhase);  // modulation
+
+            s = shape? shape>1? shape>2? shape>3? shape>4? // wave shape
+              sign((s/PI2%1+1)%1-(d+=shapeCurve*100/sampleRate)%1): // 5 duty
+              Math.sin((s%PI2)**3) :                // 4 noise
+              Math.max(Math.min(Math.tan(s),1),-1): // 3 tan
+              1-(2*s/PI2%2+2)%2:                    // 2 saw
+              1-4*Math.abs(Math.round(s/PI2)-s/PI2):// 1 triangle
+              Math.sin(s);                          // 0 sin
+            if (shape < 5)
+                s = sign(s)*(Math.abs(s)**shapeCurve);  // curve 0=square, 2=pointy
+
+            s *= volume * volumeScale * (                // envelope
+                i<attack ? i/attack :                    // attack
+                i<attack+sustain ? 1 :                   // sustain
+                i<length-delay ?                         // post release
+                1 - (i-attack-sustain)/release : 0);     // release
+
+            s = delay ?                                  // delay
+                s/2 + (delay > i ? 0 :
+                (i<length-delay? 1 : (i-length)/delay) * // release delay 
+                b[i-delay]/2) : s;
+        }
+
+        t += 1 + random(noise);                      // noise
+        tm += 1 + random(noise);                     // modulation noise
+        frequency += slide += deltaSlide;            // frequency slide
+
+        if (j && ++j > pitchJumpTime)                // pitch jump
+        {
+            startFrequency += pitchJump;
+            frequency += pitchJump;
+            j = 0;
+        };
+
+        if (repeatTime && ++r > repeatTime)           // repeat
+        {
+            frequency = startFrequency;
+            slide = startSlide;
+            r = 1;
+            j = j||1;
+        }
     }
+
+    return b;
+}
+
+BuildRandomSound()
+{
+    // generate a random sound
+    function R() { return Math.random() }
+    const sound = this.BuildSound
+    (
+       1,                                    // volume
+       .05,                                  // randomness
+       R()**2*2e3|0,                         // frequency
+       .01 + R()**3,                         // attack
+       R()**3,                               // sustain
+       .01 + R()**3,                         // release
+       R()*6|0,                              // shape
+       R()<.2?1: R()*2,                      // shapeCurve
+       R()<.5?0: R()**3*100*(R()<.5?-1:1),   // slide
+       R()<.5?0: R()**3*100*(R()<.5?-1:1),   // deltaSlide
+       0,                                    // pitchJump
+       0,                                    // pitchJumpTime
+       0,                                    // repeatTime
+       R()<.5?0: R()**3*3,                   // noise
+       R()<.5?0: R()**4*1e3,                 // modulation
+       R()<.5?0: R()**3*5,                   // bitCrush
+       R()<.5?0: R()**3*.5,                  // delay
+    );
+
+    if (sound['shape'] == 5 || R() < .1)
+        sound['shapeCurve'] = R()**3*100;    // larger shape curve
+    if (sound['shapeCurve'] >= 10)
+        sound['shapeCurve'] = sound['shapeCurve']|0;
+
+    if (R() < .5)
+        sound['modulation'] *= -1;           // flip mod phase
+        
+    const length = sound['attack'] + sound['sustain'] + sound['release'];
+    if (R() < .5)
+    {
+        sound['pitchJump'] = R()**2*1e3*(R()<.5?-1:1)|0; // pitchJump
+        sound['pitchJumpTime'] = R()*length;             // pitchJumpTime  
+    }
+
+    if (R() < .5)
+        sound['repeatTime'] = R()*length;    // repeatTime
+
+    return sound;
+}
+
+// build sound object
+BuildSound
+(
+    volume = 1, 
+    randomness = .05,
+    frequency = 220,
+    attack = 0,
+    sustain = 0,
+    release = .1,
+    shape = 0,
+    shapeCurve = 1,
+    slide = 0, 
+    deltaSlide = 0, 
+    pitchJump = 0, 
+    pitchJumpTime = 0, 
+    repeatTime = 0, 
+    noise = 0,
+    modulation = 0,
+    bitCrush = 0,
+    delay = 0
+)
+{
+    const sound = 
+    {
+        'volume':       volume,
+        'randomness':   randomness,
+        'frequency':    frequency,
+        'attack':       attack,
+        'sustain':      sustain,
+        'release':      release,
+        'shape':        shape,
+        'shapeCurve':   shapeCurve,
+        'slide':        slide,
+        'deltaSlide':   deltaSlide,
+        'pitchJump':    pitchJump,
+        'pitchJumpTime':pitchJumpTime,
+        'repeatTime':   repeatTime,
+        'noise':        noise,
+        'modulation':   modulation,
+        'bitCrush':     bitCrush,
+        'delay':        delay
+    };
+
+    return sound;
+}
+
+// get frequency of a musical note
+GetNote(rootNoteFrequency, semitoneOffset)
+{
+    return rootNoteFrequency * 2**(semitoneOffset/12);
+}
+
+// convert sound parameters object to array
+SoundToArray(sound)
+{
+    // use default sound for keys and order
+    const defaultSound = this.BuildSound();
+    const array = [];
+    for(const key in defaultSound)
+        array.push(sound[key]);
+    return array
+}
+
+CreateAudioContext()
+{
+    // fix compatibility issues with old web audio
+    const audioContext = new (window.AudioContext || webkitAudioContext);
+    audioContext.Z = audioContext.createBufferSource;
+    audioContext.createBufferSource =
+    (s = audioContext.Z())=>
+    (
+        s.start = s.start || (t => audioContext.noteOn (t)),
+        s.stop  = s.stop  || (t => audioContext.noteOff(t)),
+        s
+    );
+
+    return audioContext;
+}
 }
 
 const ZZFX = new _ZZFX;
@@ -406,18 +391,15 @@ let zzfxP =     // play a sound
             s = t * frequency *                          // frequency
                 Math.sin(tm * modulation - modPhase);    // modulation
 
-            if (shape > 4)                             // square duty sweep
-                s = sign((s/PI2%1+1)%1-(d+=shapeCurve*100/sampleRate)%1); // duty
-            else
-            {
-                s = shape? shape>1? shape>2? shape>3?      // wave shape
-                     sign(Math.sin((s%PI2)**3)) :          // 4 noise
-                     Math.max(Math.min(Math.tan(s),1),-1): // 3 tan
-                     1-(2*s/PI2%2+2)%2:                    // 2 saw
-                     1-4*Math.abs(Math.round(s/PI2)-s/PI2):// 1 triangle
-                     Math.sin(s);                          // 0 sin
-                s = sign(s)*(Math.abs(s)**shapeCurve);     // curve 0=square
-            }
+            s = shape? shape>1? shape>2? shape>3? shape>4? // wave shape
+              sign((s/PI2%1+1)%1-(d+=shapeCurve*100/sampleRate)%1): // 5 duty
+              Math.sin((s%PI2)**3) :                // 4 noise
+              Math.max(Math.min(Math.tan(s),1),-1): // 3 tan
+              1-(2*s/PI2%2+2)%2:                    // 2 saw
+              1-4*Math.abs(Math.round(s/PI2)-s/PI2):// 1 triangle
+              Math.sin(s);                          // 0 sin
+            if (shape < 5)
+                s = sign(s)*(Math.abs(s)**shapeCurve);  // curve 0=square, 2=pointy
 
             s *= volume * zzfxV * (                      // envelope
                 i<attack ? i/attack :                    // attack
