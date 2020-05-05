@@ -137,7 +137,7 @@ body                         { user-select:none; }
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?894></script>
+<script src=ZzFX.js?895></script>
 <script>
 
 'use strict'; // strict mode
@@ -174,9 +174,9 @@ const settings =
 BuildSetting(0,0,0,'name','Name','Name of sound',0,1),
 BuildSetting(.1,-1e9,1e9,'volume','Volume','Volume scale (percent)',0),
 BuildSetting(.05,-1e9,1e9,'randomness','Randomness','How much to randomize frequency (percent Hz)',0),
-BuildSetting(50,-1e9,1e9,'frequency','Frequency','Frequency of sound (Hz)'),
+BuildSetting(1,-1e9,1e9,'frequency','Frequency','Frequency of sound (Hz)'),
 BuildSetting(1,0,0,'shape','Wave Shape','Shape of the sound wave',1,2),
-BuildSetting(.1,0,1e9,'shapeCurve','Shape Curve','Squarenes of wave (0=square, 1=normal, 2=pointy) or sweep speed if using duty sweep'),
+BuildSetting(.1,0,1e9,'shapeCurve','Shape Curve','Squarenes of wave (0=square, 1=normal, 2=pointy)'),
 BuildSetting(.01,0,3,'attack','Attack','Attack time, how fast sound starts (seconds)'),
 BuildSetting(.01,0,3,'sustain','Sustain','Sustain time, how long sound holds (seconds)'),
 BuildSetting(.01,0,3,'release','Release','Release time, how fast sound fades out (seconds)'),
@@ -230,7 +230,6 @@ function BuildSettingsTable()
             html += `<option value=2>saw</option>`;
             html += `<option value=3>tan</option>`;
             html += `<option value=4>bit noise</option>`;
-            html += `<option value=5>duty sweep</option>`;
             html += `</select>`;
         }
         
@@ -394,7 +393,7 @@ function AddPresetSound(presetName='Random')
         case 'Shoot':
         {
             sound.frequency = R(0,700);
-            sound.shape = R(6)|0;
+            sound.shape = R(5)|0;
             sound.shapeCurve = R(2);
             sound.attack = R(.03);
             sound.sustain = 0;
@@ -420,10 +419,10 @@ function AddPresetSound(presetName='Random')
         case 'Hit':
         {
             sound.frequency = R(50,500);
-            sound.shape = R(6)|0;
+            sound.shape = R(5)|0;
             sound.shapeCurve = R(3);
             sound.attack = 0;
-            sound.sustain = R(.1);
+            sound.sustain = R()<.5 ? 0 : R(.1);
             sound.release = R(.1,.5);
             sound.delay = R()<.3 ? 0 : R(.2);
             sound.slide = R()<.8 ? 0 : R(-10,10);
@@ -436,9 +435,9 @@ function AddPresetSound(presetName='Random')
         case 'Explosion':
         {
             sound.frequency = R(0,1e3);
-            sound.shape = R(6)|0;
+            sound.shape = R(5)|0;
             sound.shapeCurve = R(5);
-            sound.attack = R(.05);
+            sound.attack = R()<.5 ? 0 : R(.05);
             sound.sustain = R(.4,0);
             sound.release = R(.5,2);
             sound.slide = R()<.8 ? 0 : R();
@@ -524,6 +523,9 @@ function AddToList(sound)
             continue;
         sound[key] = defaultSound[key];
     }
+    
+    if (!(parseInt(sound.shape)<=4))
+        sound.shape = 0;
     
     const i = sounds.push(sound) - 1;
     const option = document.createElement('option');
@@ -944,15 +946,15 @@ function DrawSoundWave(b, volume, sound)
     let length = b.length;
     let X, W;
     let H=R()*3e3, S=R()*99;
-    x.fillStyle=`hsl(${H},${S}%,5%)`;
+    x.fillStyle=`hsl(${H},${S}%,0%)`;
     x.fillRect(0,0,w,h);
     if (!length)
         return;
-    x.fillStyle=`hsl(${H},${S}%,20%)`;
+    x.fillStyle=`hsl(${H},${S}%,25%)`;
     x.fillRect(X=0,0,W=w*sound.attack * ZZFX.sampleRate/b.length,h);
-    x.fillStyle=`hsl(${H},${S}%,15%)`;
+    x.fillStyle=`hsl(${H},${S}%,14%)`;
     x.fillRect(X+=W,0,W=w*sound.sustain * ZZFX.sampleRate/b.length,h);
-    x.fillStyle=`hsl(${H},${S}%,10%)`;
+    x.fillStyle=`hsl(${H},${S}%,8%)`;
     x.fillRect(X+=W,0,W=w*sound.release * ZZFX.sampleRate/b.length,h);
     x.strokeStyle=`#FFF`;
     x.strokeRect(X=0,0,W=w*sound.attack * ZZFX.sampleRate/b.length,h);
@@ -1005,10 +1007,8 @@ function LoadSaveData(dataJSON)
     if (data.sounds)
         data.sounds.forEach(o=>o&&AddToList(o));
         
-    select_soundList.selectedIndex = 0;
     AddDefaultIfEmpty();
-    UpdateSettings();
-    LoadSelected();
+    select_soundList.selectedIndex = 0;
 }
 
 function SaveLocalStorage()

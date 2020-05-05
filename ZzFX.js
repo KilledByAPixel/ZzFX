@@ -150,15 +150,13 @@ BuildSamples
             s = t * frequency *                        // frequency
                 Math.sin(tm * modulation - modPhase);  // modulation
 
-            s = shape? shape>1? shape>2? shape>3? shape>4? // wave shape
-              sign((s/PI2%1+1)%1-(d+=shapeCurve*1e3/sampleRate)%1): // 5 duty
+            s = shape? shape>1? shape>2? shape>3?   // wave shape
               Math.sin((s%PI2)**3) :                // 4 noise
               Math.max(Math.min(Math.tan(s),1),-1): // 3 tan
               1-(2*s/PI2%2+2)%2:                    // 2 saw
               1-4*Math.abs(Math.round(s/PI2)-s/PI2):// 1 triangle
               Math.sin(s);                          // 0 sin
-            if (shape < 5)
-                s = sign(s)*(Math.abs(s)**shapeCurve);  // curve 0=square, 2=pointy
+            s = sign(s)*(Math.abs(s)**shapeCurve);  // curve 0=square, 2=pointy
 
             s *= volume * volumeScale * (                // envelope
                 i<attack ? i/attack :                    // attack
@@ -207,7 +205,7 @@ BuildRandomSound()
        .01 + R()**3,                         // attack
        R()**3,                               // sustain
        .01 + R()**3,                         // release
-       R()*6|0,                              // shape
+       R()*5|0,                              // shape
        R()<.2?1: R()*2,                      // shapeCurve
        R()<.5?0: R()**3*100*(R()<.5?-1:1),   // slide
        R()<.5?0: R()**3*100*(R()<.5?-1:1),   // deltaSlide
@@ -220,9 +218,9 @@ BuildRandomSound()
        R()<.5?0: R()**3*.5,                  // delay
     );
 
-    if (sound['shape'] == 5 || R() < .1)
+    if (R() < .1)
         sound['shapeCurve'] = R()**2*10;     // larger shape curve
-    if (sound['shapeCurve'] >= 10)
+    if (sound['shapeCurve'] >= 2)
         sound['shapeCurve'] = sound['shapeCurve']|0;
 
     if (R() < .5)
@@ -391,15 +389,13 @@ let zzfxP =     // play a sound
             s = t * frequency *                          // frequency
                 Math.sin(tm * modulation - modPhase);    // modulation
 
-            s = shape? shape>1? shape>2? shape>3? shape>4? // wave shape
-              sign((s/PI2%1+1)%1-(d+=shapeCurve*1e3/sampleRate)%1): // 5 duty
+            s = shape? shape>1? shape>2? shape>3?   // wave shape
               Math.sin((s%PI2)**3) :                // 4 noise
               Math.max(Math.min(Math.tan(s),1),-1): // 3 tan
               1-(2*s/PI2%2+2)%2:                    // 2 saw
               1-4*Math.abs(Math.round(s/PI2)-s/PI2):// 1 triangle
               Math.sin(s);                          // 0 sin
-            if (shape < 5)
-                s = sign(s)*(Math.abs(s)**shapeCurve);  // curve 0=square, 2=pointy
+            s = sign(s)*(Math.abs(s)**shapeCurve);  // curve 0=square, 2=pointy
 
             s *= volume * zzfxV * (                      // envelope
                 i<attack ? i/attack :                    // attack
