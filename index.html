@@ -264,8 +264,18 @@ function PlaySelected()
     }
     
     const sound = BuildSoundFromSettings();
-    lastPlayedSound = ZZFX.Play(sound);
-    DrawSoundWave(ZZFX.samples, ZZFX.volume, sound);
+    if (ZZFX.volume > 0)
+    {
+        lastPlayedSound = ZZFX.Play(sound);
+        DrawSoundWave(ZZFX.samples, ZZFX.volume, sound);
+    }
+    else
+    {
+        // just build samples
+        const params = ZZFX.SoundToArray(sound);
+        const samples = ZZFX.BuildSamples(...params);
+        DrawSoundWave(samples, 1, sound);
+    }
     RandomizeLogo();
 }
 
@@ -945,16 +955,16 @@ function DrawSoundWave(b, volume, sound)
     // show attack, sustain, release
     let length = b.length;
     let X, W;
-    let H=R()*3e3, S=R()*99;
-    x.fillStyle=`hsl(${H},${S}%,0%)`;
+    let H=R()*3e3;
+    x.fillStyle=`hsl(${H+45},79%,10%)`;
     x.fillRect(0,0,w,h);
     if (!length)
         return;
-    x.fillStyle=`hsl(${H},${S}%,25%)`;
+    x.fillStyle=`hsl(${H-45},79%,10%)`;
     x.fillRect(X=0,0,W=w*sound.attack * ZZFX.sampleRate/b.length,h);
-    x.fillStyle=`hsl(${H},${S}%,14%)`;
+    x.fillStyle=`hsl(${H-15},79%,10%)`;
     x.fillRect(X+=W,0,W=w*sound.sustain * ZZFX.sampleRate/b.length,h);
-    x.fillStyle=`hsl(${H},${S}%,8%)`;
+    x.fillStyle=`hsl(${H+15},99%,10%)`;
     x.fillRect(X+=W,0,W=w*sound.release * ZZFX.sampleRate/b.length,h);
     x.strokeStyle=`#FFF`;
     x.strokeRect(X=0,0,W=w*sound.attack * ZZFX.sampleRate/b.length,h);
@@ -962,7 +972,7 @@ function DrawSoundWave(b, volume, sound)
     x.strokeRect(X+=W,0,W=w*sound.release * ZZFX.sampleRate/b.length,h);
     
     // draw the wave
-    x.strokeStyle=`hsl(${H+180},${R()*99}%,${70+R()*20}%)`;
+    x.strokeStyle=`hsl(${H+180},${R()*99}%,70%)`;
     x.beginPath();
     for(let i=0; i<b.length; i+=10)
         x.lineTo(w*i/b.length, .8*b[i]*h/2/volume+h/2);
@@ -1025,7 +1035,7 @@ function LoadLocalStorage()
 function Export()
 {
     const fileData = BuildSaveData();
-    a_downloadLink.download = "zzfx.txt";
+    a_downloadLink.download = "zzfx_sounds.txt";
     a_downloadLink.href='data:application/octet-stream;charset=UTF-8,' + encodeURIComponent(fileData);
     a_downloadLink.click();
     PlaySelected();
