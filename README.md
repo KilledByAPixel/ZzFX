@@ -60,8 +60,6 @@ zzfx=    // play sound
 - List of sounds can be exported and imported.
 - Supports drag-and-drop of exported files into sound list.
 
-![ZzFX Image](/screenshot.jpg)
-
 ## Games Using ZzFX
 
 - [Bogus Roads](https://www.newgrounds.com/portal/view/747570)
@@ -89,5 +87,7 @@ zzfx=    // play sound
 
 - Just for fun I created a soundboard where everyone can have one sound.
 - Send me a zzfx code and emoji to get your sound added!
+
+![ZzFX Image](/screenshot.jpg)
 
 ![ZzFX Image](/favicon.png) 
