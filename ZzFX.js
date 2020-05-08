@@ -213,8 +213,8 @@ BuildRandomSound()
        0,                                    // pitchJumpTime
        0,                                    // repeatTime
        R()<.5?0: R()**3*3,                   // noise
-       R()<.5?0: R()**4*1e3,                 // modulation
-       R()<.5?0: R()**3*5,                   // bitCrush
+       R()<.5?0: R()**3*100*(R()<.5?-1:1),   // modulation
+       R()<.5?0: R()**2,                     // bitCrush
        R()<.5?0: R()**3*.5,                  // delay
     );
 

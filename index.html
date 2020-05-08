@@ -137,7 +137,7 @@ body                         { user-select:none; }
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?897></script>
+<script src=ZzFX.js?898></script>
 <script>
 
 'use strict'; // strict mode
@@ -373,12 +373,12 @@ function AddPresetSound(presetName='Random')
             sound.attack = R(.5,0);
             sound.sustain = R(.5,0);
             sound.release = R(.1,1);
-            sound.pitchJump = R(-1000,1000);
+            sound.pitchJump = R(1)**2*1000*R(-1,1);
             sound.pitchJumpTime = !sound.pitchJump ? 0 : R(0,.1);
             sound.delay = R()<.8 ? 0 : R(.2);
             sound.repeatTime = R()<.2 ? 0 : R(.3);
-            sound.slide = R()<.5 ? 0 : R(-10,10);
-            sound.deltaSlide = R()<.5 ? 0 : R(-10,10);
+            sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
+            sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*10;
             sound.noise =  R()<.8 ? 0 : R(.2,0);
             sound.modulation = R()<.8 ? 0 : R(-.2,.2);
             sound.bitCrush = R()<.5 ? 0 : R(.1);
@@ -392,10 +392,10 @@ function AddPresetSound(presetName='Random')
             sound.attack = R(.05);
             sound.sustain = R(.1);
             sound.release = R(.1,.5);
-            sound.noise =  R()<.8 ? 0 : R(.5,0);
+            sound.noise =  R()<.8 ? 0 : R(.5);
             sound.slide = R(-10,10);
             sound.deltaSlide = R()<.8 ? 0 : R(-5,5);
-            sound.modulation = R()<.8 ? 0 : R(-1,1);
+            sound.modulation = R()<.8 ? 0 : R(-1,1)**3*10;
             sound.bitCrush = R()<.5 ? 0 : R(.1);
             sound.delay = R()<.8 ? 0 : R(.05);
             break;
@@ -413,7 +413,7 @@ function AddPresetSound(presetName='Random')
             sound.deltaSlide = R()<.5 ? 0 : R(-1,1);
             sound.noise =  R()<.8 ? 0 : R(5,0);
             sound.repeatTime = R()<.5 ? 0 : R(.1);
-            sound.modulation = R()<.8 ? 0 : R(-10,10);
+            sound.modulation = R()<.8 ? 0 : R(-1,1)**3*10;
             sound.bitCrush = R()<.5 ? 0 : R(.1);
             break;
         }
@@ -423,7 +423,7 @@ function AddPresetSound(presetName='Random')
             sound.attack = R(.05);
             sound.sustain = 0;
             sound.release = R(.05,.1);
-            sound.bitCrush = R()<.5 ? 0 : R(.5);
+            sound.bitCrush = R()<.5 ? 0 : R(.3);
             break;
         }
         case 'Hit':
@@ -435,11 +435,11 @@ function AddPresetSound(presetName='Random')
             sound.sustain = R()<.5 ? 0 : R(.1);
             sound.release = R(.1,.5);
             sound.delay = R()<.3 ? 0 : R(.2);
-            sound.slide = R()<.8 ? 0 : R(-10,10);
-            sound.deltaSlide = R()<.8 ? 0 : R(-10,10);
+            sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
+            sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*10;
             sound.noise = R(2,0);
-            sound.modulation = R()<.8 ? 0 : R(-1,1);
-            sound.bitCrush = R(1,.1);
+            sound.modulation = R()<.5 ? 0 : R(-1,1);
+            sound.bitCrush = R(.5,0);
             break;
         }
         case 'Explosion':
@@ -450,12 +450,12 @@ function AddPresetSound(presetName='Random')
             sound.attack = R()<.5 ? 0 : R(.05);
             sound.sustain = R(.4,0);
             sound.release = R(.5,2);
-            sound.slide = R()<.8 ? 0 : R();
-            sound.deltaSlide = R()<.8 ? 0 : R();
+            sound.slide = R()<.5 ? 0 : R();
+            sound.deltaSlide = R()<.5 ? 0 : R();
             sound.delay = R()<.5 ? 0 : R(.5);
             sound.noise = R(1,0);
             sound.modulation = R()<.5 ? 0 : R(-1,1);
-            sound.bitCrush = R(2,.1);
+            sound.bitCrush = R(1,.1);
             break;
         }
     }
