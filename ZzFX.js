@@ -129,7 +129,7 @@ BuildSamples
     const modPhase = sign(modulation) * PI2/4
     let startFrequency = frequency *= 
         (1 + random(randomness)) * PI2 / sampleRate;
-    attack = 50 + attack * sampleRate | 0;
+    attack = 99 + attack * sampleRate | 0;
     sustain = sustain * sampleRate | 0;
     release = release * sampleRate | 0;
     delay = delay * sampleRate | 0;
@@ -369,7 +369,7 @@ let zzfxP =     // play a sound
 ) =>
 {
     // init parameters
-    attack = 50 + attack * sampleRate | 0;
+    attack = 99 + attack * sampleRate | 0;
     sustain = sustain * sampleRate | 0;
     release = release * sampleRate | 0;
     delay = delay * sampleRate | 0;
