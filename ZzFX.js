@@ -75,7 +75,7 @@ Play(sound)
         this.SoundToArray(sound) : arguments;
 
     // build samples and start sound
-    const samples = this.BuildSamples(...params, this.volume);
+    const samples = this.BuildSamples(...params);
     return this.PlaySamples(samples);
 }
 
@@ -110,8 +110,7 @@ BuildSamples
     noise = 0,
     modulation = 0,
     bitCrush = 0,
-    delay = 0,
-    volumeScale = 1
+    delay = 0
 )
 {
     // init parameters
@@ -152,7 +151,7 @@ BuildSamples
               Math.sin(s);                          // 0 sin
             s = sign(s)*(Math.abs(s)**shapeCurve);  // curve 0=square, 2=pointy
 
-            s *= volume * volumeScale * (                // envelope
+            s *= volume * this.volume * (                // envelope
                 i<attack ? i/attack :                    // attack
                 i<attack+sustain ? 1 :                   // sustain
                 i<length-delay ?                         // post release
@@ -283,15 +282,15 @@ BuildSound
     return sound;
 }
 
-// get frequency of a musical note on a diatonic scale
 GetNote(rootNoteFrequency=440, semitoneOffset)
 {
+    // get frequency of a musical note on a diatonic scale
     return rootNoteFrequency * 2**(semitoneOffset/12);
 }
 
-// convert sound parameters object to array
 SoundToArray(sound)
 {
+    // convert sound parameters object to array
     // use default sound for keys and order
     const defaultSound = this.BuildSound();
     const array = [];
@@ -300,7 +299,6 @@ SoundToArray(sound)
     return array
 }
 
-// create an audio context with compatbility fixes
 CreateAudioContext()
 {
     // fix compatibility issues with old web audio
