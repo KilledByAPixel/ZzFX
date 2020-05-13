@@ -129,7 +129,8 @@ body                         { user-select:none; }
 </center>
 </td></tr>
 <tr><td colspan=3 style=padding:5px>
-<center>ZzFX JavaScript - Use this code to play the sound
+<center>ZzFX JavaScript (Use this code to play the sound)
+<input type=checkbox id=input_shortenCode checked onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Spread
 <br><textarea title='Code to play the selected sound' id=textarea_code style=width:90% readonly></textarea>
 </center>
 </td></tr>
@@ -137,7 +138,7 @@ body                         { user-select:none; }
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?898></script>
+<script src=ZzFX.js?899></script>
 <script>
 
 'use strict'; // strict mode
@@ -376,7 +377,7 @@ function AddPresetSound(presetName='Random')
             sound.pitchJump = R(1)**2*1000*R(-1,1);
             sound.pitchJumpTime = !sound.pitchJump ? 0 : R(0,.1);
             sound.delay = R()<.8 ? 0 : R(.2);
-            sound.repeatTime = R()<.2 ? 0 : R(.3);
+            sound.repeatTime = R(.3);
             sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
             sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*10;
             sound.noise =  R()<.8 ? 0 : R(.2,0);
@@ -759,6 +760,7 @@ function ClearSoundsButton(clearFavorites)
         if (!confirm('Are you sure you want clear all sounds?\nThis will DELETE your favorites!'))
             return;
         slider_masterVolume.value = 30;
+        input_shortenCode.checked = 1;
     }
     ClearSounds(clearFavorites);
     AddDefaultIfEmpty();
@@ -793,9 +795,10 @@ function GetCode(sound)
     const parameters = ZZFX.SoundToArray(sound);
         
     // remove defaults
+    const shorten = input_shortenCode.checked;
     const defaults = ZZFX.SoundToArray(ZZFX.BuildSound());
     let isEnd = 1;
-    for(let i = parameters.length-1; i>=0; --i)
+    for(let i = parameters.length-1; shorten&&i>=0; --i)
     {
         if (parameters[i] == defaults[i])
         {
@@ -828,7 +831,10 @@ function GetCode(sound)
             
         code += (i?',':'') + p;
     }
-    if (code.length)
+    
+    if (!code.length)
+        return `zzfx(${code}); // ${sound.name.trim()}`;
+    else if (shorten)
         return `zzfx(...[${code}]); // ${sound.name.trim()}`;
     else
         return `zzfx(${code}); // ${sound.name.trim()}`;
@@ -996,6 +1002,7 @@ function BuildSaveData()
         sounds,
         generatedSoundCount,
         volume:slider_masterVolume.value,
+        shortenCode:input_shortenCode.checked,
     }
     
     return JSON.stringify(data);
@@ -1014,6 +1021,8 @@ function LoadSaveData(dataJSON)
         slider_masterVolume.value = data.volume;
     if (data.generatedSoundCount)
         generatedSoundCount = data.generatedSoundCount;
+    if (!data.shortenCode)
+        input_shortenCode.checked = 0;
     if (data.sounds)
         data.sounds.forEach(o=>o&&AddToList(o));
         

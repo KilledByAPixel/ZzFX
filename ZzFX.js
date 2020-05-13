@@ -6,9 +6,9 @@ By Frank Force 2019
 ZzFX Features
 
 - Tiny synth engine with 17 controllable parameters.
-- Play sounds via code, no need for wave files!
+- Play sounds via code, no need for sound assed files!
 - Compatible with nearly all web browsers.
-- Small code footprint, the micro version is under 1 kilobyte!
+- Small code footprint, the micro version is under 1 kilobyte.
 - Can produce a huge variety of sound effect types.
 - Sounds can be played with a short call. zzfx(...[,,,,.1,,,,9])
 - A small bit of randomness appied to sounds when played.
@@ -59,6 +59,7 @@ ZzFX Features
 
 class _ZZFX
 {
+
 constructor()
 {
     this.x = this.CreateAudioContext(); // shared audio context
@@ -70,24 +71,17 @@ constructor()
 Play(sound)
 {
     // check if sound object was passed in
-    if (!sound || typeof sound != 'object')
-    {
-        // replace with defaults
-        const defaultSound = this.BuildSound();
-        sound = this.BuildSound(...arguments);
-        for (const key in sound)
-            if (typeof sound[key] == 'undefined')
-                sound[key] = defaultSound[key];
-    }
+    const params = sound && typeof sound == 'object' ? 
+        this.SoundToArray(sound) : arguments;
 
     // build samples and start sound
-    const params = this.SoundToArray(sound);
     const samples = this.BuildSamples(...params, this.volume);
     return this.PlaySamples(samples);
 }
 
 PlaySamples(samples)
 {
+    // play an array of audio samples
     const buffer = this.x.createBuffer(1, samples.length, this.sampleRate);
     const source = this.x.createBufferSource();
     buffer.getChannelData(0).set(samples);
@@ -100,23 +94,23 @@ PlaySamples(samples)
 
 BuildSamples
 (
-    volume, 
-    randomness,
-    frequency,
-    attack,
-    sustain,
-    release,
-    shape,
-    shapeCurve,
-    slide, 
-    deltaSlide,
-    pitchJump,
-    pitchJumpTime,
-    repeatTime,
-    noise,
-    modulation,
-    bitCrush,
-    delay,
+    volume = 1, 
+    randomness = .05,
+    frequency = 220,
+    attack = 0,
+    sustain = 0,
+    release = .1,
+    shape = 0,
+    shapeCurve = 1,
+    slide = 0, 
+    deltaSlide = 0, 
+    pitchJump = 0, 
+    pitchJumpTime = 0, 
+    repeatTime = 0, 
+    noise = 0,
+    modulation = 0,
+    bitCrush = 0,
+    delay = 0,
     volumeScale = 1
 )
 {
@@ -176,17 +170,17 @@ BuildSamples
 
         if (j && ++j > pitchJumpTime)                // pitch jump
         {
-            startFrequency += pitchJump;
-            frequency += pitchJump;
-            j = 0;
+            frequency += pitchJump;                  // apply pitch jump
+            startFrequency += pitchJump;             // also apply to start
+            j = 0;                                   // reset pitch jump time
         };
 
         if (repeatTime && ++r > repeatTime)           // repeat
         {
-            frequency = startFrequency;
-            slide = startSlide;
-            r = 1;
-            j = j||1;
+            frequency = startFrequency;               // reset frequency
+            slide = startSlide;                       // reset slide
+            r = 1;                                    // reset repeat time
+            j = j||1;                                 // reset pitch jump time
         }
     }
 
@@ -218,28 +212,31 @@ BuildRandomSound()
        R()<.5?0: R()**3*.5,                  // delay
     );
 
+    // shape curve
     if (R() < .1)
-        sound['shapeCurve'] = R()**2*10;     // larger shape curve
-    if (sound['shapeCurve'] >= 2)
-        sound['shapeCurve'] = sound['shapeCurve']|0;
+        sound.shapeCurve = R()**2*10;
+    if (sound.shapeCurve >= 2)
+        sound.shapeCurve = sound.shapeCurve|0;
 
+    // randomly flip mod phase
     if (R() < .5)
-        sound['modulation'] *= -1;           // flip mod phase
+        sound.modulation *= -1;
         
-    const length = sound['attack'] + sound['sustain'] + sound['release'];
+    // pitch jump
+    const length = sound.attack + sound.sustain + sound.release;
     if (R() < .5)
     {
-        sound['pitchJump'] = R()**2*1e3*(R()<.5?-1:1)|0; // pitchJump
-        sound['pitchJumpTime'] = R()*length;             // pitchJumpTime  
+        sound.pitchJump = R()**2*1e3*(R()<.5?-1:1)|0; // pitchJump
+        sound.pitchJumpTime = R()*length;             // pitchJumpTime  
     }
 
+    // repeatTime
     if (R() < .5)
-        sound['repeatTime'] = R()*length;    // repeatTime
+        sound.repeatTime = R()*length;
 
     return sound;
 }
 
-// build sound object
 BuildSound
 (
     volume = 1, 
@@ -261,6 +258,7 @@ BuildSound
     delay = 0
 )
 {
+    // build sound object
     const sound = 
     {
         'volume':       volume,
@@ -285,8 +283,8 @@ BuildSound
     return sound;
 }
 
-// get frequency of a musical note
-GetNote(rootNoteFrequency, semitoneOffset)
+// get frequency of a musical note on a diatonic scale
+GetNote(rootNoteFrequency=440, semitoneOffset)
 {
     return rootNoteFrequency * 2**(semitoneOffset/12);
 }
@@ -302,6 +300,7 @@ SoundToArray(sound)
     return array
 }
 
+// create an audio context with compatbility fixes
 CreateAudioContext()
 {
     // fix compatibility issues with old web audio
@@ -317,7 +316,8 @@ CreateAudioContext()
 
     return audioContext;
 }
-}
+
+} // class _ZZFX
 
 const ZZFX = new _ZZFX;
 function zzfx() { ZZFX.Play(...arguments) }
@@ -415,17 +415,17 @@ let zzfxP =     // play a sound
 
         if (j && ++j > pitchJumpTime)                // pitch jump
         {
-            startFrequency += pitchJump;
-            frequency += pitchJump;
-            j = 0;
+            frequency += pitchJump;                  // apply pitch jump
+            startFrequency += pitchJump;             // also apply to start
+            j = 0;                                   // reset pitch jump time
         };
 
         if (repeatTime && ++r > repeatTime)           // repeat
         {
-            frequency = startFrequency;
-            slide = startSlide;
-            r = 1;
-            j = j||1;
+            frequency = startFrequency;               // reset frequency
+            slide = startSlide;                       // reset slide
+            r = 1;                                    // reset repeat time
+            j = j||1;                                 // reset pitch jump time
         }
     }
 
