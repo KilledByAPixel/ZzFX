@@ -7,7 +7,7 @@
 
 Sound effects can be generated or manually created using the web based sound effect creation tool.
 
-Include ZzFX.min.js to load ZzFX, it does not need to be italized.
+Include ZzFX.min.js to load ZzFX, it does not need to be initialized.
 
 Or you can use ZzFX.micro.js a tiny version that has only the ability to play sounds.
 
