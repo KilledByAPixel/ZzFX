@@ -63,9 +63,9 @@ class _ZZFX
 constructor()
 {
     this.x = this.CreateAudioContext(); // shared audio context
-    this.samples = 0;                   // last played samples
     this.volume = .3;                   // master volume scale
     this.sampleRate = 44100;            // sample rate for audio
+    this.samples = 0;                   // last played samples
 }
 
 Play(sound)
@@ -118,7 +118,7 @@ BuildSamples
     const sampleRate = this.sampleRate;
     const random = r => r*(Math.random()*2-1);
     const sign = v => v>0?1:-1;
-    const startSlide = slide *= PI2 * 500 / sampleRate**2;
+    const startSlide = slide *= 500 * PI2 / sampleRate**2;
     const modPhase = sign(modulation) * PI2/4
     let startFrequency = frequency *= 
         (1 + random(randomness)) * PI2 / sampleRate;
@@ -126,7 +126,7 @@ BuildSamples
     sustain = sustain * sampleRate | 0;
     release = release * sampleRate | 0;
     delay = delay * sampleRate | 0;
-    deltaSlide *= PI2 * 500 / sampleRate**3;
+    deltaSlide *= 500 * PI2 / sampleRate**3;
     modulation *= PI2 / sampleRate;
     pitchJump *= PI2 / sampleRate;
     pitchJumpTime = pitchJumpTime * sampleRate;
@@ -357,7 +357,7 @@ let zzfxP =     // play a sound
     sampleRate = 44100,
     random = r => r*2*Math.random()-r,
     sign = v => v>0?1:-1,
-    startSlide = slide *= PI2 * 500 / sampleRate**2,
+    startSlide = slide *= 500 * PI2 / sampleRate**2,
     startFrequency = frequency *= 
         (1 + random(randomness)) * PI2 / sampleRate,
     modPhase = sign(modulation) * PI2/4,
@@ -371,7 +371,7 @@ let zzfxP =     // play a sound
     sustain = sustain * sampleRate | 0;
     release = release * sampleRate | 0;
     delay = delay * sampleRate | 0;
-    deltaSlide *= PI2 * 500 / sampleRate**3;
+    deltaSlide *= 500 * PI2 / sampleRate**3;
     length = attack + sustain + release + delay;
     modulation *= PI2 / sampleRate;
     pitchJump *= PI2 / sampleRate;

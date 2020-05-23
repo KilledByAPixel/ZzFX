@@ -1004,8 +1004,7 @@ function BuildSaveData()
     {
         sounds,
         generatedSoundCount,
-        volume:slider_masterVolume.value,
-        shortenCode:input_shortenCode.checked,
+        volume:slider_masterVolume.value
     }
     
     return JSON.stringify(data);
@@ -1024,8 +1023,6 @@ function LoadSaveData(dataJSON)
         slider_masterVolume.value = data.volume;
     if (data.generatedSoundCount)
         generatedSoundCount = data.generatedSoundCount;
-    if (data.shortenCode !== 'undefined' )
-        input_shortenCode.checked = data.shortenCode;
     if (data.sounds)
         data.sounds.forEach(o=>o&&AddToList(o));
         
