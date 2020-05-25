@@ -189,7 +189,7 @@ BuildSamples
 BuildRandomSound()
 {
     // generate a random sound
-    function R() { return Math.random() }
+    const R =()=> Math.random();
     const sound = this.BuildSound
     (
        1,                                    // volume
@@ -296,16 +296,16 @@ SoundToArray(sound)
     const array = [];
     for(const key in defaultSound)
         array.push(sound[key]);
-    return array
+    return array;
 }
 
 CreateAudioContext()
 {
     // fix compatibility issues with old web audio
     const audioContext = new (window.AudioContext || webkitAudioContext);
-    audioContext.Z = audioContext.createBufferSource;
+    audioContext._createBufferSource = audioContext.createBufferSource;
     audioContext.createBufferSource =
-    (s = audioContext.Z())=>
+    (s = audioContext._createBufferSource())=>
     (
         s.start = s.start || (t => audioContext.noteOn (t)),
         s.stop  = s.stop  || (t => audioContext.noteOff(t)),
@@ -318,7 +318,7 @@ CreateAudioContext()
 } // class _ZZFX
 
 const ZZFX = new _ZZFX;
-function zzfx() { ZZFX.Play(...arguments) }
+function zzfx() { return ZZFX.Play(...arguments) }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -434,3 +434,7 @@ let zzfxP =     // play a sound
     source.start();
 }
 const zzfxX = new AudioContext;
+
+// fix compatibility issues with old web audio (optional)
+// if this is used, you must remove the zzfxX=new AudioContext line above!
+//zzfxX=new(window.AudioContext||webkitAudioContext);zzfxX.z=zzfxX.createBufferSource;zzfxX.createBufferSource=(s=zzfxX.z())=>(s.start=s.start||(t=>zzfxX.noteOn(t)),s)
