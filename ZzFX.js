@@ -332,7 +332,7 @@ function zzfx() { return ZZFX.Play(...arguments) }
 // ==/ClosureCompiler==
 
 let zzfxV = .3; // volume
-let zzfxP =     // play a sound
+const zzfxP =     // play a sound
 (
     volume = 1, 
     randomness = .05,
@@ -387,13 +387,13 @@ let zzfxP =     // play a sound
             s = t * frequency *                          // frequency
                 Math.sin(tm * modulation - modPhase);    // modulation
 
-            s = shape? shape>1? shape>2? shape>3?   // wave shape
-              Math.sin((s%PI2)**3) :                // 4 noise
-              Math.max(Math.min(Math.tan(s),1),-1): // 3 tan
-              1-(2*s/PI2%2+2)%2:                    // 2 saw
-              1-4*Math.abs(Math.round(s/PI2)-s/PI2):// 1 triangle
-              Math.sin(s);                          // 0 sin
-            s = sign(s)*(Math.abs(s)**shapeCurve);  // curve 0=square, 2=pointy
+            s = shape? shape>1? shape>2? shape>3?        // wave shape
+              Math.sin((s%PI2)**3) :                     // 4 noise
+              Math.max(Math.min(Math.tan(s),1),-1):      // 3 tan
+              1-(2*s/PI2%2+2)%2:                         // 2 saw
+              1-4*Math.abs(Math.round(s/PI2)-s/PI2):     // 1 triangle
+              Math.sin(s);                               // 0 sin
+            s = sign(s)*(Math.abs(s)**shapeCurve);       // curve 0=square, 2=pointy
 
             s *= volume * zzfxV * (                      // envelope
                 i<attack ? i/attack :                    // attack
@@ -407,23 +407,23 @@ let zzfxP =     // play a sound
                 b[i-delay]/2) : s;
         }
 
-        t += 1 + random(noise);                      // noise
-        tm += 1 + random(noise);                     // modulation noise
-        frequency += slide += deltaSlide;            // frequency slide
+        t += 1 + random(noise);              // noise
+        tm += 1 + random(noise);             // modulation noise
+        frequency += slide += deltaSlide;    // frequency slide
 
-        if (j && ++j > pitchJumpTime)                // pitch jump
+        if (j && ++j > pitchJumpTime)        // pitch jump
         {
-            frequency += pitchJump;                  // apply pitch jump
-            startFrequency += pitchJump;             // also apply to start
-            j = 0;                                   // reset pitch jump time
+            frequency += pitchJump;          // apply pitch jump
+            startFrequency += pitchJump;     // also apply to start
+            j = 0;                           // reset pitch jump time
         };
 
-        if (repeatTime && ++r > repeatTime)           // repeat
+        if (repeatTime && ++r > repeatTime)  // repeat
         {
-            frequency = startFrequency;               // reset frequency
-            slide = startSlide;                       // reset slide
-            r = 1;                                    // reset repeat time
-            j = j||1;                                 // reset pitch jump time
+            frequency = startFrequency;      // reset frequency
+            slide = startSlide;              // reset slide
+            r = 1;                           // reset repeat time
+            j = j||1;                        // reset pitch jump time
         }
     }
 
