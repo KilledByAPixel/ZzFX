@@ -307,8 +307,8 @@ CreateAudioContext()
     audioContext.createBufferSource =
     (s = audioContext._createBufferSource())=>
     (
-        s.start = s.start || (t => audioContext.noteOn (t)),
-        s.stop  = s.stop  || (t => audioContext.noteOff(t)),
+        s.start = s.start || s.noteOn,
+        s.stop  = s.stop  || s.noteOff,
         s
     );
 
@@ -437,4 +437,4 @@ const zzfxX = new AudioContext;
 
 // fix compatibility issues with old web audio (optional)
 // if this is used, you must remove the zzfxX=new AudioContext line above!
-//zzfxX=new(AudioContext||webkitAudioContext);zzfxX.z=zzfxX.createBufferSource;zzfxX.createBufferSource=(s=zzfxX.z())=>(s.start=s.start||(t=>zzfxX.noteOn(t)),s)
+//zzfxX=new(AudioContext||webkitAudioContext);zzfxX.z=zzfxX.createBufferSource;zzfxX.createBufferSource=(s=zzfxX.z())=>(s.start=s.start||s.noteOn,s)
