@@ -1,1135 +1,1743 @@
-<!--
-
-ZzFX - Zuper Zmall Zound Zynth
-By Frank Force 2019
-
-ZzFX UI Features
-
-- Generates random sounds from presets.
-- Sound list is saved automatically.
-- Each parameter can be modified with constraints.
-- Lock and mutate buttons for each parameter.
-- Sound name can be changed for easier workflow.
-- Shortens code for zzfx sound calls.
-- Displays image of sound wave when played.
-- Sounds can be download as a wave file.
-- Sounds can be marked as favorites to prevent removal.
-- Sounds can be loaded by pasting zzfx code for easy sharing.
-- List of sounds can be exported and imported.
-- Supports drag-and-drop of exported files into sound list.
-
-GitHub Corner is Copyright (c) 2016 Tim Holman - http://tholman.com
-
---> 
-<!--
-
-  ZzFX MIT License
-  
-  Copyright (c) 2019 - Frank Force
-  
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files (the "Software"), to deal
-  in the Software without restriction, including without limitation the rights
-  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-  copies of the Software, and to permit persons to whom the Software is
-  furnished to do so, subject to the following conditions:
-  
-  The above copyright notice and this permission notice shall be included in all
-  copies or substantial portions of the Software.
-  
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  SOFTWARE.
-
---> 
 <!doctype html>
+<!-- 
+
+CapJS © Frank Force 2019
+
+TODO
+- text size setting
+- allow dynamic imports for three.js
+- embed options
+- show capture aspect preview
+- show FPS
+- fix html share
+- ccapture motion blur
+- code to auto transform canvas 1920x1080 to 800x600
+- better color picker
+- mouse info object
+- clean up pass
+- abort save
+
+-->
 <html>
-<head>
-<title>ZzFX - Zuper Zmall Zound Zynth</title>
 <meta charset="utf-8">
-<meta name="google" content="notranslate">
-<meta property="og:title" content="ZzFX - Zuper Zmall Zound Zynth">
-<meta property="og:description" content="A tiny sound effects generator for games and websites!">
-<meta name="twitter:image" content="screenshot.jpg">
-<meta property="og:image" content="screenshot.jpg">
+<head>
+<title>CapJS ~ A live code editor for capturing video</title>
 <link rel="shortcut icon" type="image/x-icon" href="favicon.png"/>
+
+
+<script src="CCapture.all.min.js?1"></script> 
+<!--
+<script src="build/ccapture/CCapture.js"></script> 
+<script src="build/ccapture/download.js"></script> 
+<script src="build/ccapture/tar.js"></script> 
+<script src="build/ccapture/webm-writer-0.2.0.js"></script> 
+<script src="build/ccapture/gif.js"></script> 
+<script src="build/ccapture/gif.worker.js"></script> 
+-->
+
+<script src="three.min.js"></script>
+
+
+<!-- CodeMirror -->
+<link rel=stylesheet href=codemirror/codemirror.css>
+<script src=codemirror/codemirror.js></script>
+<script src="codemirror/javascript.js"></script>
+<script src="codemirror/clike.js"></script>
+<script src="codemirror/xml.js"></script>
+<script src="codemirror/addon/edit/matchbrackets.js"></script>
+<script src="codemirror/addon/selection/active-line.js"></script>
+
+<!-- CodeMirror Themes -->
+<link rel="stylesheet" href="codemirror/theme/3024-night.css">
+<link rel="stylesheet" href="codemirror/theme/abcdef.css">
+<link rel="stylesheet" href="codemirror/theme/ambiance.css">
+<link rel="stylesheet" href="codemirror/theme/blackboard.css">
+<link rel="stylesheet" href="codemirror/theme/capjs.css?2">
+<link rel="stylesheet" href="codemirror/theme/duotone-light.css">
+<link rel="stylesheet" href="codemirror/theme/icecoder.css">
+<link rel="stylesheet" href="codemirror/theme/lesser-dark.css">
+<link rel="stylesheet" href="codemirror/theme/night.css">
+<link rel="stylesheet" href="codemirror/theme/yonce.css">
+
+<!-- CodeMirror Search -->
+<link rel="stylesheet" href="codemirror/addon/dialog/dialog.css">
+<script src="codemirror/addon/dialog/dialog.js"></script>
+<script src="codemirror/addon/search/searchcursor.js"></script>
+<script src="codemirror/addon/search/search.js"></script>
+<script src="codemirror/addon/search/match-highlighter.js"></script>
+<script src="codemirror/addon/scroll/annotatescrollbar.js"></script>
+<link rel="stylesheet" href="codemirror/addon/search/matchesonscrollbar.css">
+<script src="codemirror/addon/search/matchesonscrollbar.js"></script>
+<script src="codemirror/addon/search/jump-to-line.js"></script>
+
+<!-- CodeMirror Hints -->
+<link rel="stylesheet" href="codemirror/addon/hint/show-hint.css">
+<script src="codemirror/addon/hint/show-hint.js"></script>
+<script src="codemirror/addon/hint/anyword-hint.js"></script>
+
 <style>
-*                            { font-family:'courier'; }
-a                            { color:#5AF; }
-button                       { font-size:20px; margin:4px;}
-button.large                 { height:30px; }
-button.rand                  { width:20px; height:20px; background:#FF4; }
-button.reset                 { width:20px; height:20px; background:#4F4; }
-.soundSelect                 { overflow-x:hidden; width:350px; height:350px; }
-.slider                      { cursor: pointer; width:100%; }
-input.lock                   { width:20px; height:20px; }
-.setting                     { width:200px; }
-textarea                     { height:50px; cursor:text; resize:none; }
-body,input,select,textarea   { color:#FFF; font-size:20px; }
-select,input,textarea,canvas { background:#000; border:1px solid #FFF; }
-option:hover                 { background:#333; }
-option:checked               { background:#FF0; color:#F00; }
-body                         { user-select:none; }
+.CodeMirror {
+    border: 2px solid black;
+    height:450px;
+}
+a {
+    color:#5AF;
+}
+a:visited {
+    color:#A5A;
+}
+body,input,select{
+    font-family: "courier";
+    color: #FFF;
+}
+button
+{
+    color: #000;
+    font-size:20px;
+    font-weight:bold;
+}
+button.small
+{
+    color: #000;
+    font-size:15px;
+    font-weight:bold;
+}
+textarea.watchWindow
+{
+    white-space:pre;
+    overflow-wrap:normal;
+    overflow-x:scroll; 
+    background-color: #111;
+    cursor: text;
+    color: #FFF;
+}
+input
+{
+    background-color: #111;
+}
+select
+{
+    background-color: #111;
+    width:100%;
+}
+.slider
+{
+    cursor: pointer;
+    width:100%;
+    height:25px;
+}
+.dragAndDrop
+{
+    color: #000;
+    font-size:20px;
+    font-weight:bold;
+    height:50px;
+    line-height: 50px;
+    width:90%;
+    background-color:#CCC;
+    vertical-align: middle;
+}
+canvas
+{
+    width:640px;
+    height:360px;
+    border:1px solid black;
+    background-color:#FFF
+}
+td
+{
+    vertical-align:top;
+}
+.nowrap
+{
+    white-space:nowrap;
+}
 </style>
+<meta name="google" content="notranslate">
 </head>
-<body bgcolor=#222>
-<center>
-<table>
+<body bgcolor="#222">
+<tag autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+<table border=0>
 <tr>
-<td style=text-align:right;>
-<font size=7><b><div id=div_logo style='display:inline'>ℤ𝕫𝔽𝕏</div></b></font>
+<td>
+
+<center><font size=5><b>𝓒𝓪𝓹𝓙𝓢</b></font> A live code editor for capturing video</center>
 </td>
-<td style=text-align:left>
-<div style=display:inline id=div_logo2>
-<i>Zuper Zmall Zound Zynth</i>
-</div>
+<td>
+
+<span class='nowrap'>
+Mode
+<select style="width:150px;" onchange="Reset()" id=modeSelect>
+    <option>auto</option>
+    <option>html</option>
+    <option value=js>pure js</option>
+    <option>dwitter + capjs</option>
+    <option value=three>webgl + three.js</option>
+    <option>shadertoy</option>
+</select>
+</span>
+
+<span class='nowrap'>
+On Change
+<select style="width:100px;" id=onChangeSelect>
+    <option>restart</option>
+    <option>rebuild</option>
+    <option value=nothing>do nothing</option>
+</select>
+</span>
+
+<span class='nowrap'>
+Theme
+<select style="width:120px;" onchange="SelectTheme()" id=themeSelect>
+    <option>3024-night</option>
+    <option>abcdef</option>
+    <option>ambiance</option>
+    <option>blackboard</option>
+    <option selected="selected">capjs</option>
+    <option>default</option>
+    <option>duotone-light</option>
+    <option>icecoder</option>
+    <option>lesser-dark</option>
+    <option>night</option>
+    <option>yonce</option>
+</select>
+<select style="width:40px;" onchange="SelectTheme()" id=fontSizeSelect>
+    <option value=1.0>XS</option>
+    <option value=1.5>S</option>
+    <option value=2.0 selected="selected">M</option>
+    <option value=2.5>L</option>
+    <option value=3.0>XL</option>
+</select>
+
+</span>
 </td>
-<td style=text-align:center>
-<div id=div_masterVolume></div>
-<input id=slider_masterVolume title='Volume to scale all sounds by in percent' type=range min=0 max=100 value=30 style=width:300px oninput=UpdateSettings();SaveLocalStorage()>
-</td></tr>
-<tr>
-<td colspan=2>
-<div id=div_settingsTable></div>
-</td><td style=text-align:center>
-<canvas title='Image of sound wave, click to play the sound [SPACE]' id=canvas_soundWave width=350 height=80></canvas>
-<br>
-<button class=large title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button>
-<button class=large title='Make a new sound with mutated parameters [M]' onclick=CopySelected(1)>Mutate</button>
-<button class=large title='Make copy of selected sound [C]' onclick=CopySelected()>Copy</button>
-<br>
-<button class=large title='Generate random pickup sound' onclick="AddPresetSound('Pickup')">Pickup</button>
-<button class=large title='Generate random powerup sound' onclick="AddPresetSound('Powerup')">Powerup</button>
-<button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button>
-<br>
-<button class=large title='Generate random jump sound' onclick="AddPresetSound('Jump')">Jump</button>
-<button class=large title='Generate random blip sound' onclick="AddPresetSound('Blip')">Blip</button>
-<button class=large title='Generate random hit sound' onclick="AddPresetSound('Hit')">Hit</button>
-<button class=large title='Generate random explosion sound' onclick="AddPresetSound('Explosion')">Explosion</button>
-<br>
-<button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button>
-<button class=large title='Generate default sound' onclick="SelectedToTop()">Top</button>
-<button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
-<br>
-<select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2 style=margin:5px></select></td>
 </tr>
-<tr><td colspan=3 style=padding:5px>
+
+<tr><td rowspan=2 nowrap>
+<iframe id=iframe_program style="width:655px;height:375px;"></iframe>
+<canvas width=1920 height=1080 style="display:none" id=captureCanvas></canvas>
+<br>
+<table style="width:100%"><tr>
+<td><button title="Go Fullscreen" style="width:50px;height:30px" id="fullscreenButton"onclick="ToggleFullscreen()">⛶</button></td>
+<td><button title="Screenshot (Alt+Right)" style="width:50px;height:30px" id="screenshotButton" onclick="SaveScreenshot()">📷</button></td>
+<td><button title="Restart (Alt+Down)" style="width:50px;height:30px" id="restartButton" onclick="RestartButton()">▐◄</button></td>
+<td><button title="Pause/Resume (Alt+Up)" style="width:50px;height:30px" id="pauseButton" onclick="TogglePause()">▌▌</button></td>
+<td><table width=90 border=1><tr><td><center><span id="timeDisplay">0</span></center></td></tr></table></td>
+<td style="width:100%"><input type="range" min="1" max="1800" value="1" class="slider" id="timeRangeSlider" onmousedown="isSliding=1" onmouseup="isSliding=0" oninput="TimeSliderInput()"></td>
+</tr></table>
 <center>
-<button title='Download the selected wave file' onclick=SaveWave()>Save Wav</button>
-<button title='Load sound from zzfx code' onclick=LoadSound()>Load Sound</button>
-<button title='Copy ZzFX code to clipboard' onclick=if(CopyToCliboard(textarea_code.value))eval(textarea_code.value)>Copy Sound</button>
-<button title='Import all sounds from a text file.' onclick=Import()>Import</button>
-<button title='Export all sounds to a text file.' onclick=Export()>Export</button>
-<button title='Clear non-favorite sounds' onclick=ClearSoundsButton()>Clear</button>
-<button title='Clear all sounds' onclick=ClearSoundsButton(1)>Clear All</button>
+<font size=5>Program Name </font><input id=filenameInput value='Default' style="width:300px;height:30px;font-size:25px;">
+<br><br><button id="captureButton" onclick="ToggleCapture()" style="width:170px;height:45px;background-color:#8F8;" title="Render and save animation">Capture</button>
+<button id="shareButton" onclick="Share()" style="height:45px;background-color:#FF8;"title="Create link to code that can be shared or bookmarked">Share</button>
+<button id="saveButton" onclick="Save()" style="height:45px;background-color:#8FF;" title="Save code as a text file" >Save</button>
+<button id="loadButton" onclick="fileInput.click()" style="height:45px;background-color:#F88;" title="Load code from a text file, you can also drag and drop files into the editor">Load</button>
+<button id="resetButton" onclick="ResetButton()" style="height:45px;background-color:#000;color:#F00" title="Reset everything to the default state">Reset</button>
+<br>
+<input id="fileInput" type="file" style="display:none">
+
+<br>Resolution
+<input type="number" id=CaptureWidth value=960 min=1 max=7680 style="width:60px">
+x <input type="number" id=CaptureHeight value=540 min=1 max=4320 style="width:60px">
+Format
+<select style="width:100px;" id=formatSelect>
+    <option>gif</option>
+    <option>webm</option>
+    <option>png</option>
+    <option>jpg</option>
+</select>
+<br>
+<br>
+Capture Time (s)
+<input type="number" id=CaptureTimeInput value=2 style="width:60px">
+Framerate
+<input type="radio" name="framerateSelector" value="30">30
+<input type="radio" name="framerateSelector" value="60" checked>60
+<br>
+<br>
+Speed
+<input type="number" id=TimeScale value=1 min=0 max=100 style="width:60px">
+Aspect
+<select style="width:80px;" id=aspectSelect>
+    <option>stretch</option>
+    <option>center</option>
+    <option>fill</option>
+    <option>fit</option>
+</select>
+Advanced
+<input type="checkbox" id=showAdvancedSettings>
+<div id="advancedSettings" style="display:none;">
+<br>
+<hr width=80%>
+<button class="small" onclick=SetResolution(400,300)  >400:300</button>
+<button class="small" onclick=SetResolution(800,600)  >800:600</button>
+<button class="small" onclick=SetResolution(480,270)  >480:270</button>
+<button class="small" onclick=SetResolution(960,540)  >960:540</button>
+<button class="small" onclick=SetResolution(1920,1080)>1920:1080</button>
+<br><br>
+Preserve Aspect Ratio
+<input type="checkbox" id="preserveAspectRatio" checked>
+Centering Overlay
+<input type="checkbox" id="centeringOverlay">
+<br><br>
+Custom Image <input id=imageFileInput type="file" accept="image/*">
+<br><br>
+Background <input type="color" id=BackgroundColor value="#ffffff">
+Canvas Size
+<input type="number" id=CanvasWidth value=1920 min=1 style="width:60px">
+x <input type="number" id=CanvasHeight value=1080 min=1 style="width:60px">
+</div>
 </center>
-</td></tr>
-<tr><td colspan=3 style=padding:5px>
-<center>ZzFX JavaScript (Use this code to play the sound)
-<input type=checkbox id=input_shortenCode checked onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Spread
-<br><textarea title='Code to play the selected sound' id=textarea_code style=width:90% readonly></textarea>
+</td>
+<td style="width:100%; vertical-align:top;">
+
+<textarea hidden id=codeTextArea></textarea>
+
+Code Size: <span id="codeLengthLines">0</span> lines, <span id="codeLengthChars">0</span> characters, <span id="codeLength">0</span> bytes
+<br>
+<br><textarea id='errorText' rows=3 readonly style="width:100%;background-color: #000; color:#F00;" ></textarea>
+<br>
+<div id=consoleTextDiv style='display:none'>
+Console Output
+<br><textarea id='consoleText' rows=3 readonly style="width:100%;background-color: #000;visibility:none; color:#FF0;" ></textarea>
+</div>
+<button class="small" onclick=Beautify() title="Clean up and uncompress code">Beautify</button>
+<button class="small" onclick=Unbeautify() title="Remove most excess whitespace from code">Minify</button>
+<button class="small" onclick=DwitterCompress() title="Apply unicode compression (2:1 character encoding)">Compress</button>
+<button class="small" onclick=JSCrushCompress() title="Apply JSCrush compression (removes repeated strings)">JSCrush</button>
+
+<span class='nowrap'>
+Show Help <input type="checkbox" id="showHelp" title="Display help and example code">
+</span>
+<span class='nowrap'>
+Watch Window <input type="checkbox" id="showWatchWindow" title="Display object debug info">
+</span>
+<span class='nowrap'>
+Loop Protect <input type="checkbox"id="loopProtectOption" onChange=SetCode() checked title="Try to prevent infinte loops">
+</span>
+<span id=watchWindow style="display:none">
+<br><br>
+Watch Objects <input id=infoInput style="width:300px" placeholder="Type object names here" onkeyUp=UpdateWatchWindow(infoInput.value) onchange=UpdateWatchWindow(infoInput.value)>
+<br><textarea class="watchWindow" style="width:100%;" cols=100 rows=10 id=watchWindowTextArea readonly></textarea>
+</span>
+</td>
+</tr><tr>
+
+<td style="vertical-align: top;">
+<span id=helpDisplay>
+<table border=0><tr>
+<td width=10></td>
+<td style="vertical-align: top;">
+<pre>
+<b>CapJS shortcuts...</b>
+
+Alt+Up: Toggle Play/Pause
+Alt+Down: Restart/Rebuild
+Ctrl+F: Search
+Ctrl+G: Find Next
+Shift+Ctrl+F: Replace
+Alt+G: Jump to Line
+Ctrl+Space: Autocomplete
+Drag+Drop: Load program in text box
+
+<b>Global functions and variables...</b>
+
+u(t) is called 60 times per second
+t: Elapsed time in seconds
+S: Shorthand for Math.sin
+C: Shorthand for Math.cos
+T: Shorthand for Math.tan
+R: Function that generates rgba-strings
+c: 1920x1080 canvas
+x: 2D or webgl context for that canvas
+PI: Math.PI
+renderer: three.js renderer if enabled
+image: custom image if loaded
+DrawImage: Helper function to draw images
+
+</pre>
+</td>
+<td width=20></td>
+<td style="vertical-align: top;">
+
+<pre>
+<b>// three.js example</b>
+
+if (!t)
+{
+scene = new THREE.Scene()
+camera = new THREE.PerspectiveCamera(75,16/9)
+scene.add(new THREE.AmbientLight(0x222222))
+scene.add(new THREE.DirectionalLight())
+geometry = new THREE.BoxGeometry(1,1,1)
+material = new THREE.MeshLambertMaterial()
+cube = new THREE.Mesh(geometry,material)
+cube.position.set(0,0,-2)
+scene.add(cube)
+}
+cube.rotation.set(0,t,t*2)
+renderer.render(scene,camera)
+
+
+// shadertoy example
+
+void mainImage(out vec4 c, in vec2 p)
+{
+vec2 uv = p/iResolution.xy;
+c = vec4(.5+.5*cos(iTime+uv.xyx+vec3(0,2,4)),1);
+c += iMouse/iResolution.xyxy; // mouse input
+//c = texture(iChannel0,uv); // custom image
+}
+
+</pre>
+</td>
+</tr></table>
+</span>
+</td>
+</tr></table>
+<hr>
+<center>
+CapJS © <a href="http://www.frankforce.com" target="_blank">Frank Force</a> 2019 ~ Using <a href="https://github.com/spite/ccapture.js/" target="_blank">CCapture.js</a>, <a href="https://threejs.org/" target="_blank">three.js</a>, <a href="https://github.com/xem/miniBeautifier"target="_blank">MiniBeautifier</a>, and <a href="https://codemirror.net/" target="_blank">CodeMirror</a> ~ Inspired By <a href="https://www.dwitter.net/" target="_blank">Dwitter</a> ~ ☮♥☻␌
 </center>
-</td></tr>
-</table>
-ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
-<a hidden id=a_downloadLink></a>
-<input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?903></script>
 <script>
 
-'use strict'; // strict mode
-let sounds = [];
-let generatedSoundCount = 0;
-let loadedSound;
-let lastPlayedSound;
-
-const SeededRandom=_=>
-(
-    randomSeed^=randomSeed<<13,
-    randomSeed^=randomSeed>>17,
-    randomSeed^=randomSeed<<5,
-    (randomSeed%1e9)/1e9
-)
-let randomSeed = Date.now();
-let loadedSoundSeed = 0;
-
-function Init()
+function CustomInit()
 {
-    BuildSettingsTable();
-    RandomizeLogo();
-    LoadLocalStorage();
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// settings
-
-function BuildSetting(step, min, max, name, niceName, help, canMutate=1, type=0)
-{ return {name, step, min, max, niceName, help, type, canMutate}; }
-
-const settings = 
-[
-BuildSetting(0,0,0,'name','Name','Name of sound',0,1),
-BuildSetting(.1,-1e9,1e9,'volume','Volume','Volume scale (percent)',0),
-BuildSetting(.05,-1e9,1e9,'randomness','Randomness','How much to randomize frequency (percent Hz)',0),
-BuildSetting(1,-1e9,1e9,'frequency','Frequency','Frequency of sound (Hz)'),
-BuildSetting(1,0,0,'shape','Wave Shape','Shape of the sound wave',1,2),
-BuildSetting(.1,0,1e9,'shapeCurve','Shape Curve','Squarenes of wave (0=square, 1=normal, 2=pointy)'),
-BuildSetting(.01,0,3,'attack','Attack','Attack time, how fast sound starts (seconds)'),
-BuildSetting(.01,0,3,'sustain','Sustain','Sustain time, how long sound holds (seconds)'),
-BuildSetting(.01,0,3,'release','Release','Release time, how fast sound fades out (seconds)'),
-BuildSetting(.1,-1e9,1e9,'slide','Slide','How much to slide frequency (kHz/s)'),
-BuildSetting(.1,-1e9,1e9,'deltaSlide','Delta Slide','How much to change slide (kHz/s/s)'),
-BuildSetting(.1,-1e9,1e9,'noise','Noise','How much random noise to add (percent)'),
-BuildSetting(50,-1e9,1e9,'pitchJump','Pitch Jump','Frequency of pitch jump (Hz)'),
-BuildSetting(.01,-1e9,1e9,'pitchJumpTime','Pitch Jump Time','Time of pitch jump (seconds)'),
-BuildSetting(.01,-1e9,1e9,'repeatTime','Repeat Time','Resets some parameters periodically (seconds)'),
-BuildSetting(.1,-1e9,1e9,'modulation','Modulation','Frequency of modulation wave, negative flips phase (Hz)'),
-BuildSetting(.1,-1e9,1e9,'bitCrush','Bit Crush','Resamples at a lower frequency in (samples*100)'),
-BuildSetting(.01,0,1e9,'delay','Delay','Overlap with itself for reverb and flanger effects (seconds)'),
-]
-
-function BuildSettingsTable()
+function CustomUpdate(t, c, x)
 {
-    const s = settings[0];
-    let html = '<center style=width:600px><table style=text-align:center>';
-    html += '<tr><td style=text-align:right>' + s.niceName + '&nbsp;</td><td>'
-    html += `<input title='${s.help}' class=setting step=${s.step} id=input_${s.name} oninput=SelectedWasChanged('${s.name}')>`
+
+}
+
+CodeMirror.commands.autocomplete = function(cm) {
+    cm.showHint({hint: CodeMirror.hint.anyword});
+}
+
+// setup code mirror
+let codeMirrorEditor = CodeMirror.fromTextArea(document.getElementById('codeTextArea'), {
+mode: 'javascript',
+lineNumbers: true,
+lineWrapping: true,
+autofocus:true,
+styleActiveLine: true,
+matchBrackets: true,
+smartIndent: false,
+extraKeys: {"Alt-F": "findPersistent", "Ctrl-Space": "autocomplete"}
+});
+
+codeMirrorEditor.addKeyMap({"Alt-Up":   _=>TogglePause()});
+codeMirrorEditor.addKeyMap({"Alt-Down": _=>RestartButton()});
+codeMirrorEditor.addKeyMap({"Alt-Right":_=>SaveScreenshot()});
+codeMirrorEditor.addKeyMap({"Alt-Enter":_=>RestartButton()});
+//codeMirrorEditor.addKeyMap({"Alt-F":    _=>ToggleFullscreen()});
+//codeMirrorEditor.addKeyMap({"Alt-C":    _=>ToggleCapture()});
+//codeMirrorEditor.addKeyMap({"Alt-S":    _=>Save()});
+//codeMirrorEditor.addKeyMap({"Alt-Space":_=>RestartButton()});
+
+function SelectTheme()
+{
+    codeMirrorEditor.setOption("theme", themeSelect.value);
+    codeMirrorEditor.getWrapperElement().style.fontSize = fontSizeSelect.value + 'em';
     
-    html += '</td><td>';
-    html += '<button title="Toggle lock all parameters" onclick=ToggleLockAll()>🔒</button>'
+}
+  
+// fix problem with instanceof error not working across iframes
+let IsError=e=>(e && e.stack && e.message && typeof e.stack === 'string' && typeof e.message === 'string');
+
+let defaultProgram="c.width|=0\nfor(i=1e3;i--;)\nx.fillRect(960+900*S(i*2),540+500*C(t*PI/2+i*3),29,29)"
+let time=0;
+let frame=1;
+let paused=0;
+let wasPaused=0;
+let capturer=0;
+let captureTime=0;
+let captureTimeLimit=0;
+let captureFramerate=0;
+let processingPercent=0;
+let manuallyPaused=1;
+let codeIsSafe=0;
+let image=0;
+let captureWidth,captureHeight;
+let mode=0;
+let modeHasCanvas=1;
+let mouseX=0;
+let mouseY=0;
+let mouseZ=0;
+let mouseW=0;
+let mainCanvas=0;
+let mainCanvasContext=0;
+let iframe_content=0;
+let iframeGlobals={};
+let isSliding = 0;
+
+let shaderErrorText = 0;
+let shaderProgram = 0;
+let shaderTexture = 0;
+
+function Reset()
+{
+    time=0;
+    paused=0;
+    frame=1;
     
-    html += '</td><td>';
-    html += '<button title="Sets all unlocked parameters to their default values." onclick=if(ResetAllSettings())PlaySelected()>♻️</button>';
+    consoleTextDiv.style.display = 'none';
     
-    html += '</td><td>';
-    html += '<button title="Mutate all unlocked parameters" onclick=if(MutateAllSettings())PlaySelected()>🎲</button>';
-    
-    html += '</td></tr>';
-    
-    for(const i in settings)
+    mode=modeSelect.value;
+    if (mode == "auto")
     {
-        const s = settings[i];
-        if (s.name == 'name')
-            continue;
-    
-        html += '<tr>';
-        html += '<td style=text-align:right>';
-        html += s.niceName + '&nbsp;';
-        html += '</td><td>';
-        
-        if (s.type == 0)
-            html += `<input id=input_${s.name} class=setting title='${s.help}' type=number step=${s.step} oninput=SelectedWasChanged('${s.name}') min=${s.min} max=${s.max} onfocusout=UpdateSettings()>`
-        else if (s.type == 2)
-        {
-            html += `<select id=input_${s.name} class=setting title='${s.help}' oninput=SelectedWasChanged('${s.name}')>`;
-            html += `<option value=0>sin</option>`;
-            html += `<option value=1>triangle</option>`;
-            html += `<option value=2>saw</option>`;
-            html += `<option value=3>tan</option>`;
-            html += `<option value=4>bit noise</option>`;
-            html += `</select>`;
-        }
-        
-        html += '</td><td>';
-        html += `<input id=input_lock_${s.name} class=lock title='Lock ${s.niceName}' oninput=SelectedWasChanged('${s.name}') type=checkbox>`;
-        
-        html += '</td><td>';
-        html += `<button id=input_reset_${s.name} class=reset title='Reset ${s.niceName}' onclick=ResetSetting(settings[${i}]);PlaySelected()></button>`;
-        
-        html += '</td><td>';
-        html += `<button id=input_mutate_${s.name} class=rand title='Mutate ${s.niceName}' onclick=MutateSetting(settings[${i}]);PlaySelected()></button>`;
-        
-        html += '</td></tr>';
+        if (codeMirrorEditor.getValue().indexOf('THREE') >= 0)
+            mode = "three"
+        else if (codeMirrorEditor.getValue().search(/void\s+mainImage/g) >= 0)
+            mode = "shadertoy"
+        else if (codeMirrorEditor.getValue().indexOf('<html>') == 0)
+            mode = "html"
     }
     
-    html += '</table></center>'
-    div_settingsTable.innerHTML = html;
-}
-
-function GetSelectedSound()
-{
-    const index = select_soundList.options[select_soundList.selectedIndex].value;
-    return sounds[index];
-}
-
-function PlaySelected()
-{
-    if (lastPlayedSound)
-    {
-        lastPlayedSound.stop();
-        lastPlayedSound = 0;
-    }
+    modeHasCanvas = (mode != "html" && mode != "js")
     
-    const sound = BuildSoundFromSettings();
-    if (ZZFX.volume > 0)
+    let modeOption = "javascript";
+    if (mode=="html")
+        modeOption = "xml"
+    else if (mode=="shadertoy")
+        modeOption = "text/x-c++src"
+    codeMirrorEditor.setOption("mode", modeOption);
+    
+    InitFrame();
+    
+    if (mode == "html" || mode == "js")
     {
-        lastPlayedSound = ZZFX.Play(sound);
-        DrawSoundWave(ZZFX.samples, ZZFX.volume, sound);
+        // no init
+    }
+    else if (mode == "shadertoy")
+    {
+        mainCanvasContext = mainCanvas.getContext('webgl2');
+        iframe_content.x = mainCanvasContext;
+    }
+    else if (mode == "three")
+    {
+        // init ThreeJS
+        renderer = new THREE.WebGLRenderer({canvas: mainCanvas});
+        iframe_content.THREE=THREE;
+        iframe_content.renderer = renderer;
+        mainCanvasContext = iframe_content.renderer.context;
+        iframe_content.x = mainCanvasContext;
     }
     else
     {
-        // just build samples without playing
-        const params = ZZFX.SoundToArray(sound);
-        const saveVolume = ZZFX.volume;
-        ZZFX.volume = 1;
-        const samples = ZZFX.BuildSamples(...params);
-        DrawSoundWave(samples, 1, sound);
-        ZZFX.volume = saveVolume;
-    }
-    RandomizeLogo();
-}
-
-function BuildSoundFromSettings()
-{
-    const sound = {};
-    for(const s of settings)
-    {
-        let v = document.getElementById("input_"+s.name).value;
-        if (s.type!=1)
-            v = parseFloat(v);
-        
-        sound[s.name] = v;
-    }
-
-    return sound;
-}
-
-function UpdateSettings()
-{
-    const v = slider_masterVolume.value;
-    div_masterVolume.innerHTML = 'Master Volume ' + v + '%';
-    ZZFX.volume = v / 100;
-    
-    const sound = GetSelectedSound();
-    if (sound)
-    {
-        // copy settings to selected
-        const option = select_soundList.options[select_soundList.selectedIndex];
-        const index = parseInt(option.value);
-    
-        for(const s of settings)
-        {
-            const element = document.getElementById("input_"+s.name);
-            let v = element.value;
-            if (s.type == 0 && element != document.activeElement)
-            {
-                // sanitize input
-                v = parseFloat(v);
-                if (isNaN(v) || !Number.isFinite(v))
-                    v = 0;
-                else
-                    v = Math.max(Math.min(v,s.max),s.min);
-                element.value = v;
-            }
-            sound[s.name] = v;
-        }
-        
-        option.style.color = sounds[index].favorite? "#0F0" : "white";
-        option.innerHTML = (sound.favorite?'-> ':sound.modified?'* ':'') + sound.name;
-        textarea_code.value = GetCode(sound);
+        mainCanvasContext = mainCanvas.getContext('2d');
+        iframe_content.x = mainCanvasContext;
     }
     
-    SaveLocalStorage();
+    SetCode();
+    
+    // do one update right away
+    UpdateFrame(1);
 }
 
-function AddPresetSound(presetName='Random')
+function ToggleFullscreen()
 {
-    let sound = ZZFX.BuildSound();
-    const R =(a=1,b=0) => b+(a-b)*Math.random();
-    
-    switch (presetName)
-    {
-        case 'Random':
-        {
-            sound = ZZFX.BuildRandomSound();
-            break;
-        }
-        case 'Default':
-        {
-            sound = ZZFX.BuildSound();
-            break;
-        }
-        case 'Pickup':
-        {
-            sound.frequency = R(300,2000);
-            sound.shape = R(3)|0;
-            sound.shapeCurve = R(2);
-            sound.attack = 0;
-            sound.sustain = R(.1);
-            sound.release = R(.1,.3);
-            sound.noise =  R()<.8 ? 0 : R(.1,0);
-            sound.pitchJump = R()<.5 ? 0 : R(200,1000);
-            sound.pitchJumpTime = R(0,.1);
-            sound.repeatTime = R()<.8 ? 0 : R(0,.2);
-            sound.bitCrush = R()<.5 ? 0 : R(.1);
-            sound.delay = R()<.7 ? 0 : R(.1);
-            break;
-        }
-        case 'Powerup':
-        {
-            sound.frequency = R(0,1000);
-            sound.shape = R(3)|0;
-            sound.shapeCurve = R(2);
-            sound.attack = R(.5,0);
-            sound.sustain = R(.5,0);
-            sound.release = R(.1,1);
-            sound.pitchJump = R(1)**2*1000*R(-1,1);
-            sound.pitchJumpTime = !sound.pitchJump ? 0 : R(0,.1);
-            sound.delay = R()<.8 ? 0 : R(.2);
-            sound.repeatTime = R(.3);
-            sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
-            sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*10;
-            sound.noise =  R()<.8 ? 0 : R(.2,0);
-            sound.modulation = R()<.8 ? 0 : R(-.2,.2);
-            sound.bitCrush = R()<.5 ? 0 : R(.1);
-            break;
-        }
-        case 'Jump':
-        {
-            sound.frequency = R(0,1000);
-            sound.shape = R(3)|0;
-            sound.shapeCurve = R(2);
-            sound.attack = R(.05);
-            sound.sustain = R(.1);
-            sound.release = R(.1,.5);
-            sound.noise =  R()<.8 ? 0 : R(.5);
-            sound.slide = R(-10,10);
-            sound.deltaSlide = R()<.8 ? 0 : R(-5,5);
-            sound.modulation = R()<.8 ? 0 : R(-1,1)**3*10;
-            sound.bitCrush = R()<.5 ? 0 : R(.1);
-            sound.delay = R()<.8 ? 0 : R(.05);
-            break;
-        }
-        case 'Shoot':
-        {
-            sound.frequency = R(0,700);
-            sound.shape = R(5)|0;
-            sound.shapeCurve = R(2);
-            sound.attack = R(.03);
-            sound.sustain = 0;
-            sound.release = R(.1,.5);
-            sound.delay = R()<.3 ? 0 : R(.2);
-            sound.slide = R()<.5 ? 0 : R(-1,1);
-            sound.deltaSlide = R()<.5 ? 0 : R(-1,1);
-            sound.noise =  R()<.8 ? 0 : R(5,0);
-            sound.repeatTime = R()<.5 ? 0 : R(.1);
-            sound.modulation = R()<.8 ? 0 : R(-1,1)**3*10;
-            sound.bitCrush = R()<.5 ? 0 : R(.1);
-            break;
-        }
-        case 'Blip':
-        {
-            sound = ZZFX.BuildRandomSound();
-            sound.attack = R(.05);
-            sound.sustain = 0;
-            sound.release = R(.05,.1);
-            sound.bitCrush = R()<.5 ? 0 : R(.3);
-            break;
-        }
-        case 'Hit':
-        {
-            sound.frequency = R(50,500);
-            sound.shape = R(5)|0;
-            sound.shapeCurve = R(3);
-            sound.attack = 0;
-            sound.sustain = R()<.5 ? 0 : R(.1);
-            sound.release = R(.1,.5);
-            sound.delay = R()<.3 ? 0 : R(.2);
-            sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
-            sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*10;
-            sound.noise = R(2,0);
-            sound.modulation = R()<.5 ? 0 : R(-1,1);
-            sound.bitCrush = R(.5,0);
-            break;
-        }
-        case 'Explosion':
-        {
-            sound.frequency = R(0,1e3);
-            sound.shape = R(5)|0;
-            sound.shapeCurve = R(5);
-            sound.attack = R()<.5 ? 0 : R(.05);
-            sound.sustain = R(.4,0);
-            sound.release = R(.5,2);
-            sound.slide = R()<.5 ? 0 : R();
-            sound.deltaSlide = R()<.5 ? 0 : R();
-            sound.delay = R()<.5 ? 0 : R(.5);
-            sound.noise = R(1,0);
-            sound.modulation = R()<.5 ? 0 : R(-1,1);
-            sound.bitCrush = R(1,.1);
-            break;
-        }
-    }
-    
-    if (!sound.pitchJumpTime || !sound.pitchJump)
-        sound.pitchJumpTime = sound.pitchJump = 0;
-        
-    const length = sound.attack + sound.sustain + sound.delay;
-    if (sound.repeatTime > length)
-        sound.repeatTime = 0;
-        
-    const Fixed = (v,l=2) =>
-    {
-        if (v>10 || v < -10)
-            l = 0;
-        const f = v.toFixed(l);
-        return !parseFloat(f) ? '0': f;
-    }
-     
-    // convert to fixed point
-    sound.frequency = Fixed(sound.frequency,0);
-    sound.shapeCurve = Fixed(sound.shapeCurve);
-    sound.attack = Fixed(sound.attack);
-    sound.sustain = Fixed(sound.sustain);
-    sound.release = Fixed(sound.release);
-    sound.slide = Fixed(sound.slide,1);
-    sound.deltaSlide = Fixed(sound.deltaSlide,1);
-    sound.noise = Fixed(sound.noise,1);
-    sound.pitchJump = Fixed(sound.pitchJump,0);
-    sound.pitchJumpTime = Fixed(sound.pitchJumpTime);
-    sound.repeatTime = Fixed(sound.repeatTime);
-    sound.modulation = Fixed(sound.modulation,1);
-    sound.bitCrush = Fixed(sound.bitCrush,1);
-    sound.delay = Fixed(sound.delay);
-    
-    // replace with locked
-    for(const s of settings)
-        if (IsLocked(s.name))
-            sound[s.name]=document.getElementById('input_'+s.name).value;
-    
-    sound.name = presetName + ' ' + generatedSoundCount++;
-    AddToList(sound);
-    PlaySelected();
-}
-
-function CopySelected(mutate=0)
-{
-    const sound = Object.assign({}, GetSelectedSound());
-    if (!sound.originalName)
-        sound.originalName = sound.name;
-    
-    sound.copyCount = !sound.copyCount ? 1 : sound.copyCount + 1;
-    sound.name = sound.originalName
-        + ` - ${mutate?'Mutation':'Copy'} ` 
-        + sound.copyCount;
-    delete sound.favorite;
-    
-    AddToList(sound);
-    if (mutate)
-    {
-        MutateAllSettings();
-        sound.modified = 0;
-        UpdateSettings();
-    }
-    PlaySelected();
-}
-
-function AddToList(sound)
-{
-    // copy default values if missing
-    const defaultSound = ZZFX.BuildSound();
-    for(const key in defaultSound)
-    {
-        if (key in sound)
-            continue;
-        sound[key] = defaultSound[key];
-    }
-    
-    if (!(parseInt(sound.shape)<=4))
-        sound.shape = 0;
-    
-    const i = sounds.push(sound) - 1;
-    const option = document.createElement('option');
-    option.value = i;
-    option.innerHTML = (sound.favorite?'-> ':sound.modified?'* ':'') + sound.name;
-    select_soundList.add(option, 0);
-    select_soundList.selectedIndex = 0;
-    LoadSelected();
-    UpdateSettings();
-}
-
-function SelectedWasChanged(settingName)
-{
-    const sound = GetSelectedSound();
-    sound.modified = 1;
-    
-    UpdateSettings();
-    if (settingName != 'name')
-        PlaySelected();
-}
-
-function LoadSelected(playOnSelect = false)
-{
-    const sound = GetSelectedSound();
-    for(const s of settings)
-        document.getElementById("input_"+s.name).value = sound[s.name];
-    
-    if (loadedSound != sound)
-        loadedSoundSeed = Date.now();
-    UpdateSettings();
-    if (playOnSelect && loadedSound != sound)
-        PlaySelected();
-    loadedSound = sound;
-}
-
-function FavoriteSelected()
-{
-    let i = select_soundList.selectedIndex;
-    let index = select_soundList.options[i].value;
-    let s = sounds[index];
-    if (!s)
-        return;
-        
-    s.favorite = !s.favorite
-    UpdateSettings();
-    PlaySelected();
-}
-
-function SelectedToTop()
-{
-    const selectedSound = GetSelectedSound();
-    const sound = Object.assign({}, selectedSound);
-    selectedSound.favorite = 0;
-    
-    RemoveSelected();
-    AddToList(sound);
-    PlaySelected();
-}
-
-function RemoveSelected()
-{
-    let i = select_soundList.selectedIndex;
-    let index = select_soundList.options[i].value;
-    
-    if (sounds[index].favorite)
-    {
-        if (!confirm('Are you sure you want remove this favorited sound?'))
-            return;
-    }
-    
-    delete sounds[index];
-    select_soundList.options.remove(i);
-    
-    AddDefaultIfEmpty();
-    i = Math.min(i, select_soundList.length-1);
-    select_soundList.selectedIndex = i;
-    LoadSelected(1);
-}
-
-function IsLocked(name)
-{
-    const lock = document.getElementById("input_lock_"+name);
-    return lock && lock.checked;
-}
-
-function MutateAllSettings()
-{    
-    const sound = GetSelectedSound();
-    if (sound.favorite)
-    {
-        if (!confirm('Are you sure you want mutate this favorite sound?'))
-            return false;
-    }
-    
-    let mutateCount = 0;
-    for(const s of settings)
-        if (s.canMutate && !IsLocked(s.name))
-            ++mutateCount;
-            
-    for(let i=6;i--;)
-    {
-        if (mutateCount)
-        {
-            let mutateIndex = (Math.random()*1e5)%mutateCount|0;
-            for(const s of settings)
-                if (s.canMutate && !IsLocked(s.name) && !mutateIndex--)
-                    MutateSetting(s, 0);
-        }
-    }
-    
-    UpdateSettings();
-    return true;
-}
-
-function MutateSetting(setting, refresh = true)
-{
-    const step = setting.step;
-    const name = setting.name;
-    if (IsLocked(name)) // unlock
-        document.getElementById("input_lock_"+name).checked = 0;
- 
-    const sound = GetSelectedSound();
-    sound.modified = 1;
-    
-    let v = sound[name];
-    if (setting.type == 2)
-        v = Math.random()*6|0;
+    if (iframe_program.webkitRequestFullScreen)
+        iframe_program.webkitRequestFullScreen();
     else
-    {
-        let r = (Math.random())*(refresh?10:2)|0
-        if (refresh)
-            r += 1;
-        if (Math.random() > .5)
-            r *= -1;
-        v += r * step;
-        v = parseFloat(v.toFixed(2));
-    }
-    
-    document.getElementById('input_'+name).value = v;
-    sound[setting.name] = v;
-    
-    if (refresh)
-        UpdateSettings();
+        iframe_program.mozRequestFullScreen();
 }
-
-function ResetAllSettings()
-{
-    const sound = GetSelectedSound();
-    if (sound.favorite)
-    {
-        if (!confirm('Are you sure you want reset this favorite sound?'))
-            return false;
-    }
-    
-    for(const s of settings)
-        if (!IsLocked(s.name))
-            ResetSetting(s, 0);
-    
-    UpdateSettings();
-    return true;
-}
-
-function ResetSetting(setting, refresh = true)
-{
-    const name = setting.name;
-    if (IsLocked(name)) // unlock
-        document.getElementById("input_lock_"+name).checked = 0;
  
-    const sound = GetSelectedSound();
-    const defaultSound = ZZFX.BuildSound();
-    sound.modified = 1;
-    
-    let v = sound[name];
-    if (setting.name in defaultSound)
-        v = defaultSound[setting.name];
-    
-    document.getElementById('input_'+name).value = v;
-    sound[setting.name] = v;
-    
-    if (refresh)
-        UpdateSettings();
-}
-
-function ToggleLockAll()
+function TimeSliderInput()
 {
-    let isLocked = 0;
-    for(const s of settings)
-        isLocked |= IsLocked(s.name);
+    time=timeRangeSlider.value/60
+    frame=timeRangeSlider.value
+    if (time==0)
+        Reset();
         
-    for(const s of settings)
+    //paused=1
+    UpdateFrame(1, 1);
+}
+
+function RestartButton()
+{
+    if (!codeIsSafe)
+        manuallyPaused=0;
+    codeIsSafe=1;
+    Reset();
+}
+
+function TogglePause()
+{
+    codeIsSafe=1;
+    manuallyPaused=!manuallyPaused;
+    paused=manuallyPaused;
+    //SetErrorText("");
+}
+
+let wasDropped = 0;
+codeMirrorEditor.on("drop",function(editor,e) { 
+{
+    if (e.dataTransfer.files.length > 0)
     {
-        const lock = document.getElementById("input_lock_"+s.name);
-        if (lock)
-            lock.checked = !isLocked;
+        codeMirrorEditor.setValue("");
+        filenameInput.value = e.dataTransfer.files[0].name.replace(/\.[^/.]+$/, "")
+        wasDropped = 1;
+        codeIsSafe=1;
+        manuallyPaused = 0;
     }
-    
-    UpdateSettings();
-    PlaySelected();
-}
+}});
 
-function ClearSounds(clearFavorites)
+codeMirrorEditor.on("change", 
+function(codeMirror, changeObject)
 {
-    canvas_soundWave.width |= 0;
-    select_soundList.selectedIndex=-1;
-    while(select_soundList.options.length>0)
-        select_soundList.options.remove(0);
-    BuildSettingsTable();
-    
-    let oldSounds = sounds;
-    sounds = [];
-    if (!clearFavorites)
-        oldSounds.map(s=>s && s.favorite && AddToList(s));
-    if (clearFavorites)
-        generatedSoundCount = 0;
-}
-
-function ClearSoundsButton(clearFavorites)
-{
-    if (clearFavorites)
+    let onChangeMode = onChangeSelect.value;
+    if (changeObject.origin != "setValue")
     {
-        if (!confirm('Are you sure you want clear all sounds?\nThis will DELETE your favorites!'))
-            return;
-        slider_masterVolume.value = 30;
-        input_shortenCode.checked = 1;
+        //if (!codeIsSafe && onChangeMode != "nothing")
+        //    manuallyPaused=0;
+        //codeIsSafe = 1; // mark as safe on input
     }
-    ClearSounds(clearFavorites);
-    AddDefaultIfEmpty();
-    UpdateSettings();
-    PlaySelected();
-}
 
-function AddDefaultIfEmpty()
+    if (changeObject.origin=="paste" 
+      && changeObject.from.line==0 && changeObject.from.ch==0 )
+    {
+        DwitterUncompress();
+    }
+    if (onChangeMode == "restart" || wasDropped)
+    {
+        wasDropped = 0;
+        Reset();
+    }
+    else if (onChangeMode == "rebuild")
+    {
+        // update just 1 frame
+        SetCode();
+        UpdateFrame(1, 1);
+    }
+});
+
+function JSCrushCompress()
 {
-    if (select_soundList.length > 0)
+    if (mode == "html")
         return;
 
-    const sound = ZZFX.BuildSound();
-    sound.name = 'Sound Default';
-    AddToList(sound);
+    let code = codeMirrorEditor.getValue();
+    
+    // minify first
+    //code = BeautifyJS(code, true);
+    
+    code = JSCrush(code);
+    codeMirrorEditor.setValue(code);
 }
 
-function CopyToCliboard(text)
+function DwitterCompress()
 {
-    if (!navigator.clipboard)
-    {
-        alert('Unable to copy to clipboard.');
-        return false;
-    }
-    navigator.clipboard.writeText(text);
-    return true;
-}
-
-function GetCode(sound)
-{
-    // create code string
-    const parameters = ZZFX.SoundToArray(sound);
-        
-    // remove defaults
-    const shorten = input_shortenCode.checked;
-    const defaults = ZZFX.SoundToArray(ZZFX.BuildSound());
-    let isEnd = 1;
-    for(let i = parameters.length-1; shorten&&i>=0; --i)
-    {
-        if (parameters[i] == defaults[i])
-        {
-            if (isEnd)
-                --parameters.length;
-            else
-                parameters[i] = '';
-        }
-        else
-            isEnd = 0;
-    }
-      
-    // make parameters list
+    if (mode == "html")
+        return;
+    
+    // replace unicode characters
+    const codeIn = [...codeMirrorEditor.getValue().trim()];
     let code = '';
-    for(let i = 0; i < parameters.length; ++i)
+    for( let character of codeIn)
     {
-        let p = parameters[i].toString();
-        // remove leading 0
-        if (p.slice(0,2) == '0.')
-            p = p.slice(1);
+        const charCode = character.charCodeAt(0);
+        if (charCode > 255)
+            character = escape(character).replace(/%u/g,'\\u');
+        code += character;
+    }
+    
+    // 2-1 character compression
+    let dwitterCompressed = String.fromCharCode(...[...code.length%2?code+';':code].map((e,i)=>e.charCodeAt()|(i%2?55:54)<<10))
+    dwitterCompressed = "eval(unescape(escape`"+ dwitterCompressed +"`.replace(/u../g,'')))";
+    codeMirrorEditor.setValue(dwitterCompressed);
+}
+
+function DwitterUncompress()
+{
+    if (mode == "html")
+        return;
+    
+    let code = codeMirrorEditor.getValue();
+    code = Uncompress(code);
+    codeMirrorEditor.setValue(code);
+}
+
+function Beautify()
+{
+    if (mode == "html")
+        return;
+    
+    let code = codeMirrorEditor.getValue();
+    code = BeautifyJS(code);
+    codeMirrorEditor.setValue(code);
+}
+
+function Unbeautify()
+{
+    if (mode == "html")
+        return;
+    
+    let code = codeMirrorEditor.getValue();
+    code = BeautifyJS(code, true);
+    codeMirrorEditor.setValue(code);
+}
+
+function InitFrame()
+{  
+    // re-create iframe and canvas
+    let iframe_programNew = document.createElement('iframe')
+    iframe_program.before(iframe_programNew);
+    iframe_program.remove();
+    iframe_program = iframe_programNew;
+    iframe_content = iframe_program.contentWindow || iframe_program.contentDocument;
+    
+    let html = '<style>*{padding:0;margin:0;border:0;outline:0;overflow:hidden;}canvas{background:#FFF;width:100%}</style><body style="overflow:hidden">\
+    <div id="centering_V" style="display:none; position:absolute; border-left:4px solid #F00A; position:absolute; height:100%; left:50%; margin-left:-2px;"></div>\
+    <div id="centering_H"  style="display:none; position:absolute; border-top:4px solid #F00A; position:absolute; width:100%; top:50%; margin-top:-2px;"></div>';
+    
+    if (modeHasCanvas)
+        html += '<canvas width=1920 height=1080 id=c></canvas></body>';
+    
+    if (mode == "html")
+        html = codeMirrorEditor.getValue();
+    
+    iframe_content.document.open();
+    iframe_content.document.write(html);
+    iframe_content.document.close();
+
+    iframe_program.sandbox.add('allow-scripts');
+    iframe_program.sandbox.add('allow-same-origin');
+    iframe_program.style.width="655px"
+    iframe_program.style.height="375px"
+
+    mainCanvasContext=0;
+    mainCanvas=0;
+    mouseX = mouseY = mouseZ = mouseW = 0;
+    
+    // init globals
+    if (modeHasCanvas)
+    {
+        mainCanvas = iframe_content.c;
+        mainCanvas.width=parseInt(CanvasWidth.value);
+        mainCanvas.height=parseInt(CanvasHeight.value);
         
-        if (settings[i].type == 0)
-        {
-            let e = parseFloat(parameters[i]).toExponential();
-            e = e.replace('+','');
-            
-            if (e.length < p.length)
-                p = e;
+        // shadertoy mouse input
+        mainCanvas.onmousemove=e=>
+        { 
+            if (e.buttons)
+            {
+                const rect = mainCanvas.getBoundingClientRect();
+                scaleX = mainCanvas.width / rect.width,
+                scaleY = mainCanvas.height / rect.height;
+                mouseX = (e.clientX- rect.left) * scaleX; 
+                mouseY = (rect.height - e.clientY- rect.top) * scaleY; 
+            }
         }
-            
-        code += (i?',':'') + p;
+        mainCanvas.onmousedown=e=>
+        { 
+            const rect = mainCanvas.getBoundingClientRect();
+            scaleX = mainCanvas.width / rect.width,
+            scaleY = mainCanvas.height / rect.height;
+            mouseZ = (e.clientX- rect.left) * scaleX; 
+            mouseW = (rect.height - e.clientY- rect.top) * scaleY; 
+        }
+        mainCanvas.onmouseup=e=>{mouseZ = mouseW = 0}; 
+    
+        const dwitterFunctions=
+        `
+            PI=Math.PI;
+            S=a=>Math.sin(a);
+            C=a=>Math.cos(a);
+            T=a=>Math.tan(a);
+            R=(r,g,b,a)=>(a =(a === undefined ? 1 : a),"rgba("+(r|0)+","+(g|0)+","+(b|0)+","+a+")");
+            DrawImage=(theImage,X,Y,SX,SY,A)=>
+            {
+                x.save();
+                x.translate(X, Y);
+                x.rotate(A);
+                x.drawImage(theImage, -SX/2, -SY/2, SX, SY);
+                x.restore();
+            }
+            _CONSOLE_LOG = '';
+            console.log=(...s)=>_CONSOLE_LOG += s.join(' ');
+        `
+
+        eval(dwitterFunctions);
+        iframe_content.eval(dwitterFunctions);
+        iframe_content.eval(DrawImage+"");
     }
     
-    if (!code.length)
-        return `zzfx(${code}); // ${sound.name.trim()}`;
-    else if (shorten)
-        return `zzfx(...[${code}]); // ${sound.name.trim()}`;
-    else
-        return `zzfx(${code}); // ${sound.name.trim()}`;
+    FitToWidow();
 }
 
-function LoadSound()
-{    
-    let code = prompt('Enter zzfx code.');
-    if (!code)
+function SetCode()
+{
+    if (!iframe_content)
         return;
-        
-    code = code.trim();
-    const front = code.slice(0,9);
-    if (front != 'zzfx(...[')
+
+    paused = 0;
+    code=codeMirrorEditor.getValue();
+    iframe_content.code = code;
+    localStorage.code = code;
+    
+    SetErrorText("");
+    ResetShader();
+    
+    if (mode == "shadertoy")
     {
-        alert('Error! Invalid zzfx code.');
-        return;
+        SetShader(code);
+        if (shaderErrorText)
+        {
+            SetErrorText(shaderErrorText);
+            if (shaderErrorText)
+                paused=1;
+        }
     }
-
-    // split up parameters
-    const end = code.slice(9);
-    const params = end.split(',');
-    const paramArray = [];
-    for (const p of params)
-        paramArray.push(p.length? parseFloat(p) : undefined);
-    
-    // build sound
-    const sound = ZZFX.BuildSound(...paramArray);
-    const name = code.split('//')[1];
-    sound.name = name || ('Loaded Sound ' + generatedSoundCount++);
-    sound.name = sound.name.trim();
-    AddToList(sound);
-    PlaySelected();
-}
-
-function SaveWave()
-{    
-    PlaySelected();
-    
-    const sound = BuildSoundFromSettings();
-    a_downloadLink.href = BuildWaveDataUrl(sound);
-    name = sound.name.trim();
-    if (!name.length)
-        name = 'zzfx';
-    a_downloadLink.download = name + ".wav";
-    a_downloadLink.click();
-}
-
-function BuildWaveDataUrl(sound)
-{
-    const samples = ZZFX.BuildSamples(...ZZFX.SoundToArray(sound));
-
-    // adapted from https://gist.github.com/asanoboy/3979747
-    const channels = 1;
-    const length = samples.length;
-    const buffer = new Int16Array(length + 23);
-    const sampleRate = ZZFX.sampleRate;
-
-    // wave header
-    buffer[ 0] = 0x4952; // "RI"
-    buffer[ 1] = 0x4646; // "FF"
-    buffer[ 2] = (2*length + 15) & 0x0000ffff; // RIFF size
-    buffer[ 3] = ((2*length + 15) & 0xffff0000) >> 16; // RIFF size
-    buffer[ 4] = 0x4157; // "WA"
-    buffer[ 5] = 0x4556; // "VE"
-    buffer[ 6] = 0x6d66; // "fm"
-    buffer[ 7] = 0x2074; // "t "
-    buffer[ 8] = 0x0012; // fmt chunksize: 18
-    buffer[ 9] = 0x0000; //
-    buffer[10] = 0x0001; // format tag : 1 
-    buffer[11] = channels; // channels: 2
-    buffer[12] = sampleRate & 0x0000ffff; // sample per sec
-    buffer[13] = (sampleRate & 0xffff0000) >> 16; // sample per sec
-    buffer[14] = (2*channels*sampleRate) & 0x0000ffff; // byte per sec
-    buffer[15] = ((2*channels*sampleRate) & 0xffff0000) >> 16; // byte per sec
-    buffer[16] = 0x0004; // block align
-    buffer[17] = 0x0010; // bit per sample
-    buffer[18] = 0x0000; // cb size
-    buffer[19] = 0x6164; // "da"
-    buffer[20] = 0x6174; // "ta"
-    buffer[21] = (2*length) & 0x0000ffff; // data size[byte]
-    buffer[22] = ((2*length) & 0xffff0000) >> 16; // data size[byte]	
-
-    // copy samples to buffer
-    for (let i = 0; i < length; i++)
+    else if (mode == "js")
     {
-        const s = samples[i];
-        buffer[i+23] = s>=1 ? (1<<15) - 1 : Math.round(s * (1<<15));
+        try
+        {
+            iframe_content.eval(code)
+        }
+        catch (e) 
+        {   
+            paused = 1;
+            iframe_content.UserUpdateFunction=function u(t) {}
+            if (IsError(e))
+                errorValue = e.message? "Error: " + e.message : e;
+            else
+                errorValue = e;
+            SetErrorText(errorValue);
+        }
     }
-
-    // build the blob
-    let eof = 0;
-    let bufferNeedle = 0;
-    const GetBuffer = (length) =>
+    else if (modeHasCanvas)
     {
-        eof = bufferNeedle + length >= buffer.length;
-        const rt = new Int16Array(eof?buffer.length - bufferNeedle:length);
-        for(let i=0; i<rt.length; i++)
-            rt[i] = buffer[i+bufferNeedle];
-        bufferNeedle += rt.length;
-        return rt.buffer;
-    }
+        WrapCodeWithLoopProtect=code=>
+        {
+            if (!loopProtectOption.checked)
+                return code;
+                
+            // insert loop buster into for and while loop statements
+            return code.replace
+            (
+                /(for\s*\((?!\s+of\s+)(?!\s+in\s+)[^;]*;[^;]*;|while\s*\()\s*(\S)/g, 
+                (loopBody, group1, group2)=>
+                    group1 && group2? group1 +
+                    `Date.now()>maxLoopTime&&function(){throw new Error('Frame timed out!')}()` +
+                    (group2 == ')' ? '' : ',') + group2 : loopBody
+            );
+        }
+        let codeFunction="function u(t){\n"+WrapCodeWithLoopProtect(code)+"\n}"
 
-    const blobData = [];
-    while ( !eof ) { blobData.push(GetBuffer(1e3)); }
-    const b = new Blob(blobData, {type:'audio/wav'});
-    const URLObject = webkitURL || URL;
-    return URLObject.createObjectURL(b);
-}
-
-function DrawSoundWave(b, volume, sound)
-{
-    // set up canvas
-    const x = canvas_soundWave.getContext('2d'); 
-    const w = canvas_soundWave.width;
-    const h = canvas_soundWave.height;
-    canvas_soundWave.width |= 0;
-    randomSeed = loadedSoundSeed;
-    const R =()=> SeededRandom();
-    
-    if (!volume)
-        return;
-    
-    // show attack, sustain, release
-    let length = b.length;
-    let X, W;
-    let H=R()*3e3;
-    x.fillStyle=`hsl(${H+45},79%,10%)`;
-    x.fillRect(0,0,w,h);
-    if (!length)
-        return;
-    x.fillStyle=`hsl(${H-45},79%,10%)`;
-    x.fillRect(X=0,0,W=w*sound.attack * ZZFX.sampleRate/b.length,h);
-    x.fillStyle=`hsl(${H-15},79%,10%)`;
-    x.fillRect(X+=W,0,W=w*sound.sustain * ZZFX.sampleRate/b.length,h);
-    x.fillStyle=`hsl(${H+15},99%,10%)`;
-    x.fillRect(X+=W,0,W=w*sound.release * ZZFX.sampleRate/b.length,h);
-    x.strokeStyle=`#FFF`;
-    x.strokeRect(X=0,0,W=w*sound.attack * ZZFX.sampleRate/b.length,h);
-    x.strokeRect(X+=W,0,W=w*sound.sustain * ZZFX.sampleRate/b.length,h);
-    x.strokeRect(X+=W,0,W=w*sound.release * ZZFX.sampleRate/b.length,h);
-    
-    // draw the wave
-    x.strokeStyle=`hsl(${H+180},${R()*99}%,70%)`;
-    x.beginPath();
-    for(let i=0; i<b.length; i+=10)
-        x.lineTo(w*i/b.length, .8*b[i]*h/2/volume+h/2);
-    x.stroke();
-}
-
-function RandomizeLogo()
-{
-    const R =()=> Math.random();
-    div_logo.style.color=`hsl(${R()*3e3},${50+50*R()}%,${50+50*R()}%)`;
-    div_logo2.style.color=`hsl(${R()*3e3},${50+50*R()}%,${50+50*R()}%)`;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// save & load
-
-function BuildSaveData()
-{
-    const data =
-    {
-        sounds,
-        generatedSoundCount,
-        volume:slider_masterVolume.value
+        try
+        {
+            iframe_content.eval(codeFunction);
+            iframe_content.window.u = iframe_content.u;
+            iframe_program.u = iframe_content.u;
+        }
+        catch (e) 
+        {
+            paused = 1;
+            iframe_content.UserUpdateFunction=function u(t) {}
+            if (IsError(e))
+                errorValue = e.message? "Error: " + e.message : e;
+            else
+                errorValue = e;
+            SetErrorText(errorValue);
+        }
     }
     
-    return JSON.stringify(data);
+    // save all variables the program started with
+    iframeGlobals = {};
+    Object.keys(iframe_content).forEach(key =>{iframeGlobals[key]=iframe_content[key];});
 }
 
-function LoadSaveData(dataJSON)
+function Share()
 {
-    if (!dataJSON)
-    {
-        AddDefaultIfEmpty();
-        return;
-    }
-
-    const data = JSON.parse(dataJSON);
-    if (data.volume)
-        slider_masterVolume.value = data.volume;
-    if (data.generatedSoundCount)
-        generatedSoundCount = data.generatedSoundCount;
-    if (data.sounds)
-        data.sounds.forEach(o=>o&&AddToList(o));
-        
-    AddDefaultIfEmpty();
-    select_soundList.selectedIndex = 0;
+    prompt("CapJS Code URL\nThis url contains your entire program!\nYou can share or bookmark this link.", SaveToURL());
 }
 
-function SaveLocalStorage()
+function Save()
 {
-    localStorage.saveData = BuildSaveData();
+    let filename = filenameInput.value
+    if (filename=="")
+        filename="CapJSProgram"
+    if (filename.indexOf(".")<0)
+        filename += ".txt";
+    
+    download(codeMirrorEditor.getValue(), filename, "data:application/octet-stream");
 }
 
-function LoadLocalStorage()
+function SetResolution(width, height)
 {
-    ClearSounds(1);
-    LoadSaveData(localStorage.saveData);
-}
-
-function Export()
-{
-    const fileData = BuildSaveData();
-    a_downloadLink.download = "zzfx_sounds.txt";
-    a_downloadLink.href='data:application/octet-stream;charset=UTF-8,' + encodeURIComponent(fileData);
-    a_downloadLink.click();
-    PlaySelected();
-}
-
-function Import()
-{
-    input_importFile.onchange=e=>LoadFile(e.target.files[0]);
-    input_importFile.click();
+    CaptureWidth.value=width;
+    CaptureHeight.value=height;
 }
 
 function LoadFile(file)
 {
-    input_importFile.onchange=e=>0;
-    input_importFile.value='';
-    
     if (file.type != "text/plain")
-    {
-        alert('Error! File type mismatch.');
         return;
-    }
 
-    const reader = new FileReader();
+    let reader = new FileReader();
     reader.readAsText(file,'UTF-8');
     reader.onload=readerEvent=>
     {
-        const fileData = readerEvent.target.result;
-        LoadSaveData(fileData);
-        PlaySelected();
+        let content = readerEvent.target.result;
+        codeMirrorEditor.setValue(content);
+        filenameInput.value = file.name.replace(/\.[^/.]+$/, "")
+        Reset();
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// shortcuts
-
-onkeydown =e=>
+function LoadImage(file)
 {
-    if (e.ctrlKey || e.altKey)
+    if (!file)
+        return 0;
+    
+    let reader = new FileReader();
+    let newimage = new Image();
+    reader.readAsDataURL(file);
+    reader.onload=readerEvent=>
+    {
+        let content = readerEvent.target.result;
+        newimage.src = content;
+    }
+    return newimage
+}
+
+// Load code
+fileInput.onchange=e=>
+{
+   LoadFile(e.target.files[0]);
+}
+
+// Load image
+imageFileInput.onchange=e=>
+{
+   image = LoadImage(e.target.files[0]);
+}
+
+function SaveToURL()
+{
+    let search = "";
+    search += "filename=" + encodeURIComponent(filenameInput.value);
+    if (mode != "auto")
+        search += "&mode=" + encodeURIComponent(mode);
+        
+    let code = codeMirrorEditor.getValue();
+    search += "&crushed=" + JSONCrush(code);
+    
+    let url = new URL(window.location.href);
+    url.search = search;
+    return url.toString();
+}
+
+function LoadFromURL(href)
+{
+    let url = new URL(href);
+    let searchParams = url.searchParams;
+    if (searchParams.has('code') || searchParams.has('crushed'))
+    {
+        codeIsSafe = 1;
+        manuallyPaused = 0;
+        if (searchParams.has('filename'))
+            filenameInput.value = searchParams.get('filename')
+        if (searchParams.has('code'))
+            codeMirrorEditor.setValue(searchParams.get('code'));
+        if (searchParams.has('crushed'))
+            codeMirrorEditor.setValue(JSONUncrush(searchParams.get('crushed')));
+        if (searchParams.has('mode') && modeSelect.selectedIndex>=0)
+            modeSelect.value = searchParams.get('mode');
+        else
+            modeSelect.value = "auto";
+        
+        return true;
+    }
+    
+    return false;
+}
+
+function SaveScreenshot()
+{    
+    if (!capturer)
+    {
+        // update the capture canvas if we aren't aready capturing video
+        captureWidth = CaptureWidth.value;
+        captureHeight = CaptureHeight.value;
+        UpdateShader();
+        
+        UpdateCaptureCanvas();
+    }
+    
+    let format = formatSelect.value;
+    if (format != 'png' && format != 'jpg')
+        format = 'png';
+    
+    download2(captureCanvas.toDataURL("image/"+format), filenameInput.value+"."+format,"image/"+format);
+}
+
+function ResetButton()
+{
+    if (!confirm('Are you sure you want to reset and clear everything?'))
         return;
 
-    const selected = document.activeElement;
-    if (selected.tagName != 'INPUT' && selected.tagName != 'TEXTAREA')
+    let settings = 
     {
-        if (e.keyCode == 32 && selected.tagName != 'BUTTON') // space
-            PlaySelected();
-        if (e.keyCode == 45) // ins
-            AddPresetSound();
-        if (e.keyCode == 46) // del
-            RemoveSelected();
-        if (e.keyCode == 70) // f
-            FavoriteSelected();
-        if (e.keyCode == 67) // c
-            CopySelected();
-        if (e.keyCode == 77) // m
-            CopySelected(1);
+        filename:            'Default',
+        format:              'gif',
+        frameRate:           "60",
+        captureTime:         2,
+        captureWidth:        960,
+        captureHeight:       540,
+        aspect:              'fill',
+        timeScale:           1,
+        centeringOverlay:    0,
+        onChange:            'restart',
+        preserveAspectRatio: 1,
+        backgroundColor:     '#FFFFFF',
+        showWatchWindow:     0,
+        mode:                'auto',
+        loopProtectOption:   'true',
+        showAdvancedSettings:showAdvancedSettings.checked,
+        theme:               themeSelect.value,
+        canvasWidth:         1920,
+        canvasHeight:        1080,
+    };
+
+    localStorage.settings = JSON.stringify(settings);
+    localStorage.code = defaultProgram;
+    LoadLocalStorage();
+    SetCode();
+    
+    manuallyPaused=0;
+    paused=0;
+    codeIsSafe=1;
+    SetErrorText("");
+    
+    Reset();
+}
+
+function SaveLocalStorage()
+{
+    if (!document.hasFocus())
+        return;
+
+	let captureFramerate = parseInt(document.querySelector('input[name="framerateSelector"]:checked').value);
+    let settings = 
+    {
+        filename:            filenameInput.value,
+        format:              formatSelect.value,
+        frameRate:           captureFramerate,
+        captureTime:         CaptureTimeInput.value,
+        captureWidth:        CaptureWidth.value,
+        captureHeight:       CaptureHeight.value,
+        aspect:              aspectSelect.value,
+        timeScale:           TimeScale.value,
+        centeringOverlay:    centeringOverlay.checked,
+        onChange:            onChangeSelect.value,
+        preserveAspectRatio: preserveAspectRatio.checked,
+        backgroundColor:     BackgroundColor.value,
+        mode:                modeSelect.value,
+        code:                defaultProgram,
+        showAdvancedSettings:showAdvancedSettings.checked,
+        theme:               themeSelect.value,
+        fontSize:            fontSizeSelect.value,
+        canvasWidth:         parseInt(CanvasWidth.value),
+        canvasHeight:        parseInt(CanvasHeight.value),
+    };
+
+    localStorage.settings = JSON.stringify(settings);
+}
+
+function LoadLocalStorage()
+{
+    // load saved code or default program
+    let code=localStorage.code;
+    if (code && typeof code == 'string' && code != "")
+    {
+        codeMirrorEditor.setValue(localStorage.code);
+        if (!codeIsSafe)
+            SetErrorText("Saved program loaded! Modify code or unpause to execute.");
+    }
+    else
+    {
+        codeMirrorEditor.setValue(defaultProgram);
+        codeIsSafe=1;
+        manuallyPaused=0;
+    }
+    
+    if (!localStorage.settings)
+    {
+        SelectTheme();
+        return;
+    }
+        
+    let settings = JSON.parse(localStorage.settings);
+    
+    CaptureTimeInput.value       = settings.captureTime;
+    CaptureWidth.value           = settings.captureWidth;
+    CaptureHeight.value          = settings.captureHeight;
+    TimeScale.value              = settings.timeScale;
+    showAdvancedSettings.checked = settings.showAdvancedSettings;
+    centeringOverlay.checked     = settings.centeringOverlay;
+    preserveAspectRatio.checked  = settings.preserveAspectRatio;
+    BackgroundColor.value        = settings.backgroundColor;
+    CanvasWidth.value            = settings.canvasWidth;
+    CanvasHeight.value           = settings.canvasHeight;
+    filenameInput.value          = settings.filename;
+        
+    modeSelect.value = settings.mode;
+    if (modeSelect.selectedIndex<0)    
+        modeSelect.value = "auto"
+        
+    formatSelect.value = settings.format;
+    if (formatSelect.selectedIndex<0)    
+        formatSelect.value = "gif"
+        
+    onChangeSelect.value = settings.onChange;
+    if (onChangeSelect.selectedIndex<0)    
+        onChangeSelect.value = "restart"
+        
+    aspectSelect.value = settings.aspect;
+    if (aspectSelect.selectedIndex<0)    
+        aspectSelect.value = "stretch"
+        
+    themeSelect.value = settings.theme;
+    if (themeSelect.selectedIndex<0)    
+        themeSelect.value = "capjs"
+    
+    fontSizeSelect.value = settings.fontSize;
+    if (fontSizeSelect.selectedIndex<0)    
+        fontSizeSelect.value = "2.0"
+        
+    SelectTheme();
+    
+    let radioBox = document.getElementsByName('framerateSelector');
+    for (let i = 0; i < radioBox.length; i++)
+        radioBox[i].checked = (radioBox[i].value == settings.frameRate);
+}
+
+function CountCharacters(string) { return [...string].length; }
+
+function RefreshUI()
+{
+    if (!isSliding)
+        timeRangeSlider.value=time*60
+    if (frame<=2)
+        timeDisplay.innerHTML="0.00"
+    else
+        timeDisplay.innerHTML = (time-1/60).toFixed(2);
+        
+    if (document.activeElement != timeRangeSlider)
+        pauseButton.innerHTML = paused||manuallyPaused? "►" : "▌▌"
+    
+    let s=""
+    if (captureButton.disabled)
+        s=`Processing ${processingPercent*100|0}%`;
+    else if (capturer)
+    {
+        if (captureTimeLimit>0)
+        {
+            let p = Math.floor(100*captureTime/captureTimeLimit);
+            s=`Stop ${p}%`
+        }
+        else
+            s="Stop"
+    }
+    else
+        s="Capture"
+    captureButton.innerHTML=s;
+    captureButton.style.background=captureButton.disabled?"#88F":capturer?"#F88":"#8F8";
+    advancedSettings.style.display = showAdvancedSettings.checked? "inline" : "none";
+    
+    codeLength.innerHTML=(new TextEncoder('utf-8').encode(codeMirrorEditor.getValue())).length;
+    codeLengthChars.innerHTML=CountCharacters(codeMirrorEditor.getValue());
+    codeLengthLines.innerHTML=codeMirrorEditor.lineCount();
+    
+    watchWindow.style.display = showWatchWindow.checked? "inline" : "none";
+    helpDisplay.style.display = showHelp.checked? "inline" : "none";
+    
+    if (modeHasCanvas)
+    {
+        let showCenter = centeringOverlay.checked;
+        iframe_content.centering_V.style.display = showCenter? "inline" : "none";
+        iframe_content.centering_H.style.display = showCenter? "inline" : "none";
     }
 }
 
-// click on canvas to play sound
-canvas_soundWave.onmousedown =e=> {loadedSound=0;LoadSelected(1);e.preventDefault();}
+function UpdateWatchWindow(objectNames)
+{
+    if (paused)
+        return;
+    
+    let output = '';
+    if (objectNames.trim()=='')
+    {
+        watchWindowTextArea.value = '';
+        
+        // show all new variables
+        for(key of Object.keys(iframe_content))
+        {
+            if (typeof iframeGlobals[key] !== 'undefined')
+            {
+                if (iframeGlobals[key] == iframe_content[key])
+                    continue;
+            }
+            
+            // prevent internal variables from showing by default
+            if (['x','code','innerWidth','screenshot','innerHeight','maxLoopTime','image','time','t','frame','_CONSOLE_LOG'].indexOf(key) >= 0)
+                continue;
+            
+            objectNames += key + ' '
+        }
+    }
+    
+    if (objectNames.trim()=='')
+    {
+        watchWindowTextArea.value = '';
+        return;
+    }
+    
+    objectNames=objectNames.replace(/ /g,',');
+    let objectNameList = objectNames.split(',')
+    for( objectName of objectNameList )
+    {
+        objectName = objectName.trim();
+        if (objectName=='')
+            break;
+    
+        try
+        {
+            output += objectName +' = ';
+            let theObject = iframe_content.eval(objectName);
+            if (typeof theObject == 'function')
+                output += theObject.toString().replace(/(\n|\r)/g,'\\n');
+            else
+                output += JSON.stringify(theObject);
+        }
+        catch (e) 
+        {
+            output += 'undefined';
+        }
+        output += '\n';
+    }
+    
+    watchWindowTextArea.value = output;
+}
 
-// drag and drop exported files into the sound list
-select_soundList.addEventListener('dragover', e=>
+function CaptureProgress(p)
 {
-    e.stopPropagation();
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-    select_soundList.style.background = '#800';
-});
-select_soundList.addEventListener('dragleave', e=>
+    processingPercent=p;
+    captureButton.disabled = p<1
+}
+
+function ToggleCapture()
 {
-    select_soundList.style.background = '';
-});
-select_soundList.addEventListener('drop', e=>
+    codeIsSafe=1;
+    
+    if (capturer)
+    {
+        capturer.stop();
+        capturer.save();
+        capturer=0;
+        return;
+    }
+    
+    if (!modeHasCanvas)
+    {
+        alert("Can't capture in a non canvas mode!");
+        return;
+    }
+    
+    manuallyPaused=0;
+    let onChangeMode = onChangeSelect.value;
+    if (onChangeMode == "restart")
+        Reset();
+    
+    paused=0;
+	captureFramerate = parseInt(document.querySelector('input[name="framerateSelector"]:checked').value);
+    let format = formatSelect.value;
+    captureTimeLimit = parseFloat(CaptureTimeInput.value)
+    if (captureTimeLimit<0)
+        captureTimeLimit=0
+    capturer = new CCapture({ 
+        //display: true,
+        framerate: captureFramerate,
+        format: format,
+        timeLimit: captureTimeLimit,
+        workersPath: './',
+        name: filenameInput.value,
+		onProgress: function( p ) { CaptureProgress(p); }
+    });
+    capturer.start();
+    
+    captureWidth=parseInt(CaptureWidth.value);
+    captureHeight=parseInt(CaptureHeight.value);
+    captureWidth=(captureWidth>0&&captureWidth<=1920*4)?captureWidth:1920*4;
+    captureHeight=(captureHeight>0&&captureHeight<=1080*4)?captureHeight:1080*4;
+    captureTime=0;
+}
+
+function SetErrorText(text)
 {
-    e.stopPropagation();
-    e.preventDefault();
-    LoadFile(e.dataTransfer.files[0]);
-    select_soundList.style.background = '';
-});
+    errorText.value = text;
+}
+
+function SetConsoleText(text)
+{
+    if (text)
+        consoleTextDiv.style.display='inline';
+    consoleText.value = text;
+}
+
+let updateTimeBuffer=0
+
+function UpdateFrame(forceUpdate, preventTimeChange)
+{
+    // set background color
+    if (mainCanvas)
+        mainCanvas.style.background = BackgroundColor.value;
+    if (iframe_program)
+        iframe_program.style.background=BackgroundColor.value
+    if (iframe_content.renderer)
+        iframe_content.renderer.setClearColor(BackgroundColor.value);
+        
+    
+    RefreshUI();
+    
+    if (!codeIsSafe)
+        return;
+        
+    if(!paused && !isSliding && !manuallyPaused || forceUpdate)
+    {
+        updateCount = 1;
+        
+        let timeScale = parseFloat(TimeScale.value);
+        if (timeScale < 0)
+            timeScale=0;
+        else if (timeScale > 100)
+            timeScale=100;
+        else if (!(timeScale >= 0 && timeScale <= 100))
+            timeScale=0;
+        if (capturer && captureFramerate==30)
+            timeScale *= 2;
+        
+        updateTimeBuffer += timeScale
+        updateCount = (updateTimeBuffer|0);
+        updateTimeBuffer -= updateCount;
+            
+        for(;updateCount--;)
+        {
+            let errorValue = "";
+            try
+            {
+                let canvasWidth = parseInt(CanvasWidth.value);
+                let canvasHeight = parseInt(CanvasHeight.value);
+                if (preserveAspectRatio.checked && mainCanvas.width!=canvasWidth && mainCanvas.height==canvasHeight)
+                {
+                    // auto preserve aspect ratio if width is changed and height isnt
+                    let height = Math.round(mainCanvas.width * canvasHeight / canvasWidth);
+                    height = height & ~1 // keep it even
+                    if (mainCanvas.height != height)
+                        mainCanvas.height = height;
+                }
+                
+                let programTime = time;
+                if (programTime > 0 && (programTime * 60 | 0 == frame - 1))
+                    programTime += 0.000001; // fix time not matching frame due to floating point error
+
+                if (modeHasCanvas)
+                {
+                    iframe_content._CONSOLE_LOG = '';
+                    iframe_content.t=time;
+                    iframe_content.image=image;
+                    iframe_content.screenshot=SaveScreenshot;
+                    iframe_content.time=time;
+                    iframe_content.frame=frame;
+                    iframe_content.window.u = iframe_program.u;
+                    const isCapturing = capturer && !captureButton.disabled;
+                    iframe_content.maxLoopTime = Date.now() + (isCapturing?5e4:250);
+                    if (typeof iframe_content.window.u == "function")
+                        iframe_content.window.u(programTime);
+
+                    UpdateShader();
+                }
+
+                CustomUpdate(programTime, mainCanvas, mainCanvasContext);
+            }
+            catch (e) 
+            {
+                if (typeof e === "undefined")
+                    errorValue = "undefined";
+                else if (IsError(e))
+                    errorValue = e.message? "Error: " + e.message : e;
+                else
+                    errorValue = e;
+                SetErrorText(errorValue);
+            }
+            
+            if (modeHasCanvas)
+                SetConsoleText(iframe_content._CONSOLE_LOG);
+
+            if (!preventTimeChange || time==0)
+            {
+                time+=1/60;
+                ++frame;
+            }
+        }
+        captureTime+=(captureFramerate==30?2:1)/60
+    }
+
+    if (capturer)
+    {
+        UpdateCaptureCanvas();
+        capturer.capture( captureCanvas );
+        
+        if (captureTimeLimit && captureTime > captureTimeLimit)
+            capturer = 0;
+    }
+    
+    UpdateWatchWindow(infoInput.value);
+}
+
+function FitToWidow()
+{
+    let width = window.innerWidth - 50;
+    
+    let maxFrameWidth = 700;
+    let frameWidth = maxFrameWidth;
+    let inputWidth = width - frameWidth;
+     
+    if (inputWidth < 600)
+    {
+        frameWidth += inputWidth - 600;
+        if (frameWidth < 500)
+            frameWidth = 500;
+
+        inputWidth += maxFrameWidth - frameWidth;
+    }
+    if (inputWidth < 300)
+        inputWidth = 300;
+    
+    iframe_program.style.width=frameWidth+'px';
+    iframe_program.style.height=frameWidth*9/16+'px';
+    
+    codeMirrorEditor.setSize(inputWidth, null);
+    errorText.style.maxWidth= inputWidth+'px';
+    watchWindowTextArea.style.maxWidth= inputWidth+'px';
+}
+
+function UpdateFrameLoop()
+{
+    FitToWidow();
+
+    if (capturer)
+        requestAnimationFrame( UpdateFrameLoop );
+    else
+	   setTimeout( UpdateFrameLoop, 16 );
+    UpdateFrame();
+    SaveLocalStorage();
+} 
+
+function UpdateCaptureCanvas()
+{
+    let captureCanvasContext = captureCanvas.getContext('2d');
+    captureCanvas.width = captureWidth;
+    captureCanvas.height = captureHeight;
+    captureCanvasContext.fillStyle=BackgroundColor.value
+    captureCanvasContext.fillRect(0,0,captureWidth,captureHeight);
+
+    let width=captureWidth;
+    let height=captureHeight;
+    let captureScaleType=aspectSelect.value;
+    
+    if (captureScaleType=="center")
+    {
+        width=mainCanvas.width
+        height=mainCanvas.height
+    }
+    else if (captureScaleType=="fill")
+    {
+        if (mainCanvas.width/mainCanvas.height > width/height)
+            width=height*mainCanvas.width/mainCanvas.height;
+        else
+            height=width*mainCanvas.height/mainCanvas.width;
+
+    }
+    else if (captureScaleType=="fit")
+    {
+        if (mainCanvas.width/mainCanvas.height > width/height)
+            height=width*mainCanvas.height/mainCanvas.width;
+        else
+            width=height*mainCanvas.width/mainCanvas.height;
+    }
+
+    captureCanvasContext.drawImage(mainCanvas,captureWidth/2-width/2,captureHeight/2-height/2,width,height);
+}
+
+function ResetShader()
+{
+    shaderErrorText = 0;
+    shaderProgram = 0;
+    shaderTexture = 0;
+}
+
+function SetShaderTexture(theImage)
+{
+    let x = mainCanvasContext;
+    x.bindTexture(x.TEXTURE_2D, shaderTexture);
+    
+    // fix texture being flipepd vertically
+    x.pixelStorei(x.UNPACK_FLIP_Y_WEBGL, true); 
+
+    if (theImage)
+    {
+        x.texImage2D(x.TEXTURE_2D, 0, x.RGBA, x.RGBA, x.UNSIGNED_BYTE, theImage);
+        x.texParameteri(x.TEXTURE_2D, x.TEXTURE_MIN_FILTER, x.LINEAR);
+    }
+    else
+    {
+        const pixel = new Uint8Array([255, 255, 255, 255]);
+        x.texImage2D(x.TEXTURE_2D, 0, x.RGBA, 1, 1, 0, x.RGBA, x.UNSIGNED_BYTE, pixel);
+    }
+}
+
+function SetShader(shader)
+{
+    // init shader program
+    let x = mainCanvasContext;
+
+    // pass through vertex shader
+    const vertexShader = x.createShader(x.VERTEX_SHADER);
+    x.shaderSource(vertexShader,"#version 300 es\n"+"in vec4 a_position;void main(){gl_Position = a_position;}");
+    x.compileShader(vertexShader);
+
+    const pixelShader = x.createShader(x.FRAGMENT_SHADER);
+    x.shaderSource(pixelShader,
+    "#version 300 es\n"+
+    "#define HW_PERFORMANCE 0\n"+
+    "precision mediump float;"+
+    "uniform vec3 iResolution;"+
+    "uniform float iTime;"+
+    "uniform float iTimeDelta;"+
+    "uniform int iFrame;"+
+    "uniform int iFrameRate;"+
+    "uniform vec4 iMouse;"+
+    "uniform sampler2D iChannel0;"+
+    "out vec4 outColor;\n"+
+    shader+
+    "\nvoid main(){mainImage(outColor,gl_FragCoord.xy);outColor.a=1.;}"
+    //"\nvoid main(){outColor=vec4(1.,0.,0.,1.);}"//test red
+    );
+    x.compileShader(pixelShader);
+    
+    shaderProgram = x.createProgram();
+    x.attachShader(shaderProgram,vertexShader);
+    x.attachShader(shaderProgram, pixelShader);
+    x.linkProgram(shaderProgram);
+    x.getProgramParameter(shaderProgram, x.LINK_STATUS);
+    /*if (!linkGood)
+    {
+        // something went wrong with the link
+        shaderErrorText = "LINK ERROR!\n" + x.getProgramInfoLog(shaderProgram);
+        return;
+    }*/
+    x.useProgram(shaderProgram);
+    shaderTexture = x.createTexture();
+
+    // create vertex buffer that is just 1 giant triangle with corner at 1,1
+    const vertexBuffer = x.ARRAY_BUFFER;
+    x.bindBuffer(vertexBuffer,x.createBuffer());
+    x.bufferData(vertexBuffer,new Int8Array([-3,1,1,-3,1,1]),x.STATIC_DRAW);
+    x.enableVertexAttribArray(0);
+    x.vertexAttribPointer(0,2,x.BYTE,0,0,0); // 2D vertex
+    
+    let debugOutput="";
+    let compiled = x.getShaderParameter(pixelShader, x.COMPILE_STATUS);
+    let shaderLog = x.getShaderInfoLog(pixelShader);
+    shaderErrorText = compiled? "" : "SHADER ERROR!\n"+shaderLog;
+    let shaderErrorLine = -1;
+    if (!compiled)
+    {
+        shaderProgram = 0;
+        
+        // get error line number
+        let splitLog = shaderLog.split(":");
+        if (splitLog.length >= 3)
+        {
+            shaderErrorLine = parseInt(splitLog[2]);
+
+            //codeLineTextArea.scrollTop=errorLineNumber;
+            //let lineHeight = codeTextArea.clientHeight / codeTextArea.rows;
+            //let scrollTop = (errorLineNumber - 1) * lineHeight;
+            //codeTextArea.scrollTop=scrollTop;
+            //codeLineTextArea.scrollTop=scrollTop;
+            //codeTextArea.selectionStart=0
+            //codeTextArea.selectionEnd=0
+        }
+    }
+    SetShaderTexture(image? image : mainCanvas);
+}
+
+function UpdateShader()
+{
+    if (!shaderProgram)
+        return;
+
+    let x = mainCanvasContext;
+    x.uniform3f(x.getUniformLocation(shaderProgram,"iResolution"),mainCanvas.width,mainCanvas.height,1);
+    x.uniform1f(x.getUniformLocation(shaderProgram,"iTime"),time);
+    x.uniform1f(x.getUniformLocation(shaderProgram,"iTimeDelta"),1/60);
+    x.uniform1f(x.getUniformLocation(shaderProgram,"iFrame"),frame);
+    x.uniform1f(x.getUniformLocation(shaderProgram,"iFrameRate"),60);
+    x.uniform1i(x.getUniformLocation(shaderProgram,"iChannel0"),0);
+    x.uniform4f(x.getUniformLocation(shaderProgram,"iMouse"),mouseX, mouseY,mouseZ,mouseW);
+    x.drawArrays(x.TRIANGLE_FAN, 0,3);
+    SetShaderTexture(image? image : mainCanvas);
+}
+
+function Init()
+{
+    if (LoadFromURL(window.location.href))
+    {
+        // only load theme
+        if (localStorage.settings)
+        {
+            let settings = JSON.parse(localStorage.settings);
+            if (settings.theme)
+            {
+                themeSelect.value = settings.theme;
+            }
+        }
+        if (themeSelect.selectedIndex<0)    
+            themeSelect.value = "capjs"
+        SelectTheme();
+    }
+    else
+        LoadLocalStorage();
+    
+    // get rid of search in url
+    let url = new URL(window.location.href);
+    url.search="";
+    window.history.pushState(null,null,url.toString())
+
+    Reset();
+    CustomInit();
+}
 
 Init();
+UpdateFrameLoop();
+
+/////////////////////////////////////////////////////////////////////// 
+// uncompress dwitter code
+function Uncompress(code)
+{
+    const i = code.toLowerCase().search(/eval\(unescape\(escape/g);
+    if (i<0)
+        return code;
+
+    const codeStart = code.slice(0,i);
+    const codeEnd = code.slice(i);
+    try
+    {
+        const newCode = iframe_content.eval(codeEnd.slice(4))
+        if (newCode)
+            return codeStart+newCode;
+    }
+    catch (e) {}
+    return code;
+}
+
+///////////////////////////////////////////////////////////////////////  
+//download.js v4.21, by dandavis; 2008-2018. [MIT] see http://danml.com/download.html for tests/usage
+
+(function(root,factory){typeof define=="function"&&define.amd?define([],factory):typeof exports=="object"?module.exports=factory():root.download2=factory()})(this,function(){return function download2(data,strFileName,strMimeType){let self=window,defaultMime="application/octet-stream",mimeType=strMimeType||defaultMime,payload=data,url=!strFileName&&!strMimeType&&payload,anchor=document.createElement("a"),toString=function(a){return String(a)},myBlob=self.Blob||self.MozBlob||self.WebKitBlob||toString,fileName=strFileName||"download",blob,reader;myBlob=myBlob.call?myBlob.bind(self):Blob,String(this)==="true"&&(payload=[payload,mimeType],mimeType=payload[0],payload=payload[1]);if(url&&url.length<2048){fileName=url.split("/").pop().split("?")[0],anchor.href=url;if(anchor.href.indexOf(url)!==-1){let ajax=new XMLHttpRequest;return ajax.open("GET",url,!0),ajax.responseType="blob",ajax.onload=function(e){download2(e.target.response,fileName,defaultMime)},setTimeout(function(){ajax.send()},0),ajax}}if(/^data:([\w+-]+\/[\w+.-]+)?[,;]/.test(payload)){if(!(payload.length>2096103.424&&myBlob!==toString))return navigator.msSaveBlob?navigator.msSaveBlob(dataUrlToBlob(payload),fileName):saver(payload);payload=dataUrlToBlob(payload),mimeType=payload.type||defaultMime}else if(/([\x80-\xff])/.test(payload)){let i=0,tempUiArr=new Uint8Array(payload.length),mx=tempUiArr.length;for(i;i<mx;++i)tempUiArr[i]=payload.charCodeAt(i);payload=new myBlob([tempUiArr],{type:mimeType})}blob=payload instanceof myBlob?payload:new myBlob([payload],{type:mimeType});function dataUrlToBlob(strUrl){let parts=strUrl.split(/[:;,]/),type=parts[1],indexDecoder=strUrl.indexOf("charset")>0?3:2,decoder=parts[indexDecoder]=="base64"?atob:decodeURIComponent,binData=decoder(parts.pop()),mx=binData.length,i=0,uiArr=new Uint8Array(mx);for(i;i<mx;++i)uiArr[i]=binData.charCodeAt(i);return new myBlob([uiArr],{type:type})}function saver(url,winMode){if("download"in anchor)return anchor.href=url,anchor.setAttribute("download",fileName),anchor.className="download-js-link",anchor.innerHTML="downloading...",anchor.style.display="none",anchor.addEventListener("click",function(e){e.stopPropagation()}),document.body.appendChild(anchor),setTimeout(function(){anchor.click(),document.body.removeChild(anchor),winMode===!0&&setTimeout(function(){self.URL.revokeObjectURL(anchor.href)},250)},66),!0;if(/(Version)\/(\d+)\.(\d+)(?:\.(\d+))?.*Safari\//.test(navigator.userAgent))return/^data:/.test(url)&&(url="data:"+url.replace(/^data:([\w\/\-\+]+)/,defaultMime)),window.open(url)||confirm("Displaying New Document\n\nUse Save As... to download, then click back to return to this page.")&&(location.href=url),!0;let f=document.createElement("iframe");document.body.appendChild(f),!winMode&&/^data:/.test(url)&&(url="data:"+url.replace(/^data:([\w\/\-\+]+)/,defaultMime)),f.src=url,setTimeout(function(){document.body.removeChild(f)},333)}if(navigator.msSaveBlob)return navigator.msSaveBlob(blob,fileName);if(self.URL)saver(self.URL.createObjectURL(blob),!0);else{if(typeof blob=="string"||blob.constructor===toString)try{return saver("data:"+mimeType+";base64,"+self.btoa(blob))}catch(y){return saver("data:"+mimeType+","+encodeURIComponent(blob))}reader=new FileReader,reader.onload=function(e){saver(this.result)},reader.readAsDataURL(blob)}return!0}});
+
+///////////////////////////////////////////////////////////////////////  
+// Mini JS Beautifer by xem - https://github.com/xem/miniBeautifier
+function BeautifyJS(e,r=0){e=e.trim(),r||(e=Uncompress(e));let c=[],n=[],l=[],t=0,a=0,s=0,p=0;for(;p!=e;){p=e;let r=e.match(/['"`\/]/);if("/"==r){let n=e.indexOf(r),s=e.slice(0,n+1);e=e[n+1].match(/[\/*]$/)?e.replace(/\/\/.*|\/\*[^]*?\*\//,function(e,r){return c.push(e),"@@c"+t++}):!s.match(/([\d\)\]\}]|true|false|null|undefined|this|@@s\d+)\s*(@@c\d+)*\s*\//m)&&s.match(/([-,;=><+%*&|^~!?!:\[\({]|delete|void|in|case|else|return|@@d|^)\s*(@@c\d+)*\s*\//m)?e.replace(/\/(\\\\|\\\/|[^\/])+?\/\w*/,function(e,r){return l.push(e),"@@r"+a++}):e.replace(/\//,"@@d")}else e="'"==r?e.replace(/'(\\\\|\\'|[^'])*?'/,function(e,r){return n.push(e),"@@s"+s++}):'"'==r?e.replace(/"(\\\\|\\"|[^"])*?"/,function(e,r){return n.push(e),"@@s"+s++}):e.replace(/`(\\\\|\\`|[^`])*?`/,function(e,r){return n.push(e),"@@s"+s++})}if(e=(e=(e=(e=(e=(e=e.replace(/@@d/g,"/")).replace(/ *(&&|\|\||!=|=>|=+|\+=|-=|\*=|\/=|\|=|\^=|%=|&=|\*\*=|!=|<=|>=|<<=|>>=|>>>=|<<|>>|[:?><=|&]) */g,r?"$1":" $1 ")).replace(/ *(\[\() */g,r?"$1":"$1 ")).replace(/ *(\]\)) */g,r?"$1":" $1")).replace(/ *(for|if|while|do|with)\s*\(+/g,r?"$1(":"\n$1 (")).replace(/ *, */g,r?",":", "),r)e=(e=(e=e.replace(/\s*(,|;)\s*/g,"$1")).replace(/ *(\()\s*/g,"$1")).replace(/\s*(\)) */g,"$1");else{let r="",c=0;for(let n=0;n<e.length;++n){let l=e[n];r+=l,"("==l?c++:")"==l?c--:","!=l&&";"!=l||(r+=c?" ":"\n")}e=(e=(e=(e=r).replace(/}/g,"\n}")).replace(/( *[{]|(case|default).*?:) */g,"$1\n")).replace(/( *[{]) */g,"\n$1\n")}return e=(e=(e=e.replace(/[\r\n]+ */g,"\n")).replace(/ +/g," ")).replace(/\n( *\n|\n)/g,"\n"),(e=(e=(e=(e=(e=r?e.replace(/@@c(\d+)/g,""):e.replace(/@@c(\d+)/g,function(e,r){return c[r]})).replace(/\s*@@s(\d+)\s*/g,function(e,c){return r?n[c]:" "+n[c]+" "})).replace(/\s*@@r(\d+)\s*/g,function(e,c){return r?l[c]:" "+l[c]+" "})).replace(/\n+/g,"\n")).replace(/;*\s*$/g,"")).trim()}
+
+///////////////////////////////////////////////////////////////////////  
+// JS Crush
+
+function JSCrush(e){let t=[];for(let e=32;e<256;++e){let l=String.fromCharCode(e);"`"!=l&&"\\"!=l&&t.push(l)}const l=((e,t)=>{let l=t.length,n="";const r=e=>e.length,o=e=>{let t=e.charCodeAt(0),l=e.charCodeAt(e.length-1);return t>=56320&&t<=57343||l>=55296&&l<=56319};let i={};for(let t=2;t<50;t++)for(let l=0;l<e.length-t;++l){let n=e.substr(l,t);if(i[n])continue;if(o(n))continue;let r=1;for(let o=e.indexOf(n,l+t);o>=0;++r)o=e.indexOf(n,o+t);r>1&&(i[n]=r)}for(;;){for(;l--&&e.includes(t[l]););if(l<0)break;let o,f=t[l],h=0,s=r(f);for(let e in i){let t=i[e],l=(t-1)*r(e)-(t+1)*s;l<=0?delete i[e]:l>h&&(o=e,h=l)}if(!o)break;e=e.split(o).join(f)+f+o,n=f+n;let u={};for(let t in i){let l=t.split(o).join(f),n=0;for(let t=e.indexOf(l);t>=0;++n)t=e.indexOf(l,t+l.length);n>1&&(u[l]=n)}i=u}return{a:e,b:n}})(e=e.replace(/`/g,"\\`"),t);return"$=`"+l.a+"`;for(_ of `"+l.b+"`)with($.split(_))$=join(pop());eval($)"}
+
+/////////////////////////////////////////////////////////////////////// 
+// JSONCrush by Frank Force [MIT] https://github.com/KilledByAPixel/JSONCrush
+function JSONCrush(e){let t=[];const n="-_.!~*'()";for(let e=127;--e;)(e>=48&&e<=57||e>=65&&e<=90||e>=97&&e<=122||n.includes(String.fromCharCode(e)))&&t.push(String.fromCharCode(e));for(let e=32;e<255;++e){let n=String.fromCharCode(e);"\\"==n||t.includes(n)||t.unshift(n)}const l=((e,t)=>{let n=t.length,l="";const r=e=>encodeURI(encodeURIComponent(e)).replace(/%../g,"i").length,o=e=>{let t=e.charCodeAt(0),n=e.charCodeAt(e.length-1);return t>=56320&&t<=57343||n>=55296&&n<=56319};let i={};for(let t=2;t<50;t++)for(let n=0;n<e.length-t;++n){let l=e.substr(n,t);if(i[l])continue;if(o(l))continue;let r=1;for(let o=e.indexOf(l,n+t);o>=0;++r)o=e.indexOf(l,o+t);r>1&&(i[l]=r)}for(;;){for(;n--&&e.includes(t[n]););if(n<0)break;let o,f=t[n],s=0,c=r(f);for(let e in i){let t=i[e],n=(t-1)*r(e)-(t+1)*c;l.length||(n-=r("")),n<=0?delete i[e]:n>s&&(o=e,s=n)}if(!o)break;e=e.split(o).join(f)+f+o,l=f+l;let u={};for(let t in i){let n=t.split(o).join(f),l=0;for(let t=e.indexOf(n);t>=0;++l)t=e.indexOf(n,t+n.length);l>1&&(u[n]=l)}i=u}return{a:e,b:l}})(e=JSONCrushSwap(e=e.replace(new RegExp("","g"),"")),t);let r=l.a;return l.b.length&&(r+=""+l.b),encodeURIComponent(r+"_")}function JSONUncrush(e){e=e.substring(0, e.length-1);const t=e.split("");let n=t[0];if(t.length>1){let e=t[1];for(let t of e){let e=n.split(t);n=e.join(e.pop())}}return JSONCrushSwap(n,0)}function JSONCrushSwap(e,t=1){const n=[['"',"'"],["':","!"],[",'","~"],["}",")","\\","\\"],["{","(","\\","\\"]],l=(e,t)=>{let n=new RegExp(`${(t[2]?t[2]:"")+t[0]}|${(t[3]?t[3]:"")+t[1]}`,"g");return e.replace(n,e=>e===t[0]?t[1]:t[0])};if(t)for(let t=0;t<n.length;++t)e=l(e,n[t]);else for(let t=n.length;t--;)e=l(e,n[t]);return e}
 
 </script>
-</center>
-<a href="https://github.com/KilledByAPixel/ZzFX" target="_blank" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#5AF; color:#222; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
 </body>
 </html>
+
+<!-- CCapture.js License
+
+The MIT License
+
+Copyright (c) 2012 Jaume Sanchez Elias
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+-->
+<!-- three.js License
+
+The MIT License
+
+Copyright © 2010-2019 three.js authors
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+-->
+<!-- Code Mirror License
+
+MIT License
+
+Copyright (C) 2017 by Marijn Haverbeke <marijnh@gmail.com> and others
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+-->
