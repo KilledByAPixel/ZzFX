@@ -137,25 +137,25 @@ BuildSamples
     let b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, d=.5;
     for(; i < length;b[i++] = s)
     {
-        if (++c>bitCrush*100)                          // bit crush
+        if (++c>bitCrush*100)                            // bit crush
         {
-            c = 0;
-            s = t * frequency *                        // frequency
-                Math.sin(tm * modulation - modPhase);  // modulation
+            c = 0;                                       // reset bit crush
+            s = t * frequency *                          // frequency
+                Math.sin(tm * modulation - modPhase);    // modulation
 
-            s = shape? shape>1? shape>2? shape>3?   // wave shape
-              Math.sin((s%PI2)**3) :                // 4 noise
-              Math.max(Math.min(Math.tan(s),1),-1): // 3 tan
-              1-(2*s/PI2%2+2)%2:                    // 2 saw
-              1-4*Math.abs(Math.round(s/PI2)-s/PI2):// 1 triangle
-              Math.sin(s);                          // 0 sin
-            s = sign(s)*(Math.abs(s)**shapeCurve);  // curve 0=square, 2=pointy
+            s = shape? shape>1? shape>2? shape>3?        // wave shape
+                Math.sin((s%PI2)**3) :                   // 4 noise
+                Math.max(Math.min(Math.tan(s),1),-1):    // 3 tan
+                1-(2*s/PI2%2+2)%2:                       // 2 saw
+                1-4*Math.abs(Math.round(s/PI2)-s/PI2):   // 1 triangle
+                Math.sin(s);                             // 0 sin
+            s = sign(s)*(Math.abs(s)**shapeCurve);       // curve 0=square, 2=pointy
 
             s *= volume * this.volume * (                // envelope
-                i<attack ? i/attack :                    // attack
-                i<attack+sustain ? 1 :                   // sustain
-                i<length-delay ?                         // post release
-                1 - (i-attack-sustain)/release : 0);     // release
+                i < attack ? i/attack :                  // attack
+                i < attack + sustain ? 1 :               // sustain
+                i < length - delay ?                     // post release
+                1 - (i - attack - sustain)/release : 0); // release
 
             s = delay ?                                  // delay
                 s/2 + (delay > i ? 0 :
@@ -179,7 +179,7 @@ BuildSamples
             frequency = startFrequency;               // reset frequency
             slide = startSlide;                       // reset slide
             r = 1;                                    // reset repeat time
-            j = j||1;                                 // reset pitch jump time
+            j = j || 1;                               // reset pitch jump time
         }
     }
 
@@ -189,51 +189,34 @@ BuildSamples
 BuildRandomSound()
 {
     // generate a random sound
-    const R =()=> Math.random();
-    const sound = this.BuildSound
-    (
-       1,                                    // volume
-       .05,                                  // randomness
-       R()**2*2e3|0,                         // frequency
-       .01 + R()**3,                         // attack
-       R()**3,                               // sustain
-       .01 + R()**3,                         // release
-       R()*5|0,                              // shape
-       R()<.2?1: R()*2,                      // shapeCurve
-       R()<.5?0: R()**3*100*(R()<.5?-1:1),   // slide
-       R()<.5?0: R()**3*100*(R()<.5?-1:1),   // deltaSlide
-       0,                                    // pitchJump
-       0,                                    // pitchJumpTime
-       0,                                    // repeatTime
-       R()<.5?0: R()**3*3,                   // noise
-       R()<.5?0: R()**3*100*(R()<.5?-1:1),   // modulation
-       R()<.5?0: R()**2,                     // bitCrush
-       R()<.5?0: R()**3*.5,                  // delay
+    const R=()=>Math.random(), C=()=>R()<.5, S=()=>C()?1:-1;
+
+    // randomize sound length
+    const attack  = R()**3;
+    const sustain = R()**3;
+    const release = R()**3;
+    const length  = attack + sustain + release;
+
+    // create random sound
+    return this.BuildSound(
+        1,                    // volume
+        .05,                  // randomness
+        R()**2*2e3,           // frequency
+        attack,               // attack
+        sustain,              // sustain
+        release,              // release
+        R()*5|0,              // shape
+        R()**2*3,             // shapeCurve
+        C() * R()**3*99*S(),  // slide
+        C() * R()**3*99*S(),  // deltaSlide
+        C() * R()**2*1e3*S(), // pitchJump
+        R()**2 * length,      // pitchJumpTime
+        C() * R() * length,   // repeatTime
+        C() * R()**4,         // noise
+        C() * R()**3*9*S(),   // modulation
+        C() * R()**4,         // bitCrush
+        C() * R()**3/2,       // delay
     );
-
-    // shape curve
-    if (R() < .1)
-        sound.shapeCurve = R()**2*10;
-    if (sound.shapeCurve >= 2)
-        sound.shapeCurve = sound.shapeCurve|0;
-
-    // randomly flip mod phase
-    if (R() < .5)
-        sound.modulation *= -1;
-        
-    // pitch jump
-    const length = sound.attack + sound.sustain + sound.release;
-    if (R() < .5)
-    {
-        sound.pitchJump = R()**2*1e3*(R()<.5?-1:1)|0; // pitchJump
-        sound.pitchJumpTime = R()*length;             // pitchJumpTime  
-    }
-
-    // repeatTime
-    if (R() < .5)
-        sound.repeatTime = R()*length;
-
-    return sound;
 }
 
 BuildSound
@@ -282,7 +265,7 @@ BuildSound
     return sound;
 }
 
-GetNote(rootNoteFrequency=440, semitoneOffset)
+GetNote(rootNoteFrequency=440, semitoneOffset=0)
 {
     // get frequency of a musical note on a diatonic scale
     return rootNoteFrequency * 2**(semitoneOffset/12);
@@ -331,26 +314,11 @@ function zzfx() { return ZZFX.Play(...arguments) }
 // @language_out ECMASCRIPT_2019
 // ==/ClosureCompiler==
 
-let zzfxV = .3; // volume
+let zzfxV = .3;   // volume
 const zzfxP =     // play a sound
 (
-    volume = 1, 
-    randomness = .05,
-    frequency = 220,
-    attack = 0,
-    sustain = 0,
-    release = .1,
-    shape = 0,
-    shapeCurve = 1,
-    slide = 0, 
-    deltaSlide = 0, 
-    pitchJump = 0, 
-    pitchJumpTime = 0, 
-    repeatTime = 0, 
-    noise = 0,
-    modulation = 0,
-    bitCrush = 0,
-    delay = 0,
+    // parameters
+    volume=1, randomness=.05, frequency=220, attack=0, sustain=0, release=.1, shape=0, shapeCurve=1, slide=0, deltaSlide=0, pitchJump=0, pitchJumpTime=0, repeatTime=0, noise=0, modulation=0, bitCrush=0, delay=0,
 
     // locals
     PI2 = Math.PI*2,
@@ -383,23 +351,23 @@ const zzfxP =     // play a sound
     {
         if (++c>bitCrush*100)                            // bit crush
         {
-            c = 0;
+            c = 0;                                       // reset bit crush
             s = t * frequency *                          // frequency
                 Math.sin(tm * modulation - modPhase);    // modulation
 
             s = shape? shape>1? shape>2? shape>3?        // wave shape
-              Math.sin((s%PI2)**3) :                     // 4 noise
-              Math.max(Math.min(Math.tan(s),1),-1):      // 3 tan
-              1-(2*s/PI2%2+2)%2:                         // 2 saw
-              1-4*Math.abs(Math.round(s/PI2)-s/PI2):     // 1 triangle
-              Math.sin(s);                               // 0 sin
+                Math.sin((s%PI2)**3) :                   // 4 noise
+                Math.max(Math.min(Math.tan(s),1),-1):    // 3 tan
+                1-(2*s/PI2%2+2)%2:                       // 2 saw
+                1-4*Math.abs(Math.round(s/PI2)-s/PI2):   // 1 triangle
+                Math.sin(s);                             // 0 sin
             s = sign(s)*(Math.abs(s)**shapeCurve);       // curve 0=square, 2=pointy
 
             s *= volume * zzfxV * (                      // envelope
-                i<attack ? i/attack :                    // attack
-                i<attack+sustain ? 1 :                   // sustain
-                i<length-delay ?                         // post release
-                1 - (i-attack-sustain)/release : 0);     // release
+                i < attack ? i/attack :                  // attack
+                i < attack + sustain ? 1 :               // sustain
+                i < length - delay ?                     // post release
+                1 - (i - attack - sustain)/release : 0); // release
                 
             s = delay ?                                  // delay
                 s/2 + (delay > i ? 0 :
@@ -437,4 +405,4 @@ const zzfxX = new AudioContext;
 
 // fix compatibility issues with old web audio (optional)
 // if this is used, you must remove the zzfxX=new AudioContext line above!
-//zzfxX=new(AudioContext||webkitAudioContext);zzfxX.z=zzfxX.createBufferSource;zzfxX.createBufferSource=(s=zzfxX.z())=>(s.start=s.start||s.noteOn,s)
+//const zzfxX=new(AudioContext||webkitAudioContext);zzfxX.z=zzfxX.createBufferSource;zzfxX.createBufferSource=(s=zzfxX.z())=>(s.start=s.start||s.noteOn,s.stop=s.stop||s.noteOff,s)
