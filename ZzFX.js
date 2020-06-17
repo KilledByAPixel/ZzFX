@@ -124,6 +124,8 @@ BuildSamples
     const modPhase = sign(modulation) * PI2/4
     let startFrequency = frequency *= 
         (1 + random(randomness)) * PI2 / sampleRate;
+        
+    // scale by sample rate
     attack = 99 + attack * sampleRate | 0;
     decay = decay * sampleRate | 0;
     sustain = sustain * sampleRate | 0;
@@ -134,7 +136,7 @@ BuildSamples
     pitchJump *= PI2 / sampleRate;
     pitchJumpTime = pitchJumpTime * sampleRate;
     repeatTime = repeatTime * sampleRate;
-    const length = Math.max(1, Math.min(attack+decay+sustain+release+delay, sampleRate * 10));
+    const length = attack + decay + sustain + release + delay;
 
     // generate waveform
     let b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, d=.5;
@@ -201,9 +203,9 @@ BuildRandomSound()
 
     // randomize sound length
     const attack  = R()**3;
+    const decay   = R()**3;
     const sustain = R()**3;
     const release = R()**3;
-    const decay   = R()**3;
     const length  = attack + decay + sustain + release;
 
     // create random sound
@@ -225,8 +227,8 @@ BuildRandomSound()
         C() * R()**3*9*S(),   // modulation
         C() * R()**4,         // bitCrush
         C() * R()**3/2,       // delay
-        C() * R(),            // sustain volume
-        C() * R(),            // decay
+        1 - C() * R(),        // sustain volume
+        decay,                // decay
     );
 }
 
@@ -351,11 +353,12 @@ const zzfxP =     // play a sound
 {
     // init parameters
     attack = 99 + attack * sampleRate | 0;
+    decay = decay * sampleRate | 0;
     sustain = sustain * sampleRate | 0;
     release = release * sampleRate | 0;
     delay = delay * sampleRate | 0;
+    length = attack + decay + sustain + release + delay;
     deltaSlide *= 500 * PI2 / sampleRate**3;
-    length = attack + sustain + release + delay;
     modulation *= PI2 / sampleRate;
     pitchJump *= PI2 / sampleRate;
     pitchJumpTime = pitchJumpTime * sampleRate;
