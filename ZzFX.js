@@ -118,7 +118,7 @@ BuildSamples
     // init parameters
     const PI2 = Math.PI*2;
     const sampleRate = this.sampleRate;
-    const random = r => r*(Math.random()*2-1);
+    const random = r => r*2*Math.random()-r;
     const sign = v => v>0?1:-1;
     const startSlide = slide *= 500 * PI2 / sampleRate**2;
     const modPhase = sign(modulation) * PI2/4
@@ -134,8 +134,8 @@ BuildSamples
     deltaSlide *= 500 * PI2 / sampleRate**3;
     modulation *= PI2 / sampleRate;
     pitchJump *= PI2 / sampleRate;
-    pitchJumpTime = pitchJumpTime * sampleRate;
-    repeatTime = repeatTime * sampleRate;
+    pitchJumpTime *= sampleRate;
+    repeatTime *= sampleRate;
     const length = attack + decay + sustain + release + delay;
 
     // generate waveform
@@ -335,35 +335,31 @@ let zzfxV = .3;   // volume
 const zzfxP =     // play a sound
 (
     // parameters
-    volume=1, randomness=.05, frequency=220, attack=0, sustain=0, release=.1, shape=0, shapeCurve=1, slide=0, deltaSlide=0, pitchJump=0, pitchJumpTime=0, repeatTime=0, noise=0, modulation=0, bitCrush=0, delay=0, sustainVolume=1, decay=0,
-
-    // locals
+    volume = 1, randomness = .05, frequency = 220, attackIn = 0, sustainIn = 0, releaseIn = .1, shape = 0, shapeCurve = 1, slide = 0, deltaSlideIn = 0, pitchJumpIn = 0, pitchJumpTimeIn = 0, repeatTimeIn = 0, noise = 0, modulationIn = 0, bitCrush = 0, delayIn = 0, sustainVolume = 1, decayIn = 0,
+    
+    // init parameters
     PI2 = Math.PI*2,
     sampleRate = 44100,
     random = r => r*2*Math.random()-r,
     sign = v => v>0?1:-1,
     startSlide = slide *= 500 * PI2 / sampleRate**2,
-    startFrequency = frequency *= 
-        (1 + random(randomness)) * PI2 / sampleRate,
-    modPhase = sign(modulation) * PI2/4,
+    modPhase = sign(modulationIn) * PI2/4,
+    startFrequency = frequency *= (1 + random(randomness)) * PI2 / sampleRate,
+    attack = 99 + attackIn * sampleRate | 0,
+    decay = decayIn * sampleRate | 0,
+    sustain = sustainIn * sampleRate | 0,
+    release = releaseIn * sampleRate | 0,
+    delay = delayIn * sampleRate | 0,
+    deltaSlide = deltaSlideIn * 500 * PI2 / sampleRate**3,
+    modulation = modulationIn * PI2 / sampleRate,
+    pitchJump = pitchJumpIn * PI2 / sampleRate,
+    pitchJumpTime = pitchJumpTimeIn * sampleRate,
+    repeatTime = repeatTimeIn * sampleRate,
+    length = attack + decay + sustain + release + delay,
     b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, d=.5,
-    length, buffer,
     source = zzfxX.createBufferSource()
-) =>
+)=>
 {
-    // init parameters
-    attack = 99 + attack * sampleRate | 0;
-    decay = decay * sampleRate | 0;
-    sustain = sustain * sampleRate | 0;
-    release = release * sampleRate | 0;
-    delay = delay * sampleRate | 0;
-    length = attack + decay + sustain + release + delay;
-    deltaSlide *= 500 * PI2 / sampleRate**3;
-    modulation *= PI2 / sampleRate;
-    pitchJump *= PI2 / sampleRate;
-    pitchJumpTime = pitchJumpTime * sampleRate;
-    repeatTime = repeatTime * sampleRate;
-
     // generate waveform
     for(; i < length;b[i++] = s)
     {
@@ -388,7 +384,7 @@ const zzfxP =     // play a sound
                 i < attack  + decay + sustain ?          // sustain
                 sustainVolume :                          // sustain volume
                 i < length - delay ?                     // release
-                (length - i + release)/release *         // release falloff
+                (length - i - delay)/release *           // release falloff
                 sustainVolume :                          // release volume
                 0)                                       // post release
 
@@ -398,23 +394,23 @@ const zzfxP =     // play a sound
                 b[i-delay]/2) : s;
         }
 
-        t += 1 + random(noise);              // noise
-        tm += 1 + random(noise);             // modulation noise
-        frequency += slide += deltaSlide;    // frequency slide
+        t += 1 + random(noise);                      // noise
+        tm += 1 + random(noise);                     // modulation noise
+        frequency += slide += deltaSlide;            // frequency slide
 
-        if (j && ++j > pitchJumpTime)        // pitch jump
+        if (j && ++j > pitchJumpTime)                // pitch jump
         {
-            frequency += pitchJump;          // apply pitch jump
-            startFrequency += pitchJump;     // also apply to start
-            j = 0;                           // reset pitch jump time
+            frequency += pitchJump;                  // apply pitch jump
+            startFrequency += pitchJump;             // also apply to start
+            j = 0;                                   // reset pitch jump time
         }
 
-        if (repeatTime && ++r > repeatTime)  // repeat
+        if (repeatTime && ++r > repeatTime)           // repeat
         {
-            frequency = startFrequency;      // reset frequency
-            slide = startSlide;              // reset slide
-            r = 1;                           // reset repeat time
-            j = j||1;                        // reset pitch jump time
+            frequency = startFrequency;               // reset frequency
+            slide = startSlide;                       // reset slide
+            r = 1;                                    // reset repeat time
+            j = j || 1;                               // reset pitch jump time
         }
     }
 
