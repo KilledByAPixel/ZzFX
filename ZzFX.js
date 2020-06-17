@@ -110,7 +110,8 @@ BuildSamples
     noise = 0,
     modulation = 0,
     bitCrush = 0,
-    delay = 0
+    delay = 0,
+    deltaSustain = 0
 )
 {
     // init parameters
@@ -153,9 +154,12 @@ BuildSamples
 
             s *= volume * this.volume * (                // envelope
                 i < attack ? i/attack :                  // attack
-                i < attack + sustain ? 1 :               // sustain
-                i < length - delay ?                     // post release
-                1 - (i - attack - sustain)/release : 0); // release
+                i < attack + sustain ? 1 +               // sustain
+                (attack - i) * deltaSustain/sustain :    // delta sustain
+                i < length - delay ?                     // release
+                (1 - (i - attack - sustain)/release) *   
+                (1 - deltaSustain) :                     // release volume
+                0)                                       // post release
 
             s = delay ?                                  // delay
                 s/2 + (delay > i ? 0 :
@@ -172,7 +176,7 @@ BuildSamples
             frequency += pitchJump;                  // apply pitch jump
             startFrequency += pitchJump;             // also apply to start
             j = 0;                                   // reset pitch jump time
-        };
+        }
 
         if (repeatTime && ++r > repeatTime)           // repeat
         {
@@ -216,6 +220,7 @@ BuildRandomSound()
         C() * R()**3*9*S(),   // modulation
         C() * R()**4,         // bitCrush
         C() * R()**3/2,       // delay
+        C() * R(),            // delta sustain
     );
 }
 
@@ -237,7 +242,8 @@ BuildSound
     noise = 0,
     modulation = 0,
     bitCrush = 0,
-    delay = 0
+    delay = 0,
+    deltaSustain = 0
 )
 {
     // build sound object
@@ -259,7 +265,8 @@ BuildSound
         'noise':        noise,
         'modulation':   modulation,
         'bitCrush':     bitCrush,
-        'delay':        delay
+        'delay':        delay,
+        'deltaSustain': deltaSustain
     };
 
     return sound;
@@ -318,7 +325,7 @@ let zzfxV = .3;   // volume
 const zzfxP =     // play a sound
 (
     // parameters
-    volume=1, randomness=.05, frequency=220, attack=0, sustain=0, release=.1, shape=0, shapeCurve=1, slide=0, deltaSlide=0, pitchJump=0, pitchJumpTime=0, repeatTime=0, noise=0, modulation=0, bitCrush=0, delay=0,
+    volume=1, randomness=.05, frequency=220, attack=0, sustain=0, release=.1, shape=0, shapeCurve=1, slide=0, deltaSlide=0, pitchJump=0, pitchJumpTime=0, repeatTime=0, noise=0, modulation=0, bitCrush=0, delay=0, deltaSustain=0,
 
     // locals
     PI2 = Math.PI*2,
@@ -365,9 +372,12 @@ const zzfxP =     // play a sound
 
             s *= volume * zzfxV * (                      // envelope
                 i < attack ? i/attack :                  // attack
-                i < attack + sustain ? 1 :               // sustain
-                i < length - delay ?                     // post release
-                1 - (i - attack - sustain)/release : 0); // release
+                i < attack + sustain ? 1 +               // sustain
+                (attack - i) * deltaSustain/sustain :    // delta sustain
+                i < length - delay ?                     // release
+                (1 - (i - attack - sustain)/release) *   
+                (1 - deltaSustain) :                     // release volume
+                0)                                       // post release
                 
             s = delay ?                                  // delay
                 s/2 + (delay > i ? 0 :
@@ -384,7 +394,7 @@ const zzfxP =     // play a sound
             frequency += pitchJump;          // apply pitch jump
             startFrequency += pitchJump;     // also apply to start
             j = 0;                           // reset pitch jump time
-        };
+        }
 
         if (repeatTime && ++r > repeatTime)  // repeat
         {

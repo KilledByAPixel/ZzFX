@@ -12,8 +12,7 @@
 // ZzFXMicro - Zuper Zmall Zound Zynth 
 zzfxV=.3 // volume
 zzfx=    // play sound
-(I=1,J=.05,g=220,f=0,h=0,m=.1,n=0,K=1,r=0,z=0,t=0,A=0,u=0,B=0,v=0,L=0,e=0,d=2*Math.PI,b=44100,w=p=>2*p*Math.random()-p,C=p=>0<p?1:-1,M=r*=500*d/b**2,D=g*=(1+w(J))*d/b,N=C(v)*d/4,q=[],E=0,F=0,c=0,k=1,G=0,H=0,a=0,O,l,x,y=zzfxX.createBufferSource())=>{f=99+f*b|0;h=h*b|0;m=m*b|0;e=e*b|0;z*=500*d/b**3;l=f+h+m+e;v*=d/b;t*=d/b;A*=b;for(u*=b;c<l;q[c++]=a)++H>100*L&&(H=0,a=E*g*Math.sin(F*v-N),a=n?1<n?2<n?3<n?Math.sin((a%d)**3):Math.max(Math.min(Math.tan(a),1),-1):1-(2*a/d%2+2)%2:1-4*Math.abs(Math.round(a/d)-a/d):Math.sin(a),a=C(a)*Math.abs(a)**K,a*=I*zzfxV*(c<f?c/f:c<f+h?1:c<l-e?1-(c-f-h)/m:0),a=e?a/2+(e>c?0:(c<l-e?1:(c-l)/e)*q[c-e]/2):a),E+=1+w(B),F+=1+w(B),g+=r+=z,k&&++k>A&&(D+=t,g+=t,k=0),u&&++G>u&&(g=D,r=M,G=1,k=k||1);x=zzfxX.createBuffer(1,q.length,b);x.getChannelData(0).set(q);y.buffer=x;y.connect(zzfxX.destination);y.start()}
-zzfxX=new AudioContext
+(t=1,a=.05,e=220,n=0,f=0,z=.1,h=0,r=1,s=0,M=0,o=0,x=0,i=0,c=0,u=0,d=0,X=0,b=0,l=2*Math.PI,m=44100,g=(t=>2*t*Math.random()-t),B=(t=>0<t?1:-1),C=(s*=500*l/m**2),V=(e*=(1+g(a))*l/m),w=B(u)*l/4,A=[],D=0,I=0,P=0,S=1,j=0,k=0,p=0,q,v,y,E=zzfxX.createBufferSource())=>{for(M*=500*l/m**3,v=(n=99+n*m|0)+(f=f*m|0)+(z=z*m|0)+(X=X*m|0),u*=l/m,o*=l/m,x*=m,i*=m;P<v;A[P++]=p)++k>100*d&&(k=0,p=D*e*Math.sin(I*u-w),p=B(p=h?1<h?2<h?3<h?Math.sin((p%l)**3):Math.max(Math.min(Math.tan(p),1),-1):1-(2*p/l%2+2)%2:1-4*Math.abs(Math.round(p/l)-p/l):Math.sin(p))*Math.abs(p)**r,p*=t*zzfxV*(P<n?P/n:P<n+f?1+(n-P)*b/f:P<v-X?(1-(P-n-f)/z)*(1-b):0),p=X?p/2+(X>P?0:(P<v-X?1:(P-v)/X)*A[P-X]/2):p),D+=1+g(c),I+=1+g(c),e+=s+=M,S&&++S>x&&(e+=o,V+=o,S=0),i&&++j>i&&(e=V,s=C,j=1,S=S||1);(y=zzfxX.createBuffer(1,A.length,m)).getChannelData(0).set(A),E.buffer=y,E.connect(zzfxX.destination),E.start()},zzfxX=new AudioContext;
 
 // fix compatibility issues with old web audio (optional)
 // if this is used, you must remove the zzfxX=new AudioContext line above!

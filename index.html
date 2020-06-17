@@ -138,7 +138,7 @@ body                         { user-select:none; }
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?905></script>
+<script src=ZzFX.js?907></script>
 <script>
 
 'use strict'; // strict mode
@@ -190,6 +190,7 @@ BuildSetting(.01,-1e9,1e9,'repeatTime','Repeat Time','Resets some parameters per
 BuildSetting(.1,-1e9,1e9,'modulation','Modulation','Frequency of modulation wave, negative flips phase (Hz)'),
 BuildSetting(.1,-1e9,1e9,'bitCrush','Bit Crush','Resamples at a lower frequency in (samples*100)'),
 BuildSetting(.01,0,1e9,'delay','Delay','Overlap with itself for reverb and flanger effects (seconds)'),
+BuildSetting(.01,0,2,'deltaSustain','Delta Sustain','How much sustain drops, similar to decay (percent)'),
 ]
 
 function BuildSettingsTable()
@@ -419,6 +420,7 @@ function AddPresetSound(presetName='Random')
             sound.repeatTime = R()<.5 ? 0 : R(.1);
             sound.modulation = R()<.8 ? 0 : R(-1,1)**3*10;
             sound.bitCrush = R()<.5 ? 0 : R(.1);
+            sound.deltaSustain = R()<.5 ? 0 : R();
             break;
         }
         case 'Blip':
@@ -428,6 +430,7 @@ function AddPresetSound(presetName='Random')
             sound.sustain = 0;
             sound.release = R(.05,.1);
             sound.bitCrush = R()<.5 ? 0 : R(.3);
+            sound.deltaSustain = R()<.5 ? 0 : R();
             break;
         }
         case 'Hit':
@@ -444,6 +447,7 @@ function AddPresetSound(presetName='Random')
             sound.noise = R(2,0);
             sound.modulation = R()<.5 ? 0 : R(-1,1);
             sound.bitCrush = R(.5,0);
+            sound.deltaSustain = R()<.5 ? 0 : R();
             break;
         }
         case 'Explosion':
@@ -460,6 +464,7 @@ function AddPresetSound(presetName='Random')
             sound.noise = R(1,0);
             sound.modulation = R()<.5 ? 0 : R(-1,1);
             sound.bitCrush = R(1,.1);
+            sound.deltaSustain = R()<.5 ? 0 : R();
             break;
         }
     }
@@ -494,6 +499,7 @@ function AddPresetSound(presetName='Random')
     sound.modulation = Fixed(sound.modulation,1);
     sound.bitCrush = Fixed(sound.bitCrush,1);
     sound.delay = Fixed(sound.delay);
+    sound.deltaSustain = Fixed(sound.deltaSustain);
     
     // replace with locked
     for(const s of settings)
