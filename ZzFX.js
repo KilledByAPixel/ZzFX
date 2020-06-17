@@ -111,7 +111,8 @@ BuildSamples
     modulation = 0,
     bitCrush = 0,
     delay = 0,
-    deltaSustain = 0
+    sustainVolume = 1,
+    decay = 0
 )
 {
     // init parameters
@@ -124,6 +125,7 @@ BuildSamples
     let startFrequency = frequency *= 
         (1 + random(randomness)) * PI2 / sampleRate;
     attack = 99 + attack * sampleRate | 0;
+    decay = decay * sampleRate | 0;
     sustain = sustain * sampleRate | 0;
     release = release * sampleRate | 0;
     delay = delay * sampleRate | 0;
@@ -132,7 +134,7 @@ BuildSamples
     pitchJump *= PI2 / sampleRate;
     pitchJumpTime = pitchJumpTime * sampleRate;
     repeatTime = repeatTime * sampleRate;
-    const length = Math.max(1, Math.min(attack+sustain+release+delay, sampleRate * 10));
+    const length = Math.max(1, Math.min(attack+decay+sustain+release+delay, sampleRate * 10));
 
     // generate waveform
     let b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, d=.5;
@@ -154,11 +156,13 @@ BuildSamples
 
             s *= volume * this.volume * (                // envelope
                 i < attack ? i/attack :                  // attack
-                i < attack + sustain ? 1 +               // sustain
-                (attack - i) * deltaSustain/sustain :    // delta sustain
+                i < attack + decay ?                     // decay
+                1-((i-attack)/decay)*(1-sustainVolume) : // decay falloff
+                i < attack  + decay + sustain ?          // sustain
+                sustainVolume :                          // sustain volume
                 i < length - delay ?                     // release
-                (1 - (i - attack - sustain)/release) *   
-                (1 - deltaSustain) :                     // release volume
+                (1 - (length - i + release)/release) *   // release falloff
+                sustainVolume :                          // release volume
                 0)                                       // post release
 
             s = delay ?                                  // delay
@@ -199,7 +203,8 @@ BuildRandomSound()
     const attack  = R()**3;
     const sustain = R()**3;
     const release = R()**3;
-    const length  = attack + sustain + release;
+    const decay   = R()**3;
+    const length  = attack + decay + sustain + release;
 
     // create random sound
     return this.BuildSound(
@@ -220,7 +225,8 @@ BuildRandomSound()
         C() * R()**3*9*S(),   // modulation
         C() * R()**4,         // bitCrush
         C() * R()**3/2,       // delay
-        C() * R(),            // delta sustain
+        C() * R(),            // sustain volume
+        C() * R(),            // decay
     );
 }
 
@@ -243,7 +249,8 @@ BuildSound
     modulation = 0,
     bitCrush = 0,
     delay = 0,
-    deltaSustain = 0
+    sustainVolume = 1,
+    decay = 0
 )
 {
     // build sound object
@@ -266,7 +273,8 @@ BuildSound
         'modulation':   modulation,
         'bitCrush':     bitCrush,
         'delay':        delay,
-        'deltaSustain': deltaSustain
+        'sustainVolume':sustainVolume,
+        'decay':        decay
     };
 
     return sound;
@@ -325,7 +333,7 @@ let zzfxV = .3;   // volume
 const zzfxP =     // play a sound
 (
     // parameters
-    volume=1, randomness=.05, frequency=220, attack=0, sustain=0, release=.1, shape=0, shapeCurve=1, slide=0, deltaSlide=0, pitchJump=0, pitchJumpTime=0, repeatTime=0, noise=0, modulation=0, bitCrush=0, delay=0, deltaSustain=0,
+    volume=1, randomness=.05, frequency=220, attack=0, sustain=0, release=.1, shape=0, shapeCurve=1, slide=0, deltaSlide=0, pitchJump=0, pitchJumpTime=0, repeatTime=0, noise=0, modulation=0, bitCrush=0, delay=0, sustainVolume=1, decay=0,
 
     // locals
     PI2 = Math.PI*2,
@@ -372,13 +380,15 @@ const zzfxP =     // play a sound
 
             s *= volume * zzfxV * (                      // envelope
                 i < attack ? i/attack :                  // attack
-                i < attack + sustain ? 1 +               // sustain
-                (attack - i) * deltaSustain/sustain :    // delta sustain
+                i < attack + decay ?                     // decay
+                1-((i-attack)/decay)*(1-sustainVolume) : // decay falloff
+                i < attack  + decay + sustain ?          // sustain
+                sustainVolume :                          // sustain volume
                 i < length - delay ?                     // release
-                (1 - (i - attack - sustain)/release) *   
-                (1 - deltaSustain) :                     // release volume
+                (1 - (length - i + release)/release) *   // release falloff
+                sustainVolume :                          // release volume
                 0)                                       // post release
-                
+
             s = delay ?                                  // delay
                 s/2 + (delay > i ? 0 :
                 (i<length-delay? 1 : (i-length)/delay) * // release delay 
