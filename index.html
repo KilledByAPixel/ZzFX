@@ -65,7 +65,7 @@ button.large                 { height:30px; }
 button.rand                  { width:20px; height:20px; background:#FF4; }
 button.reset                 { width:20px; height:20px; background:#4F4; }
 .soundSelect                 { overflow-x:hidden; width:350px; height:350px; }
-.slider                      { cursor: pointer; width:100%; }
+.slider                      { cursor: pointer; }
 input.lock                   { width:20px; height:20px; }
 .setting                     { width:200px; }
 textarea                     { height:50px; cursor:text; resize:none; }
@@ -88,16 +88,12 @@ body                         { user-select:none; }
 <i>Zuper Zmall Zound Zynth</i>
 </div>
 </td>
-<td style=text-align:center>
+<td style=text-align:center rowspan=2>
 <div id=div_masterVolume></div>
 <input id=slider_masterVolume title='Volume to scale all sounds by in percent' type=range min=0 max=100 value=30 style=width:300px oninput=UpdateSettings();SaveLocalStorage()>
 <div id=div_masterPanning></div>
 <input id=slider_masterPanning title='Stero panning from -1 to 1' type=range min=-1 max=1 value=0 step=.1 style=width:300px oninput=UpdateSettings();SaveLocalStorage()>
-</td></tr>
-<tr>
-<td colspan=2>
-<div id=div_settingsTable></div>
-</td><td style=text-align:center>
+<br>
 <canvas title='Image of sound wave, click to play the sound [SPACE]' id=canvas_soundWave width=350 height=80></canvas>
 <br>
 <button class=large title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button>
@@ -117,7 +113,12 @@ body                         { user-select:none; }
 <button class=large title='Generate default sound' onclick="SelectedToTop()">Top</button>
 <button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
 <br>
-<select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2 style=margin:5px></select></td>
+<select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2 style=margin:5px></select>
+</td></tr>
+<tr>
+<td colspan=2>
+<div id=div_settingsTable></div>
+</td>
 </tr>
 <tr><td colspan=3 style=padding:5px>
 <center>
