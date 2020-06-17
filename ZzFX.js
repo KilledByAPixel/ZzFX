@@ -357,7 +357,8 @@ const zzfxP =     // play a sound
     repeatTime = repeatTimeIn * sampleRate,
     length = attack + decay + sustain + release + delay,
     b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, d=.5,
-    source = zzfxX.createBufferSource()
+    source = zzfxX.createBufferSource(),
+    buffer = zzfxX.createBuffer(1, length, sampleRate)
 )=>
 {
     // generate waveform
@@ -414,7 +415,6 @@ const zzfxP =     // play a sound
         }
     }
 
-    buffer = zzfxX.createBuffer(1, b.length, sampleRate);
     buffer.getChannelData(0).set(b);
     source.buffer = buffer;
     source.connect(zzfxX.destination);
