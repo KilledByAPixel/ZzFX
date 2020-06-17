@@ -1,1150 +1,1829 @@
 <!--
 
-ZzFX - Zuper Zmall Zound Zynth
-By Frank Force 2019
+OS13k is a tiny operating system designed for a JS13k community project. It has native support for Shadertoys, Dweets, ZzFX, trophies, and much more.
 
-ZzFX UI Features
+Your mission, if you choose to accept it, is to help us fill it up with as much cool stuff as we can fit.
 
-- Generates random sounds from presets.
-- Sound list is saved automatically.
-- Each parameter can be modified with constraints.
-- Lock and mutate buttons for each parameter.
-- Sound name can be changed for easier workflow.
-- Shortens code for zzfx sound calls.
-- Displays image of sound wave when played.
-- Sounds can be download as a wave file.
-- Sounds can be marked as favorites to prevent removal.
-- Sounds can be loaded by pasting zzfx code for easy sharing.
-- List of sounds can be exported and imported.
-- Supports drag-and-drop of exported files into sound list.
+Please keep this project confidential!
 
-GitHub Corner is Copyright (c) 2016 Tim Holman - http://tholman.com
+✌️😄 ❤️ OS13k Team
 
---> 
-<!--
-
-  ZzFX MIT License
-  
-  Copyright (c) 2019 - Frank Force
-  
-  Permission is hereby granted, free of charge, to any person obtaining a copy
-  of this software and associated documentation files (the "Software"), to deal
-  in the Software without restriction, including without limitation the rights
-  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-  copies of the Software, and to permit persons to whom the Software is
-  furnished to do so, subject to the following conditions:
-  
-  The above copyright notice and this permission notice shall be included in all
-  copies or substantial portions of the Software.
-  
-  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-  SOFTWARE.
+// Minification Steps
+// 1. Remove touch support
+// 2. Paste programs to top
+// 3. Google Closure
+// 4. Terser
+// 5. HTML Compressor
 
 -->
-<!doctype html>
-<html>
-<head>
-<title>ZzFX - Zuper Zmall Zound Zynth</title>
-<meta charset="utf-8">
-<meta name="google" content="notranslate">
-<meta property="og:title" content="ZzFX - Zuper Zmall Zound Zynth">
-<meta property="og:description" content="A tiny sound effects generator for games and websites!">
-<meta name="twitter:image" content="screenshot.jpg">
-<meta property="og:image" content="screenshot.jpg">
-<link rel="shortcut icon" type="image/x-icon" href="favicon.png"/>
+
+<title>OS13k - A tiny OS for JS13k</title>
+<link rel=icon type=image/x-icon href='favicon.ico'/>
+<meta name=viewport content='width=device-width,initial-scale=1,user-scalable=0'>
+
+<!-- HTML above is optional -->
+
+<script>var OS13k</script>
+<meta charset=utf-8>
 <style>
-*                            { font-family:courier; }
-a                            { color:#5AF; }
-button                       { font-size:20px; margin:4px;}
-button.large                 { height:30px; }
-button.rand                  { width:20px; height:20px; background:#FF4; }
-button.reset                 { width:20px; height:20px; background:#4F4; }
-.soundSelect                 { overflow-x:hidden; width:350px; height:350px; }
-.slider                      { cursor: pointer; width:100%; }
-input.lock                   { width:20px; height:20px; }
-.setting                     { width:200px; }
-textarea                     { height:50px; cursor:text; resize:none; }
-body,input,select,textarea   { color:#FFF; font-size:20px; }
-select,input,textarea,canvas { background:#000; border:1px solid #FFF; }
-option:hover                 { background:#333; }
-option:checked               { background:#FF0; color:#F00; }
-body                         { user-select:none; }
+body
+{
+    margin:0;
+    overflow:hidden;
+    font-family:sans-serif;
+    font-size:22;
+    user-select:none;
+    white-space:nowrap;
+    background:#000;
+}
+#menu
+{
+    visibility:hidden;
+    display:flex;
+    flex-direction:column;
+    background:#000;
+}
+.folder { background:linear-gradient(#fff,#777); }
+#menu, .folder
+{
+    position:absolute;
+    z-index:20000;
+    box-shadow:5px 5px 9px;
+    border:2px solid;
+}
+.program
+{
+    font-size:18;
+    height:18;
+    padding:4;
+}
+.activeWindow { border:3px solid #aaa; }
+#taskbar
+{
+    position:absolute;
+    z-index:10000;
+    width:100%;
+    left:-2;
+    background:linear-gradient(#888,#333);
+    box-shadow:0px 1px 9px;
+    border:2px solid;
+}
+.taskbarIcon { width:50; height:40; text-shadow:1px 1px 3px #000; }
+.programActive,
+.taskbarIconActive         { background:linear-gradient(#ff8,#fff); }
+.taskbarIcon:hover         { background:linear-gradient(#fff,#44f); }
+#tray
+{
+    margin:2;
+    padding:2;
+    padding-left:9;
+    padding-right:9;
+    color:#fff;
+    background:linear-gradient(#000,#333);
+    border:1px solid;
+    border-radius:6px;
+}
+.trayIcon { padding-left:5; padding-right:5; }
+.trayIcon:hover { background:#fff3; }
+.popup
+{
+    position:relative;
+    z-index:10001;
+    width:200;
+    margin:9;
+    padding:8;
+    white-space:normal;
+    pointer-events:none;
+    overflow:hidden;
+    font-size:20;
+    text-align:center;
+    background:linear-gradient(#eee,#888);
+    box-shadow:9px 9px 19px;
+    border:2px solid;
+    border-radius:9px;
+}
+.trophyIcon
+{
+    padding:9;
+    font-size:40;
+    text-shadow:2px 2px 4px #000;
+    white-space:nowrap;
+}
+#title
+{
+    position:absolute;
+    width:100%;
+    height:100%;
+    color:#0002;
+    font-family:impact;
+    font-size:20vw;
+    font-weight:900;
+    background:linear-gradient(#223,#322);
+}
+.flexCenter, .program, #taskbar, .taskbarIcon, #tray, #title
+{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
 </style>
-</head>
-<body bgcolor=#222>
-<center>
-<table>
-<tr>
-<td style=text-align:right;>
-<font size=7><b><div id=div_logo style='display:inline'>ℤ𝕫𝔽𝕏</div></b></font>
-</td>
-<td style=text-align:left>
-<div style=display:inline id=div_logo2>
-<i>Zuper Zmall Zound Zynth</i>
+<template id=templateWindow>
+<style>
+:host
+{
+    position:absolute;
+    display:flex;
+    flex-direction:column;
+    overflow:hidden;
+    background:#000;
+    box-shadow:5px 5px 9px;
+    border:3px solid #222;
+    border-radius:6px;
+}
+.titlebar
+{
+    height:44;
+    font-size:26;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+    white-space:nowrap;
+    background:linear-gradient(#ccc,#444);
+}
+.titlebarActive { background:linear-gradient(#eee,#88f); }
+.titlebarSticky { background:linear-gradient(#ccc,#844); }
+#nameWrapper { width:100%; overflow:hidden; cursor:grab; }
+#icon { text-shadow:1px 1px 3px #000; margin-left:9; margin-right:9; }
+#name, #icon { pointer-events:none; display:inline; }
+#frame
+{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#fff;
+    border:none;
+}
+#codeDisplay
+{
+    height:99;
+    resize:none;
+    display:none;
+    background:#000;
+    border:1px solid #fff;
+    color:#fff;
+    outline:none;
+}
+#full:hover   { background:#fff; }
+#help:hover   { background:#0ff; }
+#code:hover   { background:#f0f; }
+#shrink:hover,
+#grow:hover   { background:#0f0; }
+#reload:hover { background:#ff0; }
+#close:hover  { background:#f00; }
+div svg       { width:28;pointer-events:none; }
+</style>
+<svg height=0 width=0>
+<symbol id=icon-full viewBox='0 0 10 10'>
+    <rect stroke=#000 fill=none x=1 y=2 width=8 height=6 />
+<symbol id=icon-help viewBox='0 0 10 10'>
+    <path stroke=#000 fill=none d='M5 8L8 2L2 2L5 8L8 2'/>
+<symbol id=icon-code viewBox='0 0 10 10'>
+    <path stroke=#000 fill=none d='M5 2L8 8L2 8L5 2L8 8'/>
+<symbol id=icon-shrink viewBox='0 0 10 10'>
+    <path stroke=#000 d='M2 5L8 5'/>
+<symbol id=icon-grow viewBox='0 0 10 10'>
+    <path stroke=#000 d='M2 5L8 5M5 8L5 2'/>
+<symbol id=icon-reload viewBox='0 0 10 10'>
+    <circle stroke=#000 fill=none cx=5 cy=5 r=3 />
+<symbol id=icon-close viewBox='0 0 10 10'>
+    <path stroke=#000 d='M2 2L8 8M8 2L2 8'/>
+</template>
+<div id=desktop style=opacity:0>
+<div id=popups style=float:right></div>
+<div id=taskbar>
+<div id=traySpace style=flex:1></div>
+<div id=tray>
+    <div id=trayTrophy class=trayIcon title='Trophy Case'></div>
+    <div id=trayWords class=trayIcon title='Word List'></div>
+    <div id=trayVolume class=trayIcon title='Toggle Mute'>🔊</div>
+    <div id=trayTime class=trayIcon></div>
 </div>
-</td>
-<td style=text-align:center>
-<div id=div_masterVolume></div>
-<input id=slider_masterVolume title='Volume to scale all sounds by in percent' type=range min=0 max=100 value=30 style=width:300px oninput=UpdateSettings();SaveLocalStorage()>
-</td></tr>
-<tr>
-<td colspan=2>
-<div id=div_settingsTable></div>
-</td><td style=text-align:center>
-<canvas title='Image of sound wave, click to play the sound [SPACE]' id=canvas_soundWave width=350 height=80></canvas>
-<br>
-<button class=large title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button>
-<button class=large title='Make a new sound with mutated parameters [M]' onclick=CopySelected(1)>Mutate</button>
-<button class=large title='Make copy of selected sound [C]' onclick=CopySelected()>Copy</button>
-<br>
-<button class=large title='Generate random pickup sound' onclick="AddPresetSound('Pickup')">Pickup</button>
-<button class=large title='Generate random powerup sound' onclick="AddPresetSound('Powerup')">Powerup</button>
-<button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button>
-<br>
-<button class=large title='Generate random jump sound' onclick="AddPresetSound('Jump')">Jump</button>
-<button class=large title='Generate random blip sound' onclick="AddPresetSound('Blip')">Blip</button>
-<button class=large title='Generate random hit sound' onclick="AddPresetSound('Hit')">Hit</button>
-<button class=large title='Generate random explosion sound' onclick="AddPresetSound('Explosion')">Explosion</button>
-<br>
-<button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button>
-<button class=large title='Generate default sound' onclick="SelectedToTop()">Top</button>
-<button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
-<br>
-<select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2 style=margin:5px></select></td>
-</tr>
-<tr><td colspan=3 style=padding:5px>
-<center>
-<button title='Download the selected wave file' onclick=SaveWave()>Save Wav</button>
-<button title='Load sound from zzfx code' onclick=LoadSound()>Load Sound</button>
-<button title='Copy ZzFX code to clipboard' onclick=if(CopyToCliboard(textarea_code.value))eval(textarea_code.value)>Copy Sound</button>
-<button title='Import all sounds from a text file.' onclick=Import()>Import</button>
-<button title='Export all sounds to a text file.' onclick=Export()>Export</button>
-<button title='Clear non-favorite sounds' onclick=ClearSoundsButton()>Clear</button>
-<button title='Clear all sounds' onclick=ClearSoundsButton(1)>Clear All</button>
-</center>
-</td></tr>
-<tr><td colspan=3 style=padding:5px>
-<center>ZzFX JavaScript (Use this code to play the sound)
-<input type=checkbox id=input_shortenCode checked onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Spread
-<br><textarea title='Code to play the selected sound' id=textarea_code style=width:90% readonly></textarea>
-</center>
-</td></tr>
-</table>
-ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
-<a hidden id=a_downloadLink></a>
-<input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?912></script>
+</div>
+<div id=programsFolder style=position:absolute></div>
+<div id=title>OS13k</div>
+<div id=menu>
+<button id=buttonFullScreen>Fullscreen</button>
+<button id=buttonShowHelp>Help</button>
+<button id=buttonShowCode>Code</button>
+<button id=buttonResetSize>Reset Size</button>
+<button id=buttonReload>Reload</button>
+<button id=buttonClose>Close</button>
+<script src=programs.js?31></script>
 <script>
 
-'use strict'; // strict mode
-let sounds = [];
-let generatedSoundCount = 0;
-let loadedSound;
-let lastPlayedSound;
+/////////////////////////////////////////////////////////////////////////////
+// Use Strict and Google Closure Config
 
-const SeededRandom=_=>
-(
-    randomSeed^=randomSeed<<13,
-    randomSeed^=randomSeed>>17,
-    randomSeed^=randomSeed<<5,
-    (randomSeed%1e9)/1e9
-)
-let randomSeed = Date.now();
-let loadedSoundSeed = 0;
-
-function Init()
 {
-    BuildSettingsTable();
-    RandomizeLogo();
-    LoadLocalStorage();
-}
 
-///////////////////////////////////////////////////////////////////////////////
-// settings
+'use strict';
 
-function BuildSetting(step, min, max, name, niceName, help, canMutate=1, type=0)
-{ return {name, step, min, max, niceName, help, type, canMutate}; }
+// ==ClosureCompiler==
+// @compilation_level ADVANCED_OPTIMIZATIONS
+// @language_out ECMASCRIPT_2019
+// @js_externs OS13kFolder, OS13kProgram, OS13kWindow, OS13kTaskbarIcon
+// @js_externs OS13k, zzfx, iframeContent.zzfx
+// @js_externs OS13k.Trophy, OS13k.GetTrophy, OS13k.Trophies
+// @js_externs OS13k.KeyDirection, OS13k.Speak
+// @js_externs OS13k.CreateShader, OS13k.RenderShader, OS13k.CreateCanvas
+// @js_externs OS13k.PlaySamples, OS13k.PlaySeed, OS13k.GetNote
+// @js_externs OS13k.KillHTML, OS13k.Glitch
+// @js_externs OS13k.Random, OS13k.randomSeed 
+// @js_externs OS13k.Clamp, OS13k.Percent, OS13k.Lerp
+// @js_externs localStorage.OS13kTrophies, localStorage.OS13kVersion
+// @output_file_name OS13k.min.js
+// ==/ClosureCompiler==
+} // strict & closure config
 
-const settings = 
-[
-BuildSetting(0,0,0,'name','Name','Name of sound',0,1),
-BuildSetting(.1,-1e9,1e9,'volume','Volume','Volume scale (percent)',0),
-BuildSetting(.05,-1e9,1e9,'randomness','Randomness','How much to randomize frequency (percent Hz)',0),
-BuildSetting(1,-1e9,1e9,'frequency','Frequency','Frequency of sound (Hz)'),
-BuildSetting(1,0,0,'shape','Wave Shape','Shape of the sound wave',1,2),
-BuildSetting(.1,0,1e9,'shapeCurve','Shape Curve','Squarenes of wave (0=square, 1=normal, 2=pointy)'),
-BuildSetting(.01,0,3,'attack','Attack','Attack time, how fast sound starts (seconds)'),
-BuildSetting(.01,0,1,'decay','Decay','Decay time, how long to reach sustain after attack'),
-BuildSetting(.01,0,3,'sustain','Sustain','Sustain time, how long sound holds (seconds)'),
-BuildSetting(.01,0,3,'release','Release','Release time, how fast sound fades out (seconds)'),
-BuildSetting(.1,-1e9,1e9,'sustainVolume','Sustain Volume','Volume level for sustain (percent)'),
-BuildSetting(.1,-1e9,1e9,'slide','Slide','How much to slide frequency (kHz/s)'),
-BuildSetting(.1,-1e9,1e9,'deltaSlide','Delta Slide','How much to change slide (kHz/s/s)'),
-BuildSetting(.1,-1e9,1e9,'noise','Noise','How much random noise to add (percent)'),
-BuildSetting(50,-1e9,1e9,'pitchJump','Pitch Jump','Frequency of pitch jump (Hz)'),
-BuildSetting(.01,-1e9,1e9,'pitchJumpTime','Pitch Jump Time','Time of pitch jump (seconds)'),
-BuildSetting(.01,-1e9,1e9,'repeatTime','Repeat Time','Resets some parameters periodically (seconds)'),
-BuildSetting(.1,-1e9,1e9,'modulation','Modulation','Frequency of modulation wave, negative flips phase (Hz)'),
-BuildSetting(.1,-1e9,1e9,'bitCrush','Bit Crush','Resamples at a lower frequency in (samples*100)'),
-BuildSetting(.01,0,1e9,'delay','Delay','Overlap with itself for reverb and flanger effects (seconds)'),
-]
+/////////////////////////////////////////////////////////////////////////////
+// OS13k Debug (remove from minified)
 
-function BuildSettingsTable()
+const OS13kVersion = 46;
 {
-    const s = settings[0];
-    let html = '<center style=width:600px><table style=text-align:center>';
-    html += '<tr><td style=text-align:right>' + s.niceName + '&nbsp;</td><td>'
-    html += `<input title='${s.help}' class=setting step=${s.step} id=input_${s.name} oninput=SelectedWasChanged('${s.name}')>`
-    
-    html += '</td><td>';
-    html += '<button title="Toggle lock all parameters" onclick=ToggleLockAll()>🔒</button>'
-    
-    html += '</td><td>';
-    html += '<button title="Sets all unlocked parameters to their default values." onclick=if(ResetAllSettings())PlaySelected()>♻️</button>';
-    
-    html += '</td><td>';
-    html += '<button title="Mutate all unlocked parameters" onclick=if(MutateAllSettings())PlaySelected()>🎲</button>';
-    
-    html += '</td></tr>';
-    
-    for(const i in settings)
+    // version check, clear local storage if older
+    if (localStorage.OS13kVersion && localStorage.OS13kVersion != OS13kVersion)
     {
-        const s = settings[i];
-        if (s.name == 'name')
-            continue;
-    
-        html += '<tr>';
-        html += '<td style=text-align:right>';
-        html += s.niceName + '&nbsp;';
-        html += '</td><td>';
+        alert('OS13k version out of date! System reset in 3, 2, 1...');
+        localStorage.clear();
+    }
+
+    localStorage.OS13kVersion = OS13kVersion;
+
+    // load default programs if none found
+    if (typeof programs == 'undefined')
+    {
+        alert('No programs found, using defaults!')
+        programs = 
+        [
+            {src:'system/test.html'},
+            {src:'system/wordList.html', icon:'📕', sticky:1},
+            {src:'system/trophyCase.html', icon:'🏆', sticky:1},
+            {src:'system/clock.dweet.js', icon:'🕰️', width:200, height:200, sleep:0, full:0, reload:0, sticky:1}
+        ];
+    }
+} // debug stuff
+
+/////////////////////////////////////////////////////////////////////////////
+// OS13k System
+
+class _OS13k
+{
+
+/////////////////////////////////////////////////////////////////////////////
+// OS13k Math
+
+    Clamp   =(a, min=0, max=1)=> (Math.min(Math.max(a, min), max));
+    Percent =(v, a, b)=>         (b-a? this.Clamp((v-a)/(b-a), 0, 1) : 0 );
+    Lerp    =(p, a, b)=>         (a + this.Clamp(p, 0, 1) * (b-a));
+    Random(max=1, min=0)
+    {
+        // seeded random numbers - Mersenne Twister
+        this.randomSeed ^= (this.randomSeed||-1) << 13;
+        this.randomSeed ^= this.randomSeed >> 17;
+        this.randomSeed ^= this.randomSeed << 5;
+        return this.Percent(Math.abs(this.randomSeed) % 1e9 / 1e9, min, max);
+    }
+
+/////////////////////////////////////////////////////////////////////////////
+// OS13k Trophies
+
+    // award player with trophy, returns falsey if already owned
+    Trophy(game='', name='', icon='', message='', language='ja')
+    {
+        // remove commas
+        game = game.replace(',','');
+        name = name.replace(',','');
+        icon = icon.replace(',','');
         
-        if (s.type == 0)
-            html += `<input id=input_${s.name} class=setting title='${s.help}' type=number step=${s.step} oninput=SelectedWasChanged('${s.name}') min=${s.min} max=${s.max} onfocusout=UpdateSettings()>`
-        else if (s.type == 2)
-        {
-            html += `<select id=input_${s.name} class=setting title='${s.help}' oninput=SelectedWasChanged('${s.name}')>`;
-            html += `<option value=0>sin</option>`;
-            html += `<option value=1>triangle</option>`;
-            html += `<option value=2>saw</option>`;
-            html += `<option value=3>tan</option>`;
-            html += `<option value=4>bit noise</option>`;
-            html += `</select>`;
-        }
+        // build key
+        const key = game + ',' + name + ',' + icon;
+        const storageKey = 'OS13kTrophy,' + key;
         
-        html += '</td><td>';
-        html += `<input id=input_lock_${s.name} class=lock title='Lock ${s.niceName}' oninput=SelectedWasChanged('${s.name}') type=checkbox>`;
+        // remove html tags
+        icon    = this.KillHTML(icon,    maxWordLength);
+        name    = this.KillHTML(name,    maxWordLength);
+        game    = this.KillHTML(game,    maxWordLength);
+        message = this.KillHTML(message, maxWordLength);
         
-        html += '</td><td>';
-        html += `<button id=input_reset_${s.name} class=reset title='Reset ${s.niceName}' onclick=ResetSetting(settings[${i}]);PlaySelected()></button>`;
+        // find in trophy list
+        const index = trophies.findIndex(e=>e[4]==key)
         
-        html += '</td><td>';
-        html += `<button id=input_mutate_${s.name} class=rand title='Mutate ${s.niceName}' onclick=MutateSetting(settings[${i}]);PlaySelected()></button>`;
+        // skip if same message
+        if (index >=0 && trophies[index][3] == message)
+            return 0;
         
-        html += '</td></tr>';
-    }
-    
-    html += '</table></center>'
-    div_settingsTable.innerHTML = html;
-}
+        // add or update trophy list
+        const trophyData = [game, name, icon, message, key];
+        index < 0 ? 
+            trophies.unshift( trophyData ) :
+            trophies[index] = trophyData;
 
-function GetSelectedSound()
-{
-    const index = select_soundList.options[select_soundList.selectedIndex].value;
-    return sounds[index];
-}
-
-function PlaySelected()
-{
-    if (lastPlayedSound)
-    {
-        lastPlayedSound.stop();
-        lastPlayedSound = 0;
-    }
-    
-    const sound = BuildSoundFromSettings();
-    if (ZZFX.volume > 0)
-    {
-        lastPlayedSound = ZZFX.Play(sound);
-        DrawSoundWave(ZZFX.samples, ZZFX.volume, sound);
-    }
-    else
-    {
-        // just build samples without playing
-        const params = ZZFX.SoundToArray(sound);
-        const saveVolume = ZZFX.volume;
-        ZZFX.volume = 1;
-        const samples = ZZFX.BuildSamples(...params);
-        DrawSoundWave(samples, 1, sound);
-        ZZFX.volume = saveVolume;
-    }
-    RandomizeLogo();
-}
-
-function BuildSoundFromSettings()
-{
-    const sound = {};
-    for(const s of settings)
-    {
-        let v = document.getElementById("input_"+s.name).value;
-        if (s.type!=1)
-            v = parseFloat(v);
-        
-        sound[s.name] = v;
-    }
-
-    return sound;
-}
-
-function UpdateSettings()
-{
-    const v = slider_masterVolume.value;
-    div_masterVolume.innerHTML = 'Master Volume ' + v + '%';
-    ZZFX.volume = v / 100;
-    
-    const sound = GetSelectedSound();
-    if (sound)
-    {
-        // copy settings to selected
-        const option = select_soundList.options[select_soundList.selectedIndex];
-        const index = parseInt(option.value);
-    
-        for(const s of settings)
-        {
-            const element = document.getElementById("input_"+s.name);
-            let v = element.value;
-            if (s.type == 0 && element != document.activeElement)
-            {
-                // sanitize input
-                v = parseFloat(v);
-                if (isNaN(v) || !Number.isFinite(v))
-                    v = 0;
-                else
-                    v = Math.max(Math.min(v,s.max),s.min);
-                element.value = v;
-            }
-            sound[s.name] = v;
-        }
-        
-        option.style.color = sounds[index].favorite? "#0F0" : "white";
-        option.innerHTML = (sound.favorite?'-> ':sound.modified?'* ':'') + sound.name;
-        textarea_code.value = GetCode(sound);
-    }
-    
-    SaveLocalStorage();
-}
-
-function AddPresetSound(presetName='Random')
-{
-    let sound = ZZFX.BuildSound();
-    const R =(a=1,b=0) => b+(a-b)*Math.random();
-    
-    switch (presetName)
-    {
-        case 'Random':
-        {
-            sound = ZZFX.BuildRandomSound();
-            break;
-        }
-        case 'Default':
-        {
-            sound = ZZFX.BuildSound();
-            break;
-        }
-        case 'Pickup':
-        {
-            sound.frequency = R(300,2000);
-            sound.shape = R(3)|0;
-            sound.shapeCurve = R(2);
-            sound.attack = 0;
-            sound.sustain = R(.1);
-            sound.release = R(.1,.3);
-            sound.noise =  R()<.8 ? 0 : R(.1,0);
-            sound.pitchJump = R()<.5 ? 0 : R(200,1000);
-            sound.pitchJumpTime = R(0,.1);
-            sound.repeatTime = R()<.8 ? 0 : R(0,.2);
-            sound.bitCrush = R()<.5 ? 0 : R(.1);
-            sound.delay = R()<.7 ? 0 : R(.1);
-            break;
-        }
-        case 'Powerup':
-        {
-            sound.frequency = R(0,1000);
-            sound.shape = R(3)|0;
-            sound.shapeCurve = R(2);
-            sound.attack = R(.5,0);
-            sound.sustain = R(.5,0);
-            sound.release = R(.1,1);
-            sound.pitchJump = R(1)**2*1000*R(-1,1);
-            sound.pitchJumpTime = !sound.pitchJump ? 0 : R(0,.1);
-            sound.delay = R()<.8 ? 0 : R(.2);
-            sound.repeatTime = R(.3);
-            sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
-            sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*10;
-            sound.noise =  R()<.8 ? 0 : R(.2,0);
-            sound.modulation = R()<.8 ? 0 : R(-.2,.2);
-            sound.bitCrush = R()<.5 ? 0 : R(.1);
-            break;
-        }
-        case 'Jump':
-        {
-            sound.frequency = R(0,1000);
-            sound.shape = R(3)|0;
-            sound.shapeCurve = R(2);
-            sound.attack = R(.05);
-            sound.sustain = R(.1);
-            sound.release = R(.1,.5);
-            sound.noise =  R()<.8 ? 0 : R(.5);
-            sound.slide = R(-10,10);
-            sound.deltaSlide = R()<.8 ? 0 : R(-5,5);
-            sound.modulation = R()<.8 ? 0 : R(-1,1)**3*10;
-            sound.bitCrush = R()<.5 ? 0 : R(.1);
-            sound.delay = R()<.8 ? 0 : R(.05);
-            sound.decay = R(.1);
-            sound.sustainVolume = R(.5, 1);
-            break;
-        }
-        case 'Shoot':
-        {
-            sound.frequency = R(0,700);
-            sound.shape = R(5)|0;
-            sound.shapeCurve = R(2);
-            sound.attack = R(.03);
-            sound.sustain = 0;
-            sound.release = R(.1,.5);
-            sound.delay = R()<.3 ? 0 : R(.2);
-            sound.slide = R()<.5 ? 0 : R(-1,1);
-            sound.deltaSlide = R()<.5 ? 0 : R(-1,1);
-            sound.noise =  R()<.8 ? 0 : R(5,0);
-            sound.repeatTime = R()<.5 ? 0 : R(.1);
-            sound.modulation = R()<.8 ? 0 : R(-1,1)**3*10;
-            sound.bitCrush = R()<.5 ? 0 : R(.1);
-            sound.decay = R(.1);
-            sound.sustainVolume = R(.5, 1);
-            break;
-        }
-        case 'Blip':
-        {
-            sound = ZZFX.BuildRandomSound();
-            sound.attack = R(.05);
-            sound.sustain = 0;
-            sound.release = R(.05,.1);
-            sound.bitCrush = R()<.5 ? 0 : R(.3);
-            break;
-        }
-        case 'Hit':
-        {
-            sound.frequency = R(50,500);
-            sound.shape = R(5)|0;
-            sound.shapeCurve = R(3);
-            sound.attack = 0;
-            sound.sustain = R()<.5 ? 0 : R(.1);
-            sound.release = R(.1,.5);
-            sound.delay = R()<.3 ? 0 : R(.2);
-            sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
-            sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*10;
-            sound.noise = R(2,0);
-            sound.modulation = R()<.5 ? 0 : R(-1,1);
-            sound.bitCrush = R(.5,0);
-            sound.decay = R(.1);
-            sound.sustainVolume = R(.5, 1);
-            break;
-        }
-        case 'Explosion':
-        {
-            sound.frequency = R(0,1e3);
-            sound.shape = R(5)|0;
-            sound.shapeCurve = R(5);
-            sound.attack = R()<.5 ? 0 : R(.05);
-            sound.sustain = R(.4,0);
-            sound.release = R(.5,2);
-            sound.slide = R()<.5 ? 0 : R();
-            sound.deltaSlide = R()<.5 ? 0 : R();
-            sound.delay = R()<.5 ? 0 : R(.5);
-            sound.noise = R(1,0);
-            sound.modulation = R()<.5 ? 0 : R(-1,1);
-            sound.bitCrush = R(1,.1);
-            sound.decay = R(.1);
-            sound.sustainVolume = R(.5, 1);
-            break;
-        }
-    }
-    
-    if (!sound.pitchJumpTime || !sound.pitchJump)
-        sound.pitchJumpTime = sound.pitchJump = 0;
-        
-    const length = sound.attack + sound.sustain + sound.delay;
-    if (sound.repeatTime > length)
-        sound.repeatTime = 0;
-        
-    const Fixed = (v,l=2) =>
-    {
-        if (v>10 || v < -10)
-            l = 0;
-        const f = v.toFixed(l);
-        return !parseFloat(f) ? '0': f;
-    }
-     
-    // convert to fixed point
-    sound.frequency = Fixed(sound.frequency,0);
-    sound.shapeCurve = Fixed(sound.shapeCurve);
-    sound.attack = Fixed(sound.attack);
-    sound.sustain = Fixed(sound.sustain);
-    sound.release = Fixed(sound.release);
-    sound.slide = Fixed(sound.slide,1);
-    sound.deltaSlide = Fixed(sound.deltaSlide,1);
-    sound.noise = Fixed(sound.noise,1);
-    sound.pitchJump = Fixed(sound.pitchJump,0);
-    sound.pitchJumpTime = Fixed(sound.pitchJumpTime);
-    sound.repeatTime = Fixed(sound.repeatTime);
-    sound.modulation = Fixed(sound.modulation,1);
-    sound.bitCrush = Fixed(sound.bitCrush,1);
-    sound.delay = Fixed(sound.delay);
-    sound.sustainVolume = Fixed(sound.sustainVolume);
-    sound.decay = Fixed(sound.decay);
-    
-    // replace with locked
-    for(const s of settings)
-        if (IsLocked(s.name))
-            sound[s.name]=document.getElementById('input_'+s.name).value;
-    
-    sound.name = presetName + ' ' + generatedSoundCount++;
-    AddToList(sound);
-    PlaySelected();
-}
-
-function CopySelected(mutate=0)
-{
-    const sound = Object.assign({}, GetSelectedSound());
-    if (!sound.originalName)
-        sound.originalName = sound.name;
-    
-    sound.copyCount = !sound.copyCount ? 1 : sound.copyCount + 1;
-    sound.name = sound.originalName
-        + ` - ${mutate?'Mutation':'Copy'} ` 
-        + sound.copyCount;
-    delete sound.favorite;
-    
-    AddToList(sound);
-    if (mutate)
-    {
-        MutateAllSettings();
-        sound.modified = 0;
-        UpdateSettings();
-    }
-    PlaySelected();
-}
-
-function AddToList(sound)
-{
-    // copy default values if missing
-    const defaultSound = ZZFX.BuildSound();
-    for(const key in defaultSound)
-    {
-        if (key in sound)
-            continue;
-        sound[key] = defaultSound[key];
-    }
-    
-    if (!(parseInt(sound.shape)<=4))
-        sound.shape = 0;
-    
-    const i = sounds.push(sound) - 1;
-    const option = document.createElement('option');
-    option.value = i;
-    option.innerHTML = (sound.favorite?'-> ':sound.modified?'* ':'') + sound.name;
-    select_soundList.add(option, 0);
-    select_soundList.selectedIndex = 0;
-    LoadSelected();
-    UpdateSettings();
-}
-
-function SelectedWasChanged(settingName)
-{
-    const sound = GetSelectedSound();
-    sound.modified = 1;
-    
-    UpdateSettings();
-    if (settingName != 'name')
-        PlaySelected();
-}
-
-function LoadSelected(playOnSelect = false)
-{
-    const sound = GetSelectedSound();
-    for(const s of settings)
-        document.getElementById("input_"+s.name).value = sound[s.name];
-    
-    if (loadedSound != sound)
-        loadedSoundSeed = Date.now();
-    UpdateSettings();
-    if (playOnSelect && loadedSound != sound)
-        PlaySelected();
-    loadedSound = sound;
-}
-
-function FavoriteSelected()
-{
-    let i = select_soundList.selectedIndex;
-    let index = select_soundList.options[i].value;
-    let s = sounds[index];
-    if (!s)
-        return;
-        
-    s.favorite = !s.favorite
-    UpdateSettings();
-    PlaySelected();
-}
-
-function SelectedToTop()
-{
-    const selectedSound = GetSelectedSound();
-    const sound = Object.assign({}, selectedSound);
-    selectedSound.favorite = 0;
-    
-    RemoveSelected();
-    AddToList(sound);
-    PlaySelected();
-}
-
-function RemoveSelected()
-{
-    let i = select_soundList.selectedIndex;
-    let index = select_soundList.options[i].value;
-    
-    if (sounds[index].favorite)
-    {
-        if (!confirm('Are you sure you want remove this favorited sound?'))
-            return;
-    }
-    
-    delete sounds[index];
-    select_soundList.options.remove(i);
-    
-    AddDefaultIfEmpty();
-    i = Math.min(i, select_soundList.length-1);
-    select_soundList.selectedIndex = i;
-    LoadSelected(1);
-}
-
-function IsLocked(name)
-{
-    const lock = document.getElementById("input_lock_"+name);
-    return lock && lock.checked;
-}
-
-function MutateAllSettings()
-{    
-    const sound = GetSelectedSound();
-    if (sound.favorite)
-    {
-        if (!confirm('Are you sure you want mutate this favorite sound?'))
-            return false;
-    }
-    
-    let mutateCount = 0;
-    for(const s of settings)
-        if (s.canMutate && !IsLocked(s.name))
-            ++mutateCount;
+        // save trophy
+        localStorage[storageKey] = message;
             
-    for(let i=6;i--;)
+        // save local storage only after trophies were first checked
+        if (!preventTrophySave)
+            localStorage.OS13kTrophies = JSON.stringify(trophies);
+        
+        // refresh trophy window
+        trophyProgram && trophyProgram.Refresh();
+        
+        // use game or icon as name if there is no name
+        name || game && (name = game, game = '');
+
+        // add trophy popup
+        this.Popup(
+            '<div class=trophyIcon>' +         // icon
+                (icon||'🏆') +                 // default trophy icon
+            '</div>' +
+            '<div>' +                          // info
+                '<b>' + name + '</b><br>' +    // name
+                '<i>' + game + '</i>' +        // game
+            '</div>' + message,                // message
+            name || game || message || icon,   // speak
+            language);                         // language
+        // add trophy words to list
+        this.AddWords(game + ' ' + name + ' ' + message, message);
+        
+        return trophyData;
+    }
+    
+    // get message, 0 if no trophy
+    GetTrophy(game, name, icon)
     {
-        if (mutateCount)
+        // build key
+        const key = game + ',' + name + ',' + icon;
+        
+        // find in trophy list
+        const i = trophies.findIndex( e=>e[4]==key );
+        
+        // return trophy message
+        return i < 0 ? 0 : trophies[i][3];
+    }
+    
+    // get the trophy list
+    Trophies=()=> [...trophies];
+    
+/////////////////////////////////////////////////////////////////////////////
+// OS13k Words
+    
+    // add every word in a string to the word list
+    AddWords =(string, speak, language)=>
+    {
+        let newWords = [];
+        
+        const matchs = (string?string+'':'').toLowerCase().match(/\b[^\s]+\b/g);
+        matchs && matchs.map(word=>
         {
-            let mutateIndex = (Math.random()*1e5)%mutateCount|0;
-            for(const s of settings)
-                if (s.canMutate && !IsLocked(s.name) && !mutateIndex--)
-                    MutateSetting(s, 0);
+            // dont use it if it has anything but letters
+            if (!/[^a-z]/.test(word)) {
+            
+                // limit word length
+                if (word.length > 1 || word.length > maxWordLength) {
+
+                    // add word to list
+                    if (words.indexOf(word) < 0)
+                        words.unshift(word), newWords.push(word);
+                }
+            }
+        });
+        
+        if (!newWords.length)
+            return;
+        
+        // save words
+        localStorage.OS13kWords = JSON.stringify(words);
+        
+        let newWordsMessage = `<b>New Words!</b><br>`
+        let newWordsSpeak = '';
+        for(let i in newWords)
+        {
+            newWordsMessage += (i|0? ', ' : ' ') + newWords[i];
+            newWordsSpeak += newWords[i] + ' ';
+        }
+        
+        // add new words popup
+        this.Popup(newWordsMessage, speak? speak : newWordsSpeak, language);
+            
+        // refresh word list window
+        wordsProgram && wordsProgram.Refresh();
+    }
+
+    // get the word list
+    GetWords =()=> [...words];
+
+    // get a random matching word
+    GetWord(minLength=0, maxLength, firstCharacters)
+    {
+        // search for matches
+        const matches = words.filter( o=>
+            o.length >= minLength && 
+            (maxLength == undefined || o.length <= maxLength ) && 
+            (firstCharacters == undefined 
+                || o.substring(0, firstCharacters.length) == 
+                    firstCharacters.toLowerCase() ));
+            
+        // get random match
+        return matches.length > 0 ? matches[Math.random()*matches.length|0] : '';
+    }
+    
+    // remove a word from the list
+    RemoveWord =(word)=>
+    {
+        // remove word if it exists
+        words = words.filter(e => e != word);
+
+        // trigger refresh of dictionary window
+        wordsProgram && wordsProgram.Refresh();
+    }
+    
+/////////////////////////////////////////////////////////////////////////////
+// OS13k Audio
+
+    // play zzfx sound from seed
+    PlaySeed(seed, lengthScale=1, volume=1, randomness=.05)
+    {
+        // set random seed
+        const R =()=> this.Random(), C =()=> R()<.5, S =()=> C()?1:-1;
+        this.randomSeed = seed;
+        
+        // randomize sound length
+        lengthScale /= 2;
+        const attack  = R()**3*lengthScale;
+        const decay   = R()**3*lengthScale;
+        const sustain = R()**3*lengthScale;
+        const release = R()**3*lengthScale;;
+        const length  = attack + decay + sustain + release;
+        
+        // generate random sound
+        return zzfx
+        (
+           volume,               // volume
+           randomness,           // randomness
+           R()**2*2e3,           // frequency
+           attack,               // attack
+           sustain,              // sustain
+           release,              // release
+           R()*5|0,              // shape
+           R()**2*3,             // shapeCurve
+           C() * R()**3*99*S(),  // slide
+           C() * R()**3*99*S(),  // deltaSlide
+           C() * R()**2*1e3*S(), // pitchJump
+           R()**2 * length,      // pitchJumpTime
+           C() * R() * length,   // repeatTime
+           C() * R()**4,         // noise
+           C() * R()**3*9*S(),   // modulation
+           C() * R()**4,         // bitCrush
+           C() * R()**3/2,       // delay
+           1 - C() * R(),        // sustain volume
+           decay,                // decay
+        );
+    }
+    
+    // play raw audio sample data
+    PlaySamples(samples, sampleRate=44100)
+    {
+        const buffer = audioContext.createBuffer(1, samples.length, sampleRate);
+        const source = audioContext.createBufferSource();
+        buffer.getChannelData(0).set(samples);
+        source.buffer = buffer;
+        source.connect(gain);
+        source.start();
+        return source;
+    }
+    
+    // get frequency of a musical note on a diatonic scale
+    GetNote=(rootNoteFrequency=440, semitoneOffset=0)=>
+        rootNoteFrequency * 2**(semitoneOffset/12);
+
+    // speak the text
+    Speak(text, rate=1, pitch=1, volume=1, language='en')
+    {
+        // common languages (not supported in all browsers)
+        // it - italian, fr - french,  de - german,   es - spanish, pl - polish
+        // hi - hindi,   ru - russian, ja - japanese, zh - chinese, ko - korean
+    
+        // must have speech and not be muted
+        if (speechSynthesis && gain.gain.value)
+        {
+            // speak with utterance parameters
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.volume = volume;
+            utterance.pitch = pitch;
+            utterance.rate = rate;
+            utterance.lang = language;
+            speechSynthesis.speak(utterance);
         }
     }
     
-    UpdateSettings();
-    return true;
-}
-
-function MutateSetting(setting, refresh = true)
-{
-    const step = setting.step;
-    const name = setting.name;
-    if (IsLocked(name)) // unlock
-        document.getElementById("input_lock_"+name).checked = 0;
- 
-    const sound = GetSelectedSound();
-    sound.modified = 1;
-    
-    let v = sound[name];
-    if (setting.type == 2)
-        v = Math.random()*6|0;
-    else
-    {
-        let r = (Math.random())*(refresh?10:2)|0
-        if (refresh)
-            r += 1;
-        if (Math.random() > .5)
-            r *= -1;
-        v += r * step;
-        v = parseFloat(v.toFixed(2));
-    }
-    
-    document.getElementById('input_'+name).value = v;
-    sound[setting.name] = v;
-    
-    if (refresh)
-        UpdateSettings();
-}
-
-function ResetAllSettings()
-{
-    const sound = GetSelectedSound();
-    if (sound.favorite)
-    {
-        if (!confirm('Are you sure you want reset this favorite sound?'))
-            return false;
-    }
-    
-    for(const s of settings)
-        if (!IsLocked(s.name))
-            ResetSetting(s, 0);
-    
-    UpdateSettings();
-    return true;
-}
-
-function ResetSetting(setting, refresh = true)
-{
-    const name = setting.name;
-    if (IsLocked(name)) // unlock
-        document.getElementById("input_lock_"+name).checked = 0;
- 
-    const sound = GetSelectedSound();
-    const defaultSound = ZZFX.BuildSound();
-    sound.modified = 1;
-    
-    let v = sound[name];
-    if (setting.name in defaultSound)
-        v = defaultSound[setting.name];
-    
-    document.getElementById('input_'+name).value = v;
-    sound[setting.name] = v;
-    
-    if (refresh)
-        UpdateSettings();
-}
-
-function ToggleLockAll()
-{
-    let isLocked = 0;
-    for(const s of settings)
-        isLocked |= IsLocked(s.name);
+    // stop any current or queued speech
+    StopSpeech=()=> speechSynthesis && speechSynthesis.cancel();
         
-    for(const s of settings)
+/////////////////////////////////////////////////////////////////////////////
+// OS13k Shaders
+
+    // create pixel shader
+    CreateShader(canvas, code)
     {
-        const lock = document.getElementById("input_lock_"+s.name);
-        if (lock)
-            lock.checked = !isLocked;
+        // get webgl context
+        const x = canvas.getContext('webgl2');
+
+        // create a simple pass through vertex shader
+        const vertexShader = x.createShader(x.VERTEX_SHADER);
+        x.shaderSource(vertexShader,
+            '#version 300 es\n' +
+            'in vec4 p;' +
+            'void main()' +
+            '{gl_Position=p;}');
+        x.compileShader(vertexShader);
+        
+        // create vertex buffer that is a big triangle
+        const vertexBuffer = x.ARRAY_BUFFER;
+        x.bindBuffer(vertexBuffer,x.createBuffer());
+        x.bufferData(vertexBuffer,new Int8Array([-3,1,1,-3,1,1]),x.STATIC_DRAW);
+        x.enableVertexAttribArray(0);
+        x.vertexAttribPointer(0,2,x.BYTE,0,0,0); // 2D vertex
+        
+        // check vertex shader for errors
+        //if (!x.getShaderParameter(vertexShader, x.COMPILE_STATUS))
+        //    throw x.getShaderInfoLog(vertexShader);
+        
+        // create shadertoy compatible pixel shader
+        const pixelShader = x.createShader(x.FRAGMENT_SHADER)
+        const shaderProgramCode = 
+            '#version 300 es\n' +
+            'precision mediump float;' +
+            'uniform float iTime;' +
+            'uniform int iFrame;' +
+            'uniform vec4 iMouse;' +
+            'uniform vec3 iResolution;' +
+            'uniform sampler2D iChannel0;' +
+            'out vec4 outColor;\n' +
+            code +
+            '\nvoid main()' +
+            '{mainImage(outColor,gl_FragCoord.xy);' +
+            'outColor.a=1.;}';
+        x.shaderSource(pixelShader, shaderProgramCode)
+        x.compileShader(pixelShader);
+
+        // check pixel shader for errors
+        if (!x.getShaderParameter(pixelShader, x.COMPILE_STATUS))
+            throw x.getShaderInfoLog(pixelShader);
+
+        // create texture
+        x.bindTexture(x.TEXTURE_2D, x.createTexture());
+        x.texParameteri(x.TEXTURE_2D, x.TEXTURE_MIN_FILTER, x.LINEAR);
+        x.pixelStorei(x.UNPACK_FLIP_Y_WEBGL, 1); 
+        
+        // create shader program
+        const shaderProgram = x.createProgram();
+        x.attachShader(shaderProgram, vertexShader);
+        x.attachShader(shaderProgram, pixelShader);
+        x.linkProgram(shaderProgram);
+        x.useProgram(shaderProgram);
+        return shaderProgram;
     }
     
-    UpdateSettings();
-    PlaySelected();
-}
-
-function ClearSounds(clearFavorites)
-{
-    canvas_soundWave.width |= 0;
-    select_soundList.selectedIndex=-1;
-    while(select_soundList.options.length>0)
-        select_soundList.options.remove(0);
-    BuildSettingsTable();
-    
-    let oldSounds = sounds;
-    sounds = [];
-    if (!clearFavorites)
-        oldSounds.map(s=>s && s.favorite && AddToList(s));
-    if (clearFavorites)
-        generatedSoundCount = 0;
-}
-
-function ClearSoundsButton(clearFavorites)
-{
-    if (clearFavorites)
+    // render a pixel shader
+    RenderShader(canvas, shaderProgram, time=0, frame=0)
     {
-        if (!confirm('Are you sure you want clear all sounds?\nThis will DELETE your favorites!'))
+        // get webgl context
+        const x = canvas.getContext('webgl2');
+        
+        // set uniforms
+        const uniformLocation=name=>x.getUniformLocation(shaderProgram, name);
+        x.uniform3f(uniformLocation('iResolution'), canvas.width, canvas.height, 1);
+        x.uniform1f(uniformLocation('iTime'), time);
+        x.uniform1f(uniformLocation('iFrame'), frame);
+        x.uniform1i(uniformLocation('iChannel0'), 0);
+        
+        // render shader
+        x.viewport(0, 0, canvas.width, canvas.height);
+        x.drawArrays(x.TRIANGLE_FAN, 0, 3);
+        
+        // set texture to the newly renderd canvas
+        x.texImage2D(x.TEXTURE_2D, 0, x.RGBA, x.RGBA, x.UNSIGNED_BYTE, canvas);
+    }
+
+/////////////////////////////////////////////////////////////////////////////
+// OS13k Input
+
+    // get direction from wasd or arrow keys
+    KeyDirection(keyCode)
+    {
+        let x = 0, y = 0;
+        (keyCode == 87 || keyCode == 38) && ++y; // up
+        (keyCode == 83 || keyCode == 40) && --y; // down
+        (keyCode == 68 || keyCode == 39) && ++x; // right
+        (keyCode == 65 || keyCode == 37) && --x; // left
+        return {x, y};
+    }
+    
+/////////////////////////////////////////////////////////////////////////////
+// OS13k Text
+    
+    // replace html tags in a string
+    KillHTML =(string, maxLength)=>
+    {
+        // clamp max length if it exists
+        maxLength >= 0 && (string = string.substring(0, maxLength));
+        
+        // replace < with &lt;
+        return (string+'').replace(/</g,'&lt;');
+    }
+    
+    // add count glitches to a string
+    Glitch(string, count)
+    {
+        // based on based on dweet by f8f82804
+        // https://www.dwitter.net/d/11808
+        
+        // apply glitches
+        for(count; count-->0; )
+        {
+            const r = Math.random()*(string+'').length+1;
+            string = (string+='')
+                .slice(0, r)
+                + String.fromCharCode( 768 + Math.random()*99 )
+                + string.slice(r)
+        }
+        
+        // return result and remove html
+        return this.KillHTML(string);
+    }
+    
+/////////////////////////////////////////////////////////////////////////////
+// OS13k System Calls
+    
+    Popup(html, speak, language)
+    {
+        // create the popup
+        const popup = document.createElement('div');
+        popup.className = 'popup';
+        popup.innerHTML = html;
+        popup.style.top = innerHeight;
+        popup.speak = speak;
+        popup.speakLanguage = language;
+        popups.appendChild(popup);
+    }
+}; // _OS13k
+OS13k = new _OS13k;
+
+/////////////////////////////////////////////////////////////////////////////
+// OS13k Variables
+
+const taskbarHeight = 42, programHeight = 26, titlebarHeight = 50,
+      startWindowOpenX = 9, startWindowOpenY = 51, 
+      popupTime = 3, defaultVolume = .3, maxWordLength = 32;
+      
+let grabWindow, grabOffsetX, grabOffsetY, finishedStartup, preventTrophySave,
+    activeWindow, activeProgram, firstProgram, activeTaskbarIcon,
+    lastActiveElement, loadIcon, topZ = 0, loading = 0, hadInput = 0,
+    windowOpenX = startWindowOpenX, windowOpenY = startWindowOpenY,
+    trophyProgram, clockProgram, startProgram, wordsProgram,
+
+// parse trophy list
+trophies = localStorage.OS13kTrophies ? JSON.parse(localStorage.OS13kTrophies) : [],
+
+// parse word list
+words = localStorage.OS13kWords ? JSON.parse(localStorage.OS13kWords) : [];
+
+/////////////////////////////////////////////////////////////////////////////
+// OS13k Manager - handles non client facing features of OS13k
+    
+class _OS13kManager
+{
+    // start up OS13k
+    Start =()=>
+    {
+        OS13k.Trophy('','Welcome to OS13k!','👋');
+        if (localStorage.OS13kFrozen)
+        {
+            OS13k.Trophy('OS13k','Frozen','🧊',`Froze The Browser\n${localStorage.OS13kFrozen}`);
+        }
+        
+        // listen for trophies from other windows
+        window.onstorage =e=> OS13kManager.GiveTrophy(e.key);
+
+        // set tray functions
+        trayWords.onmousedown     =()=> wordsProgram.Toggle();
+        trayTrophy.onmousedown    =()=> trophyProgram.Toggle();
+        trayTime.onmousedown      =()=> clockProgram.Toggle();
+        trayVolume.onmousedown    = OS13kManager.ToggleMute;
+
+        // set button functions
+        buttonFullScreen.onmousedown =()=> activeWindow.FullScreen();
+        buttonShowCode.onmousedown   =
+        buttonShowHelp.onmousedown   =()=> activeWindow.ShowCode();
+        buttonResetSize.onmousedown  =()=> activeWindow.Resize();
+        buttonReload.onmousedown     =()=> activeWindow.Reload();
+        buttonClose.onmousedown      =()=> activeWindow.Close();
+
+        // create the folder taskbar icon and add folders/programs
+        loadIcon = new OS13kTaskbarIcon( {icon:'💾', name:'Load Program'} );
+        loadIcon.windowOrFolder = new OS13kFolder(programs);
+
+        // close all the folders that were just opened
+        OS13kManager.CloseMenus();
+
+        // search local storage for trophies, prevent saving until the end
+        for (let i = localStorage.length; i--;)
+            OS13kManager.GiveTrophy(localStorage.key(i));
+        
+        // save trophies
+        localStorage.OS13kTrophies = JSON.stringify(trophies);
+        preventTrophySave = 0;
+        
+        // try to handle startup now in case no programs are loading
+        OS13kManager.HandleStartup();
+
+        // kick off update
+        OS13kManager.Update();
+        
+        // stop spech if page is unloaded
+        document.body.onunload = OS13k.StopSpeech();
+    }
+
+    // wait for startup to finish to open first program
+    HandleStartup =()=>
+    {
+        // wait for initial frames to finish opening before ending startup
+        if (loading || finishedStartup)
             return;
-        slider_masterVolume.value = 30;
-        input_shortenCode.checked = 1;
+
+        // open first program after startup
+        firstProgram.GetInfo().open!=0 && firstProgram.Open();
+
+        // open start active program, set meta
+        self == top ?
+            startProgram && startProgram.GetInfo().open!=0 && startProgram.Open() :
+             (title.innerText = 'Meta ' + title.innerText);
+
+        // finish startup after opening startup programs
+        finishedStartup = 1;
     }
-    ClearSounds(clearFavorites);
-    AddDefaultIfEmpty();
-    UpdateSettings();
-    PlaySelected();
-}
 
-function AddDefaultIfEmpty()
-{
-    if (select_soundList.length > 0)
-        return;
-
-    const sound = ZZFX.BuildSound();
-    sound.name = 'Sound Default';
-    AddToList(sound);
-}
-
-function CopyToCliboard(text)
-{
-    if (!navigator.clipboard)
+    // main update loop
+    Update =()=>
     {
-        alert('Unable to copy to clipboard.');
+        requestAnimationFrame(OS13kManager.Update);
+
+        // listen for iframe becomming new active element
+        const activeElement = document.activeElement;
+        if (lastActiveElement != activeElement)
+        {
+            // set focus to new active element
+            activeElement.SetActive && activeElement.SetActive(1,0);
+            lastActiveElement = activeElement;
+        }
+
+        // update popups if finished startup
+        if (hadInput && finishedStartup)
+        {
+            let offsetHeight = 0, isTop = 1;
+
+            // use copy of popups to prevent skipping if removed
+            for(const popup of [...popups.children])
+            {
+                // speak popup
+                popup.speak && 
+                    OS13k.Speak(popup.speak, 1, 1, 1, popup.speakLanguage, popup.speak=0);
+            
+                if (!document.fullscreenElement)
+                { 
+                    // move popup up
+                    let y = parseFloat(popup.style.top) + offsetHeight - 9;
+                    if (y < taskbarHeight)
+                    {
+                        // stop popup below taskbar
+                        y = taskbarHeight;
+
+                        // fade out popup if at top
+                        if (isTop && !(popup.style.opacity = (popup.style.opacity || popupTime) - .01))
+                        {
+                            // remove when invisible and adjust for height
+                            const rect = popup.getBoundingClientRect();
+                            offsetHeight += rect.height;
+                            popups.removeChild(popup);
+                        }
+
+                        // set that we are not at the top
+                        isTop = 0;
+                    }
+
+                    // set popup position
+                    popup.style.top = y;
+                }
+            }
+        }
+
+        // update trophy count
+        trayTrophy.innerHTML = trophies.length + ' 🏆';
+
+        // update word count
+        trayWords.innerHTML = words.length + ' 📕';
+
+        // update time
+        trayTime.title = new Date();
+        const time = trayTime.title.slice(16,24).split(':')
+        trayTime.innerHTML = (time[0]%12?time[0]%12:12) + ':' + time[1];
+
+        // fade in desktop, convert opacity to number
+        loading || (desktop.style.opacity = Math.min(1,.02 + desktop.style.opacity*1));
+    }
+
+    // close all folders and menus
+    CloseMenus =()=>
+    {
+        // hide all drop down folders
+        for (const c of programsFolder.children)
+            c.localName == 'os13k-folder' && (c.style.visibility = 'hidden');
+
+        // hide menu
+        menu.style.visibility = '';
+    }
+
+    // try to give trophy for local storage key
+    GiveTrophy =key=>
+    {
+        const keyParts = (key+'').split(',');
+        keyParts.length = 4;
+        if (keyParts.shift() == 'OS13kTrophy') 
+            OS13k.Trophy(...keyParts, localStorage[key])
+    }
+
+    // toggle audio
+    ToggleMute =()=>
+    {
+        OS13k.StopSpeech();
+        gain.gain.value = gain.gain.value ? 0 : defaultVolume;
+        trayVolume.innerHTML = gain.gain.value ? '🔊' : '🔇';
+
+        OS13k.Trophy('OS13k','Shut Up','🔇','Muted');
+    }
+} // OS13kManager
+OS13kManager = new _OS13kManager;
+
+/////////////////////////////////////////////////////////////////////////////
+// OS13kFolder - holds a list of program
+
+class OS13kFolder extends HTMLElement
+{
+	constructor(infos, x=0, y=0, parentFolder)
+    {
+		super();
+        
+        // add to desktop
+        this.className = 'folder';
+        this.style.left = x;
+        this.style.top = y;
+        this.parentFolder = parentFolder;
+        programsFolder.appendChild(this);
+        
+        // add programs to folder
+        for (const info of infos)
+            this.appendChild(info.program = new OS13kProgram(info));
+        
+        // get width offset and add new folders recursively
+        const rect = this.getBoundingClientRect();
+        for (const info of infos)
+        {
+            // create the folder and hook up to programs
+            info.folder && (info.program.folder = new OS13kFolder(info.folder, rect.right - 2, y, this));
+            y += programHeight;
+        }
+    }
+
+    SetActive()
+    {
+        // close menus so they can reopen with this active
+        OS13kManager.CloseMenus();
+        
+        // make visible
+        this.parentFolder && this.parentFolder.SetActive();
+        this.style.visibility = '';
+    }
+} // OS13kFolder
+customElements.define('os13k-folder', OS13kFolder);
+
+/////////////////////////////////////////////////////////////////////////////
+// OS13kProgram - stores program info and handles loading from folders
+    
+class OS13kProgram extends HTMLElement
+{
+	constructor({x, y, name, icon, src='', width=720, height=405, author, folder, full=1, reload=1, sleep=1, resize=1, sticky, help, code})
+    {
+		super();
+        
+        const srcParts = src.split('.');
+        
+        // set icon defaults
+        src = src || '';
+        icon = icon || '💠';
+        
+        if (!name)
+        {
+            // infer name from camel case src
+            let srcCleanName = srcParts[0].split('/');
+            srcCleanName = srcCleanName[Math.max(0,srcCleanName.length-1)].replace(/([a-z](?=[A-Z]))/g, '$1 ');
+            name = srcCleanName.charAt(0).toUpperCase() + srcCleanName.slice(1);
+        }
+        
+        // check for special extensions
+        const extension = src? srcParts[1] : '';
+        this.isDweet = extension == 'dweet';
+        this.isShader = extension == 'shader';
+        this.hasExtension = this.isDweet || this.isShader
+
+        // set icon data
+        this.className = 'program';
+        this.name = name;
+        this.icon = icon;
+        this.src = src;
+        this.srcShort = srcParts[0];
+        this.width = width;
+        this.height = height;
+        this.author = author;
+        this.sleep = sleep;
+        this.full = full;
+        this.reload = reload;
+        this.code = code || (this.hasExtension && code == undefined);
+        this.sticky = sticky;
+        this.help = help;
+        this.resize = resize;
+        
+        // set title if not a folder
+        if (!folder)
+            this.title = name +
+                ( this.isDweet ? ' - Dweet' :  this.isShader ? ' - Shader' : '') +
+                (author ? '\nBy ' + author : '');
+            
+        // icon
+        const iconDisplay = document.createElement('div');
+        iconDisplay.style = 'pointer-events:none;width:45;text-shadow:1px 1px 3px #000;text-align:center';
+        iconDisplay.innerHTML = icon;
+        this.appendChild(iconDisplay);
+        
+        // name
+        const nameDisplay = document.createElement('div');
+        nameDisplay.style = 'pointer-events:none;flex:1'
+        nameDisplay.innerHTML = name;
+        this.appendChild(nameDisplay);
+        
+        if (folder)
+        {
+            // folder arrow
+            const folderDisplay = document.createElement('div');
+            folderDisplay.style = 'pointer-events:none'
+            folderDisplay.innerHTML = '&nbsp;&nbsp;▶';
+            this.appendChild(folderDisplay);
+        }
+        
+        // save special programs
+        name == 'Clock' && (clockProgram = this);
+        name == 'Trophy Case' && (trophyProgram = this);
+        name == 'Word List' && (wordsProgram = this);
+        
+        // save first program in list
+        firstProgram || src && (firstProgram = this);
+
+        // check if start active program
+        this.src == localStorage.OS13kStartProgram ?
+            
+            // save start active program
+            startProgram = this :
+
+            // check for sticky open
+            sticky && this.GetInfo().open && this.Open();
+    }
+    
+    Move()
+    {
+        // set active
+        activeProgram = this;
+        this.className = 'program programActive';
+        (this.folder ? this.folder : this.offsetParent).SetActive();
+    }
+    
+    Open()
+    {
+        this.open=1;
+    
+        if (this.window)
+        {
+            // set window to be active if it exists
+            this.window.SetActive();
+            
+            // prevent main document focus
+            return false;
+        }
+        if (this.src)
+        {
+            // load save info
+            let info = this.GetInfo();
+
+            let x = info.x;
+            let y = info.y;
+            
+            if (!this.sticky && this != firstProgram && this != startProgram)
+            {
+                x = windowOpenX;
+                y = windowOpenY;
+            
+                // update window open positions
+                (windowOpenX += titlebarHeight) > 400 && (windowOpenX = startWindowOpenX);
+                (windowOpenY += titlebarHeight) > 200 && (windowOpenY = startWindowOpenY);
+            }
+
+            // open the window
+            this.window || (this.window = new OS13kWindow(this, x, y));
+            
+            // save info on open
+            this.SaveInfo();
+        }
+        else if (!this.folder)
+        {
+            // close all windows if no src or folder
+            for (const c of [...desktop.children])
+                c.Close && c.Close()
+
+            // reset window open position
+            windowOpenX = startWindowOpenX;
+            windowOpenY = startWindowOpenY;
+
+            OS13k.Trophy('OS13k','Coffee Is For Closers','☕','Closed All');
+        }
+        
+        // allow main document focus
+        return true;
+    }
+    
+    SetActive =()=> this.Open();
+    
+    Refresh()
+    {
+        // call refresh function in iframe if it exists
+        this.window && this.window.iframeContent &&
+            this.window.iframeContent.OS13kRefresh &&
+            this.window.iframeContent.OS13kRefresh()
+    }
+    
+    Toggle=()=> activeWindow && activeWindow == this.window 
+        ? this.window.Close() : this.Open();
+    
+    GetInfo()
+    {
+        // try to load saved program info from local storage
+        const saveProgramJSON = localStorage['OS13kProgram'+this.src];
+        
+        if (saveProgramJSON)
+            return JSON.parse(saveProgramJSON);
+        
+        return {
+        open:this.open};
+    }
+    
+    SaveInfo()
+    {
+        // remove active program if closed
+        !this.open && this == startProgram && 
+            (localStorage.OS13kStartProgram = startProgram = 0);
+    
+        // save program info to local storage
+        localStorage['OS13kProgram'+this.src] = 
+            JSON.stringify({
+                x:this.window.style.left,
+                y:this.window.style.top, 
+                open:this.open
+                });
+    }
+} // OS13kProgram
+customElements.define('os13k-program', OS13kProgram);
+
+/////////////////////////////////////////////////////////////////////////////
+// OS13kWindow - window to a running program, handles program loading
+
+class OS13kWindow extends HTMLElement
+{
+	constructor(program, x, y)
+    {
+		super();
+
+        // add to desktop
+        desktop.appendChild(this);
+        
+        // save settings
+        this.program = program;
+        this.style.left = x;
+        this.style.top = y;
+        
+        // shadow root
+		this.shadow = this.attachShadow({mode: 'open'});
+        this.shadowRoot.innerHTML = templateWindow.innerHTML;
+        
+        // title bar
+        this.titlebar = document.createElement('div');
+        this.titlebar.id = 'titlebar';
+        this.titlebar.title = program.title;
+        this.shadowRoot.appendChild(this.titlebar);
+        
+        // title bar wrapper
+        this.nameWrapper = document.createElement('div');
+        this.nameWrapper.id = 'nameWrapper';
+        this.titlebar.appendChild(this.nameWrapper);
+
+        // icon
+        const iconDisplay = document.createElement('div');
+        iconDisplay.id = 'icon';
+        iconDisplay.innerHTML = program.icon;
+        this.nameWrapper.appendChild(iconDisplay);
+        
+        // name
+        const nameDisplay = document.createElement('div');
+        nameDisplay.id = 'name';
+        nameDisplay.innerHTML = program.name;
+        this.nameWrapper.appendChild(nameDisplay);
+        
+        // create title bar icons
+        const AddTitlebarIcon=(id, title)=>
+        {
+            const icon = document.createElement('div');
+            icon.innerHTML = `<svg><use href=#icon-${icon.id = id}>`;
+            icon.title = title;
+            this.titlebar.appendChild(icon);
+        }
+        if (program.resize)
+        {
+            AddTitlebarIcon('shrink', 'Shrink');
+            AddTitlebarIcon('grow', 'Grow');
+        }
+        program.full && AddTitlebarIcon('full', 'Full Screen');
+        program.help && AddTitlebarIcon('help', 'Help');
+        program.help || program.code && AddTitlebarIcon('code', 'Code')
+        program.reload && AddTitlebarIcon('reload', 'Reload');
+        AddTitlebarIcon('close', 'Close');
+        
+        // create thin line below title bar
+        const titlebarGap = document.createElement('div');
+        titlebarGap.style='height:3';
+        this.shadowRoot.appendChild(titlebarGap);
+
+        // create content wrapper
+        const frameWrapper = this.frameWrapper = document.createElement('div');
+        frameWrapper.style.background = '#000';
+        this.shadowRoot.appendChild(frameWrapper);
+
+        // create help/code display
+        this.codeDisplay = document.createElement('textarea');
+        this.codeDisplay.id = 'codeDisplay'; 
+        this.codeDisplay.setAttribute('readOnly', 1);
+        this.shadowRoot.appendChild(this.codeDisplay);
+        
+        // resize window size to fit inner width while preserving aspect
+        const width = program.resize ? 
+            Math.min(program.width, innerWidth-6) : program.width;
+        this.frameWrapper.style.width  = width;
+        this.frameWrapper.style.height = width * program.height / program.width;
+        this.scale = width / program.width;
+        this.titlebar.style.width = width;
+
+        // create iframe
+        const iframe = this.iframe = document.createElement('iframe'); 
+        iframe.id = 'frame';
+        this.style.visibility = 'hidden';
+        
+        // track if programs are loading
+        ++loading;
+        
+        // add program name to words and speak
+        OS13k.AddWords(this.program.name, 0, 'ja'); 
+                
+        // wait for frame to load
+        iframe.onload=e=>
+        {
+            // track if programs are loading
+            --loading;
+        
+            // set up iframe          
+            const iframeContent = this.iframeContent = e.target.contentWindow;
+            let iframeDocument, iframeText;
+            
+            try
+            {
+                // get the document and text, will fail if cross site
+                iframeDocument = iframeContent.document;
+                iframeText = program.hasExtension ?
+                    iframeDocument.body.innerText : iframeDocument.body.innerHTML;
+
+                // set help/code display
+                this.codeDisplay.value = this.program.help || iframeText;
+                
+                // pass zzfx to iframe
+                iframeContent.OS13k || (iframeContent.OS13k = OS13k);
+                iframeContent.zzfx = zzfx;
+                
+                // prevent iframes context menu
+                iframeContent.oncontextmenu =()=> false;
+
+                // check for extensions
+                if (program.hasExtension)
+                {
+                    // create full size canvas
+                    iframeDocument.body.innerHTML = 
+                        `<canvas id=c width=1920 height=1080 style=` +
+                        'width:100%;background:#' +
+                        (program.isDweet ? 'fff' : '000') +'>';
+                    iframeDocument.body.style = 
+                        'background:#111;' +
+                        'overflow:hidden;' +
+                        'margin:0;' +
+                        'display:flex;' +
+                        'align-items:center';
+
+                    // create dweet
+                    program.isDweet && iframeContent.eval(
+                        'u=t=>{' + iframeText + '};' +
+                        'x=c.getContext`2d`;' +
+                        'S=Math.sin;' +
+                        'C=Math.cos;' +
+                        'T=Math.tan;' +
+                        'R=(r,g,b,a=1)=>`rgba(${0|r},${0|g},${0|b},${a})`;' +
+                        'loop=t=>requestAnimationFrame(loop,' +
+                            `${ program.sleep? 'document.hasFocus()&&' : '' }` +
+                            'u((60*(frame++/60)-frame-1|0?frame-1:frame)/60));' +
+                        'loop(frame=0)');
+
+                    // create shader
+                    program.isShader && iframeContent.eval(
+                        'g=c.getContext`webgl2`;' +
+                        'x=y=z=w=f=0;' +
+                        'onmousemove=e=>e.buttons&&(x=e.x,y=c.height-e.y);' +
+                        'onmousedown=e=>(x=z=e.x,y=w=c.height-e.y);' +
+                        'onmouseup=e=>z=w=0;' +
+                        'loop=t=>requestAnimationFrame(loop,' +
+                            `${ program.sleep? 'document.hasFocus()&&' : '' }(` +
+                            'c.width=innerWidth,' + 
+                            'c.height=innerHeight,' + 
+                            'g.uniform4f(g.getUniformLocation(s,"iMouse"),x,y,z,w),' +
+                            'parent.OS13k.RenderShader(c,s,t/1e3,f++)));' + 
+                        'loop(s=parent.OS13k.CreateShader(c,`' + iframeText + '`))');
+                } 
+            }
+            catch (e) {} // could not load frame, possible cross site error
+
+            // add taskbar icon
+            if (!this.taskbarIcon)
+                this.taskbarIcon = new OS13kTaskbarIcon(program, this);
+
+            // make visible
+            this.style.visibility = this.iframe.style.visibility = '';
+            
+            // only set active if not grabbing
+            grabWindow || this.SetActive();
+    
+            // special logic during startup
+            OS13kManager.HandleStartup();
+        }
+        
+        // load the iframe
+        iframe.src = program.src;
+        frameWrapper.appendChild(iframe);
+    }
+    
+    Open(e, target)
+    {
+        this.SetActive(1,0);
+        
+        // set grab window if name is clicked on
+        target.id == 'nameWrapper' && (grabWindow = this);
+        
+        // check for title bar buttons
+        target.id == 'full'        && this.FullScreen();
+        target.id == 'reload'      && this.Reload();
+        target.id == 'close'       && this.Close();
+        target.id == 'shrink'      && this.Resize(this.scale - .2);
+        target.id == 'grow'        && this.Resize(this.scale + .2);
+        (target.id == 'help' || target.id == 'code') && this.ShowCode();
+        
+        // allow main document focus if code or grabbing
+        return target.id == 'codeDisplay' || grabWindow == this;
+    }
+    
+    Resize(scale=1)
+    {
+        // change size of window
+        const wNew = OS13k.Clamp(this.program.width * scale, 300, 2e3);
+        const hNew = this.program.height * (this.scale = wNew / this.program.width);
+        
+        // set new size
+        const w = parseFloat(this.frameWrapper.style.width);
+        this.titlebar.style.width = this.frameWrapper.style.width = wNew;
+        this.frameWrapper.style.height = hNew;
+    
+        // adjust window position for offset
+        this.style.left = parseFloat(this.style.left) + w - wNew;
+    }
+    
+    SetActive(active=1, clamp=1)
+    {
+        OS13kManager.CloseMenus();
+        
+        // set style
+        this.className = active? 'activeWindow' : '';
+        this.titlebar.className = 'titlebar titlebar' 
+            + (active ? 'Active' : this.program.sticky ? 'Sticky' : '');
+        (this.program.sleep ? this : this.titlebar).style.filter = 
+            active? '' : 'saturate(.7)brightness(.7';
+
+        // check if active
+        if (!active)
+            return;
+        
+        // save active program
+        finishedStartup&&(localStorage.OS13kStartProgram = this.program.src);
+
+        // set focus to iframe
+        this.iframeContent && this.iframeContent.focus();
+
+        if (clamp)
+        {
+            // clamp window to screen
+            const rect = this.getBoundingClientRect();
+            this.style.left = OS13k.Clamp(rect.x, 0, innerWidth - rect.width);
+            this.style.top = OS13k.Clamp(rect.y, taskbarHeight, 
+                Math.max(taskbarHeight, innerHeight - rect.height));
+        }
+
+        if (activeWindow != this)
+        {
+            // deactivate old window
+            activeWindow && activeWindow.SetActive(0);
+            
+            // set this to be active window
+            activeWindow = this;
+
+            // move z to top
+            this.style.zIndex = ++topZ;
+
+            // show menu buttons
+            buttonFullScreen.style.display = this.program.full?   '' : 'none';
+            buttonShowHelp.style.display   = this.program.help?   '' : 'none';
+            buttonShowCode.style.display   = this.program.code?   '' : 'none';
+            buttonReload.style.display     = this.program.reload? '' : 'none';
+            buttonResetSize.style.display  = this.program.resize? '' : 'none';
+
+            // set taskbar icon active if it exists
+            // it may not exist yet if frame hasn't finished loading
+            this.taskbarIcon && this.taskbarIcon.SetActive();
+        }
+    }
+    
+    FullScreen()
+    {
+        // check if full screen allowed
+        if (!this.program.full)
+            return;
+        
+        // set full screen
+        if (this.frameWrapper.webkitRequestFullScreen)
+            this.frameWrapper.webkitRequestFullScreen();
+        if (this.frameWrapper.mozRequestFullScreen)
+            this.frameWrapper.mozRequestFullScreen();
+            
+        OS13k.Trophy('OS13k','Pro Gamer','🕹️','Went Fullscreen');
+    }
+    
+    ShowCode()
+    {
+        // toggle showing code
+        this.codeDisplay.style.display = 
+            (this.showCode = !this.showCode) ? 'block' : '';
+        
+        // add help to words
+        OS13k.AddWords(this.program.help);
+        
+        this.program.help || OS13k.Trophy('OS13k','Hacker','👨‍💻','Viewed Code');
+    }
+    
+    Reload()
+    {
+        // clear if sticky note
+        this.program.icon == '✍️' && (localStorage.OS13kSn = '');
+    
+        // hide iframe and reload it
+        this.iframe.style.visibility = 'hidden';
+        this.iframeContent.location.reload();
+    }
+    
+    Close()
+    {
+        // save info
+        this.program.open = 0;
+        this.program.SaveInfo();
+        
+        // close it up
+        this.program.window = 0;
+        this.taskbarIcon && this.taskbarIcon.remove();
+        this.remove();
+    }
+} // OS13kWindow
+customElements.define('os13k-window', OS13kWindow);
+
+/////////////////////////////////////////////////////////////////////////////
+// OS13kTaskbarIcon - icon on taskbar that can be used as shortcut
+
+class OS13kTaskbarIcon extends HTMLElement
+{
+	constructor(program, windowOrFolder = 0)
+    {
+		super();
+        
+        // create icon
+        this.className = 'taskbarIcon';
+        this.innerHTML = '<div style=pointer-events:none>' + program.icon;
+        this.windowOrFolder = windowOrFolder;
+        this.title = program.title || program.name;
+        
+        // add to taskbar
+        traySpace.before(this);
+    }
+    
+    Open()
+    {
+        // set active and allow window to be set active
+        this.SetActive(1,0);
+        
+        // allow main document focus if is load icon
+        return this == loadIcon;
+    }
+    
+    SetActive(active=1)
+    {
+        // set window active if allowed
+        active && this.windowOrFolder.SetActive();
+
+        // load icon cant be active
+        if (this == loadIcon) return;
+    
+        // set style
+        this.className = 'taskbarIcon' + (active ? ' taskbarIconActive' : '');
+        
+        // check if active
+        if (!active) return;
+            
+        // unselect old icon if active
+        activeTaskbarIcon && activeTaskbarIcon != this &&
+            activeTaskbarIcon.SetActive(0);
+
+        // set this to be active taskbar icon
+        activeTaskbarIcon = this;
+    }
+} // OS13kTaskbarIcon
+customElements.define('os13k-taskbar-icon', OS13kTaskbarIcon);
+
+/////////////////////////////////////////////////////////////////////////////
+// Mouse Input
+
+{
+
+onmousedown =e=>
+{
+    // set there has been user input
+    hadInput = 1;
+    
+    // check if clicked on load icon while folders were visible
+    if (e.target==loadIcon && !loadIcon.windowOrFolder.style.visibility)
+    {
+        // re-activate active window
+        activeWindow && activeWindow.SetActive();
+        
+        // close menus
+        OS13kManager.CloseMenus();
+        
+        // prevent main document from taking focus
         return false;
     }
-    navigator.clipboard.writeText(text);
-    return true;
-}
+    
+    // close menus on mouse down
+    OS13kManager.CloseMenus();
 
-function GetCode(sound)
-{
-    // create code string
-    const parameters = ZZFX.SoundToArray(sound);
-        
-    // remove defaults
-    const shorten = input_shortenCode.checked;
-    const defaults = ZZFX.SoundToArray(ZZFX.BuildSound());
-    let isEnd = 1;
-    for(let i = parameters.length-1; shorten&&i>=0; --i)
+    // prevent stuck grab
+    if (grabWindow) return onmouseup(e);
+    
+    // get orignal target
+    const originalTarget = e.originalTarget || e.path[0];
+    // check for non left click
+    if (e.button)
     {
-        if (parameters[i] == defaults[i])
+        // check for right click
+        if (e.button == 2)
         {
-            if (isEnd)
-                --parameters.length;
-            else
-                parameters[i] = '';
-        }
-        else
-            isEnd = 0;
-    }
-      
-    // make parameters list
-    let code = '';
-    for(let i = 0; i < parameters.length; ++i)
-    {
-        let p = parameters[i].toString();
-        // remove leading 0
-        if (p.slice(0,2) == '0.')
-            p = p.slice(1);
+            let target = (e.target.window || e.target);
+
+            // don't do anything if code or button clicked on
+            if (originalTarget.id == 'codeDisplay' || e.target.localName == 'button')
+                return;
         
-        if (settings[i].type == 0)
-        {
-            let e = parseFloat(parameters[i]).toExponential();
-            e = e.replace('+','');
-            
-            if (e.length < p.length)
-                p = e;
+            // check which menu to open
+            let contextMenu = menu;
+            if (e.target == loadIcon || 
+                    e.target           != menu &&
+                    e.target.className != 'trayIcon' && 
+                    e.target.localName != 'os13k-program' && 
+                    e.target.localName != 'os13k-window' && 
+                    e.target.localName != 'os13k-taskbar-icon')
+            {
+                contextMenu = programsFolder;
+                target = loadIcon;
+            }
+
+            // set target active
+            target.SetActive && target.SetActive();
+
+            // show context menu
+            contextMenu.style.left = e.x;
+            contextMenu.style.top = e.y;
+            e.target.className != 'trayIcon' && 
+                e.target.localName != 'os13k-program' &&
+                (contextMenu.style.visibility = 'visible');
         }
-            
-        code += (i?',':'') + p;
+    
+        // allow main document to take focus
+        return;
     }
     
-    if (!code.length)
-        return `zzfx(${code}); // ${sound.name.trim()}`;
-    else if (shorten)
-        return `zzfx(...[${code}]); // ${sound.name.trim()}`;
+    // handle mouse down
+    let allowDefault = true;
+    if (e.target.Open)
+        allowDefault = e.target.Open(e, originalTarget);
     else
-        return `zzfx(${code}); // ${sound.name.trim()}`;
-}
-
-function LoadSound()
-{    
-    let code = prompt('Enter zzfx code.');
-    if (!code)
-        return;
+    {
+        // re-activate active window if desktop clicked
+        activeWindow && activeWindow.SetActive(1,0);
         
-    code = code.trim();
-    const front = code.slice(0,9);
-    if (front != 'zzfx(...[')
-    {
-        alert('Error! Invalid zzfx code.');
-        return;
-    }
-
-    // split up parameters
-    const end = code.slice(9);
-    const params = end.split(',');
-    const paramArray = [];
-    for (const p of params)
-        paramArray.push(p.length? parseFloat(p) : undefined);
-    
-    // build sound
-    const sound = ZZFX.BuildSound(...paramArray);
-    const name = code.split('//')[1];
-    sound.name = name || ('Loaded Sound ' + generatedSoundCount++);
-    sound.name = sound.name.trim();
-    AddToList(sound);
-    PlaySelected();
-}
-
-function SaveWave()
-{    
-    PlaySelected();
-    
-    const sound = BuildSoundFromSettings();
-    a_downloadLink.href = BuildWaveDataUrl(sound);
-    name = sound.name.trim();
-    if (!name.length)
-        name = 'zzfx';
-    a_downloadLink.download = name + ".wav";
-    a_downloadLink.click();
-}
-
-function BuildWaveDataUrl(sound)
-{
-    const samples = ZZFX.BuildSamples(...ZZFX.SoundToArray(sound));
-
-    // adapted from https://gist.github.com/asanoboy/3979747
-    const channels = 1;
-    const length = samples.length;
-    const buffer = new Int16Array(length + 23);
-    const sampleRate = ZZFX.sampleRate;
-
-    // wave header
-    buffer[ 0] = 0x4952; // "RI"
-    buffer[ 1] = 0x4646; // "FF"
-    buffer[ 2] = (2*length + 15) & 0x0000ffff; // RIFF size
-    buffer[ 3] = ((2*length + 15) & 0xffff0000) >> 16; // RIFF size
-    buffer[ 4] = 0x4157; // "WA"
-    buffer[ 5] = 0x4556; // "VE"
-    buffer[ 6] = 0x6d66; // "fm"
-    buffer[ 7] = 0x2074; // "t "
-    buffer[ 8] = 0x0012; // fmt chunksize: 18
-    buffer[ 9] = 0x0000; //
-    buffer[10] = 0x0001; // format tag : 1 
-    buffer[11] = channels; // channels: 2
-    buffer[12] = sampleRate & 0x0000ffff; // sample per sec
-    buffer[13] = (sampleRate & 0xffff0000) >> 16; // sample per sec
-    buffer[14] = (2*channels*sampleRate) & 0x0000ffff; // byte per sec
-    buffer[15] = ((2*channels*sampleRate) & 0xffff0000) >> 16; // byte per sec
-    buffer[16] = 0x0004; // block align
-    buffer[17] = 0x0010; // bit per sample
-    buffer[18] = 0x0000; // cb size
-    buffer[19] = 0x6164; // "da"
-    buffer[20] = 0x6174; // "ta"
-    buffer[21] = (2*length) & 0x0000ffff; // data size[byte]
-    buffer[22] = ((2*length) & 0xffff0000) >> 16; // data size[byte]	
-
-    // copy samples to buffer
-    for (let i = 0; i < length; i++)
-    {
-        const s = samples[i];
-        buffer[i+23] = s>=1 ? (1<<15) - 1 : Math.round(s * (1<<15));
-    }
-
-    // build the blob
-    let eof = 0;
-    let bufferNeedle = 0;
-    const GetBuffer = (length) =>
-    {
-        eof = bufferNeedle + length >= buffer.length;
-        const rt = new Int16Array(eof?buffer.length - bufferNeedle:length);
-        for(let i=0; i<rt.length; i++)
-            rt[i] = buffer[i+bufferNeedle];
-        bufferNeedle += rt.length;
-        return rt.buffer;
-    }
-
-    const blobData = [];
-    while ( !eof ) { blobData.push(GetBuffer(1e3)); }
-    const b = new Blob(blobData, {type:'audio/wav'});
-    const URLObject = webkitURL || URL;
-    return URLObject.createObjectURL(b);
-}
-
-function DrawSoundWave(b, volume, sound)
-{
-    // set up canvas
-    const x = canvas_soundWave.getContext('2d'); 
-    const w = canvas_soundWave.width;
-    const h = canvas_soundWave.height;
-    canvas_soundWave.width |= 0;
-    randomSeed = loadedSoundSeed;
-    const R =()=> SeededRandom();
-    
-    if (!volume)
-        return;
-    
-    // show attack, sustain, release
-    let length = b.length;
-    let X, W;
-    let H=R()*3e3;
-    x.fillStyle=`hsl(${H+45},79%,10%)`;
-    x.fillRect(0,0,w,h);
-    if (!length)
-        return;
-    x.fillStyle=`hsl(${H+=30},79%,10%)`;
-    x.fillRect(X=0,0,W=w*sound.attack * ZZFX.sampleRate/b.length,h);
-    x.fillStyle=`hsl(${H+=30},79%,10%)`;
-    x.fillRect(X+=W,0,W=w*sound.decay * ZZFX.sampleRate/b.length,h);
-    x.fillStyle=`hsl(${H+=30},79%,10%)`;
-    x.fillRect(X+=W,0,W=w*sound.sustain * ZZFX.sampleRate/b.length,h);
-    x.fillStyle=`hsl(${H+=30},79%,10%)`;
-    x.fillRect(X+=W,0,W=w*sound.release * ZZFX.sampleRate/b.length,h);
-    x.strokeStyle=`#FFF`;
-    x.strokeRect(X=0,0,W=w*sound.attack * ZZFX.sampleRate/b.length,h);
-    x.strokeRect(X+=W,0,W=w*sound.decay * ZZFX.sampleRate/b.length,h);
-    x.strokeRect(X+=W,0,W=w*sound.sustain * ZZFX.sampleRate/b.length,h);
-    x.strokeRect(X+=W,0,W=w*sound.release * ZZFX.sampleRate/b.length,h);
-    
-    // draw the wave
-    x.strokeStyle=`hsl(${H+180},${R()*99}%,70%)`;
-    x.beginPath();
-    for(let i=0; i<b.length; i+=10)
-        x.lineTo(w*i/b.length, .8*b[i]*h/2/volume+h/2);
-    x.stroke();
-}
-
-function RandomizeLogo()
-{
-    const R =()=> Math.random();
-    div_logo.style.color=`hsl(${R()*3e3},${50+50*R()}%,${50+50*R()}%)`;
-    div_logo2.style.color=`hsl(${R()*3e3},${50+50*R()}%,${50+50*R()}%)`;
-}
-
-///////////////////////////////////////////////////////////////////////////////
-// save & load
-
-function BuildSaveData()
-{
-    const data =
-    {
-        sounds,
-        generatedSoundCount,
-        volume:slider_masterVolume.value
+        // prevent main document from taking focus
+        return false;
     }
     
-    return JSON.stringify(data);
-}
-
-function LoadSaveData(dataJSON)
-{
-    if (!dataJSON)
+    if (grabWindow)
     {
-        AddDefaultIfEmpty();
-        return;
-    }
-
-    const data = JSON.parse(dataJSON);
-    if (data.volume)
-        slider_masterVolume.value = data.volume;
-    if (data.generatedSoundCount)
-        generatedSoundCount = data.generatedSoundCount;
-    if (data.sounds)
-        data.sounds.forEach(o=>o&&AddToList(o));
+        // set grabbing mode
+        document.body.style.cursor = grabWindow.nameWrapper.style.cursor = 'grabbing';
+        document.body.style.pointerEvents = 'none';
         
-    AddDefaultIfEmpty();
-    select_soundList.selectedIndex = 0;
-}
-
-function SaveLocalStorage()
-{
-    localStorage.saveData = BuildSaveData();
-}
-
-function LoadLocalStorage()
-{
-    ClearSounds(1);
-    LoadSaveData(localStorage.saveData);
-}
-
-function Export()
-{
-    const fileData = BuildSaveData();
-    a_downloadLink.download = "zzfx_sounds.txt";
-    a_downloadLink.href='data:application/octet-stream;charset=UTF-8,' + encodeURIComponent(fileData);
-    a_downloadLink.click();
-    PlaySelected();
-}
-
-function Import()
-{
-    input_importFile.onchange=e=>LoadFile(e.target.files[0]);
-    input_importFile.click();
-}
-
-function LoadFile(file)
-{
-    input_importFile.onchange=e=>0;
-    input_importFile.value='';
+        // save grab offset
+        const rect = e.target.getBoundingClientRect();
+        grabOffsetX = e.x - rect.left;
+        grabOffsetY = e.y - rect.top;
+    }
     
-    if (file.type != "text/plain")
-    {
-        alert('Error! File type mismatch.');
-        return;
-    }
+    // reset program folder position
+    programsFolder.style.left = 0;
+    programsFolder.style.top = taskbarHeight;
+    
+    // allow main document to take focus from iframe
+    return allowDefault;
+}
 
-    const reader = new FileReader();
-    reader.readAsText(file,'UTF-8');
-    reader.onload=readerEvent=>
+onmousemove =e=>
+{
+    if (grabWindow)
     {
-        const fileData = readerEvent.target.result;
-        LoadSaveData(fileData);
-        PlaySelected();
+        // update grab position
+        grabWindow.style.left = e.x - grabOffsetX;
+        grabWindow.style.top = e.y - grabOffsetY;
+        
+        // save info
+        grabWindow.program.SaveInfo();
+    }
+    
+    // unselect active program
+    activeProgram && (activeProgram.className = 'program');
+    
+    // handle mouse move
+    e.target.Move && e.target.Move();
+}
+
+onmouseup =e=>
+{
+    // allow pointer events and reset cursor
+    document.body.style.pointerEvents = 
+    document.body.style.cursor = '';
+    if (grabWindow)
+    {
+        grabWindow.nameWrapper.style.cursor = '';
+        
+        // release grab window
+        grabWindow && grabWindow.SetActive(1,0);
+        grabWindow = 0;
     }
 }
 
-///////////////////////////////////////////////////////////////////////////////
-// shortcuts
-
-onkeydown =e=>
+ondblclick =e=>
 {
-    if (e.ctrlKey || e.altKey)
-        return;
-
-    const selected = document.activeElement;
-    if (selected.tagName != 'INPUT' && selected.tagName != 'TEXTAREA')
-    {
-        if (e.keyCode == 32 && selected.tagName != 'BUTTON') // space
-            PlaySelected();
-        if (e.keyCode == 45) // ins
-            AddPresetSound();
-        if (e.keyCode == 46) // del
-            RemoveSelected();
-        if (e.keyCode == 70) // f
-            FavoriteSelected();
-        if (e.keyCode == 67) // c
-            CopySelected();
-        if (e.keyCode == 77) // m
-            CopySelected(1);
-    }
+    // go fullscreen if titlebar name or icon is double clicked
+    const originalTarget = e.originalTarget || e.path[0];
+    const target = e.target.window || e.target;
+    (originalTarget.id == 'name' || e.target.window) &&
+        target.FullScreen && target.FullScreen();
 }
 
-// click on canvas to play sound
-canvas_soundWave.onmousedown =e=> {loadedSound=0;LoadSelected(1);e.preventDefault();}
+// prevent default context menu
+oncontextmenu =e=> false
 
-// drag and drop exported files into the sound list
-select_soundList.addEventListener('dragover', e=>
-{
-    e.stopPropagation();
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'copy';
-    select_soundList.style.background = '#800';
-});
-select_soundList.addEventListener('dragleave', e=>
-{
-    select_soundList.style.background = '';
-});
-select_soundList.addEventListener('drop', e=>
-{
-    e.stopPropagation();
-    e.preventDefault();
-    LoadFile(e.dataTransfer.files[0]);
-    select_soundList.style.background = '';
-});
+} // mouse input
 
-Init();
+/////////////////////////////////////////////////////////////////////////////
+// Audio Setup
+
+// init web audio
+const audioContext = new (AudioContext || webkitAudioContext);
+const gain = audioContext.createGain();
+{
+    audioContext.Z = audioContext.createBufferSource;
+    audioContext.createBufferSource = (s = audioContext.Z())=>
+    (
+        s.start = s.start || s.noteOn,
+        s.stop  = s.stop  || s.noteOff,
+        s
+    );
+
+    // setup gain node
+    gain.connect(audioContext.destination);
+    gain.gain.value = defaultVolume;
+} // setup audio
+
+/////////////////////////////////////////////////////////////////////////////
+// ZzFXMicro - Zuper Zmall Zound Zynth 
+
+const zzfx =     // play a sound
+(
+    // parameters
+    volume=1, randomness=.05, frequency=220, attack=0, sustain=0, release=.1, shape=0, shapeCurve=1, slide=0, deltaSlide=0, pitchJump=0, pitchJumpTime=0, repeatTime=0, noise=0, modulation=0, bitCrush=0, delay=0, sustainVolume=1, decay=0
+) =>
+{
+    // locals
+    let PI2 = Math.PI*2,
+    sampleRate = 44100,
+    random = r => r*2*Math.random()-r,
+    sign = v => v>0?1:-1,
+    startSlide = slide *= 500 * PI2 / sampleRate**2,
+    startFrequency = frequency *= 
+        (1 + random(randomness)) * PI2 / sampleRate,
+    modPhase = sign(modulation) * PI2/4,
+    b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, d=.5,
+    length, buffer;
+    
+    // init parameters
+    attack = 99 + attack * sampleRate | 0;
+    decay = decay * sampleRate | 0;
+    sustain = sustain * sampleRate | 0;
+    release = release * sampleRate | 0;
+    delay = delay * sampleRate | 0;
+    length = attack + decay + sustain + release + delay;
+    deltaSlide *= 500 * PI2 / sampleRate**3;
+    modulation *= PI2 / sampleRate;
+    pitchJump *= PI2 / sampleRate;
+    pitchJumpTime = pitchJumpTime * sampleRate;
+    repeatTime = repeatTime * sampleRate;
+
+    // generate waveform
+    for(; i < length;b[i++] = s)
+    {
+        if (++c>bitCrush*100)                            // bit crush
+        {
+            c = 0;                                       // reset bit crush
+            s = t * frequency *                          // frequency
+                Math.sin(tm * modulation - modPhase);    // modulation
+
+            s = shape? shape>1? shape>2? shape>3?        // wave shape
+                Math.sin((s%PI2)**3) :                   // 4 noise
+                Math.max(Math.min(Math.tan(s),1),-1):    // 3 tan
+                1-(2*s/PI2%2+2)%2:                       // 2 saw
+                1-4*Math.abs(Math.round(s/PI2)-s/PI2):   // 1 triangle
+                Math.sin(s);                             // 0 sin
+            s = sign(s)*(Math.abs(s)**shapeCurve);       // curve 0=square, 2=pointy
+
+            s *= volume * (                              // envelope
+                i < attack ? i/attack :                  // attack
+                i < attack + decay ?                     // decay
+                1-((i-attack)/decay)*(1-sustainVolume) : // decay falloff
+                i < attack  + decay + sustain ?          // sustain
+                sustainVolume :                          // sustain volume
+                i < length - delay ?                     // release
+                (length - i + release)/release *         // release falloff
+                sustainVolume :                          // release volume
+                0)                                       // post release
+
+            s = delay ?                                  // delay
+                s/2 + (delay > i ? 0 :
+                (i<length-delay? 1 : (i-length)/delay) * // release delay 
+                b[i-delay]/2) : s;
+        }
+
+        t += 1 + random(noise);              // noise
+        tm += 1 + random(noise);             // modulation noise
+        frequency += slide += deltaSlide;    // frequency slide
+
+        if (j && ++j > pitchJumpTime)        // pitch jump
+        {
+            frequency += pitchJump;          // apply pitch jump
+            startFrequency += pitchJump;     // also apply to start
+            j = 0;                           // reset pitch jump time
+        }
+
+        if (repeatTime && ++r > repeatTime)  // repeat
+        {
+            frequency = startFrequency;      // reset frequency
+            slide = startSlide;              // reset slide
+            r = 1;                           // reset repeat time
+            j = j||1;                        // reset pitch jump time
+        }
+    }
+    
+    return OS13k.PlaySamples(b);
+} // zzfx
+
+/////////////////////////////////////////////////////////////////////////////////////
+// Mobile Support (optional)
+
+if('ontouchstart' in window){
+
+    // disable default touch actions
+    document.body.style.touchAction = 'none';
+    
+    // fix hover getting stuck on mobile
+    document.documentElement.classList.add('can-touch');
+    
+    // handle touch event
+    const ProcessTouch=e=>
+    {
+        // check if touching
+        const touching = e.touches.length;
+        
+        if (touching)
+        {
+            // focus on main window
+            window.focus();
+
+            // set event pos
+            e.x = e.touches[0].clientX;
+            e.y = e.touches[0].clientY;
+            
+            // pass event to mousemove
+            onmousemove(e);
+        }
+        
+        // handle mouse down if not clicking on folder icon
+        if (!e.target.folder && touching && !wasTouching)
+        {
+            // set was touching
+            wasTouching = 1;
+        
+            // check tray functions for touch
+            if (e.target == trayWords)  { trayWords.onmousedown();  return false; }
+            if (e.target == trayTrophy) { trayTrophy.onmousedown(); return false; }
+            if (e.target == trayTime)   { trayTime.onmousedown();   return false; }
+            if (e.target == trayVolume) { trayVolume.onmousedown(); return false; }
+
+            // handle mouse down if not clicking on a folder icon
+            onmousedown(e);
+        }
+        else if (!touching && wasTouching)
+        {
+            // set was touching
+            wasTouching = 0;
+            
+            // handle mouse up
+            onmouseup(e);
+        }
+        
+        // prevent default touch interaction
+        return false;
+    }
+
+    // track if touching
+    let wasTouching;
+
+    // set touch events
+    ontouchstart = ontouchmove = ontouchend = ontouchcancel = ProcessTouch;
+    
+} // touch events
+
+/////////////////////////////////////////////////////////////////////////////
+// Start OS13k!
+
+OS13kManager.Start();
 
 </script>
-</center>
-<a href="https://github.com/KilledByAPixel/ZzFX" target="_blank" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#5AF; color:#222; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>
-</body>
-</html>
