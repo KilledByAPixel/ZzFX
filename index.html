@@ -91,6 +91,8 @@ body                         { user-select:none; }
 <td style=text-align:center>
 <div id=div_masterVolume></div>
 <input id=slider_masterVolume title='Volume to scale all sounds by in percent' type=range min=0 max=100 value=30 style=width:300px oninput=UpdateSettings();SaveLocalStorage()>
+<div id=div_masterPanning></div>
+<input id=slider_masterPanning title='Stero panning from -1 to 1' type=range min=-1 max=1 value=0 step=.1 style=width:300px oninput=UpdateSettings();SaveLocalStorage()>
 </td></tr>
 <tr>
 <td colspan=2>
@@ -138,7 +140,7 @@ body                         { user-select:none; }
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?915></script>
+<script src=ZzFX.js?916></script>
 <script>
 
 'use strict'; // strict mode
@@ -146,6 +148,7 @@ let sounds = [];
 let generatedSoundCount = 0;
 let loadedSound;
 let lastPlayedSound;
+let stereoPanning = 0;
 
 const SeededRandom=_=>
 (
@@ -269,7 +272,7 @@ function PlaySelected()
     const sound = BuildSoundFromSettings();
     if (ZZFX.volume > 0)
     {
-        lastPlayedSound = ZZFX.Play(sound);
+        lastPlayedSound = ZZFX.Play(sound, stereoPanning);
         DrawSoundWave(ZZFX.samples, ZZFX.volume, sound);
     }
     else
@@ -305,6 +308,10 @@ function UpdateSettings()
     const v = slider_masterVolume.value;
     div_masterVolume.innerHTML = 'Master Volume ' + v + '%';
     ZZFX.volume = v / 100;
+    
+    const p = slider_masterPanning.value;
+    div_masterPanning.innerHTML = 'Stereo Panning ' + p;
+    stereoPanning = p;
     
     const sound = GetSelectedSound();
     if (sound)
@@ -780,6 +787,7 @@ function ClearSoundsButton(clearFavorites)
         if (!confirm('Are you sure you want clear all sounds?\nThis will DELETE your favorites!'))
             return;
         slider_masterVolume.value = 30;
+        slider_masterPanning.value = 0;
         input_shortenCode.checked = 1;
     }
     ClearSounds(clearFavorites);
@@ -1024,7 +1032,8 @@ function BuildSaveData()
     {
         sounds,
         generatedSoundCount,
-        volume:slider_masterVolume.value
+        volume:slider_masterVolume.value,
+        panning:slider_masterPanning.value
     }
     
     return JSON.stringify(data);
@@ -1041,6 +1050,8 @@ function LoadSaveData(dataJSON)
     const data = JSON.parse(dataJSON);
     if (data.volume)
         slider_masterVolume.value = data.volume;
+    if (data.panning)
+        slider_masterPanning.value = data.panning;
     if (data.generatedSoundCount)
         generatedSoundCount = data.generatedSoundCount;
     if (data.sounds)
