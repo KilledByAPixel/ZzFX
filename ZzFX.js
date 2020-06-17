@@ -163,7 +163,7 @@ BuildSamples
                 i < attack  + decay + sustain ?          // sustain
                 sustainVolume :                          // sustain volume
                 i < length - delay ?                     // release
-                (1 - (length - i + release)/release) *   // release falloff
+                (length - i - delay)/release *           // release falloff
                 sustainVolume :                          // release volume
                 0)                                       // post release
 
@@ -388,7 +388,7 @@ const zzfxP =     // play a sound
                 i < attack  + decay + sustain ?          // sustain
                 sustainVolume :                          // sustain volume
                 i < length - delay ?                     // release
-                (1 - (length - i + release)/release) *   // release falloff
+                (length - i + release)/release *         // release falloff
                 sustainVolume :                          // release volume
                 0)                                       // post release
 
