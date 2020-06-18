@@ -288,7 +288,7 @@ BuildSound
     return sound;
 }
 
-GetNote(rootNoteFrequency=440, semitoneOffset=0)
+GetNote(semitoneOffset=0, rootNoteFrequency=440)
 {
     // get frequency of a musical note on a diatonic scale
     return rootNoteFrequency * 2**(semitoneOffset/12);
