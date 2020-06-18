@@ -1033,8 +1033,7 @@ function BuildSaveData()
     {
         sounds,
         generatedSoundCount,
-        volume:slider_masterVolume.value,
-        panning:slider_masterPanning.value
+        volume:slider_masterVolume.value
     }
     
     return JSON.stringify(data);
@@ -1051,8 +1050,6 @@ function LoadSaveData(dataJSON)
     const data = JSON.parse(dataJSON);
     if (data.volume)
         slider_masterVolume.value = data.volume;
-    if (data.panning)
-        slider_masterPanning.value = data.panning;
     if (data.generatedSoundCount)
         generatedSoundCount = data.generatedSoundCount;
     if (data.sounds)
