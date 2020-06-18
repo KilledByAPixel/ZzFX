@@ -204,7 +204,7 @@ BuildSamples
 BuildRandomSound()
 {
     // generate a random sound
-    const R=()=>Math.random(), C=()=>R()<.5, S=()=>C()?1:-1;
+    const R=()=>Math.random(), C=()=>R()<.5?R():0, S=()=>C()?1:-1;
 
     // randomize sound length
     const attack  = R()**3;
@@ -214,26 +214,27 @@ BuildRandomSound()
     const length  = attack + decay + sustain + release;
 
     // create random sound
-    return this.BuildSound(
-        1,                    // volume
-        .05,                  // randomness
-        R()**2*2e3,           // frequency
-        attack,               // attack
-        sustain,              // sustain
-        release,              // release
-        R()*5|0,              // shape
-        R()**2*3,             // shapeCurve
-        C() * R()**3*99*S(),  // slide
-        C() * R()**3*99*S(),  // deltaSlide
-        C() * R()**2*1e3*S(), // pitchJump
-        R()**2 * length,      // pitchJumpTime
-        C() * R() * length,   // repeatTime
-        C() * R()**4,         // noise
-        C() * R()**3*9*S(),   // modulation
-        C() * R()**4,         // bitCrush
-        C() * R()**3/2,       // delay
-        1 - C() * R(),        // sustain volume
-        decay,                // decay
+    return this.BuildSound
+    (
+       1,                // volume
+       .05,              // randomness
+       R()**2*2e3,       // frequency
+       attack,           // attack
+       sustain,          // sustain
+       release,          // release
+       R()*5|0,          // shape
+       R()**2*3,         // shapeCurve
+       C()**3*99*S(),    // slide
+       C()**3*99*S(),    // deltaSlide
+       C()**2*1e3*S(),   // pitchJump
+       R()**2 * length,  // pitchJumpTime
+       C() * length,     // repeatTime
+       C()**4,           // noise
+       C()**3*9*S(),     // modulation
+       C()**4,           // bitCrush
+       C()**3/2,         // delay
+       1 - C(),          // sustain volume
+       decay             // decay
     );
 }
 
