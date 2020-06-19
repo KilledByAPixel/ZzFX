@@ -201,23 +201,23 @@ BuildSamples
     return b;
 }
 
-BuildRandomSound()
+BuildRandomSound(lengthScale=1, volume=1, randomness=.05)
 {
     // generate a random sound
     const R=()=>Math.random(), C=()=>R()<.5?R():0, S=()=>C()?1:-1;
 
     // randomize sound length
-    const attack  = R()**3;
-    const decay   = R()**3;
-    const sustain = R()**3;
-    const release = R()**3;
+    const attack  = R()**3/2*lengthScale;
+    const decay   = R()**3/2*lengthScale;
+    const sustain = R()**3/2*lengthScale;
+    const release = R()**3/2*lengthScale;
     const length  = attack + decay + sustain + release;
 
     // create random sound
     return this.BuildSound
     (
-       1,                // volume
-       .05,              // randomness
+       volume,           // volume
+       randomness,       // randomness
        R()**2*2e3,       // frequency
        attack,           // attack
        sustain,          // sustain
