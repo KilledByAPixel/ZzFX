@@ -1,0 +1,14 @@
+<body bgcolor=#223><script>
+OS13kReload=()=>
+{
+    // clear the document html
+    this.document.body.innerHTML = '';
+        
+    // create the word list html
+    for (w of parent.OS13k.Words())
+        this.document.body.innerHTML += `<div style='display:inline-block;font-family:arial;padding:9;overflow:hidden;text-align:center;font-size:18;background:linear-gradient(#eee,#888);box-shadow:5px 5px 9px;border:2px solid;border-radius:9px'onmousedown=parent.OS13k.Speak('${
+        w }',1,1,1,'en',1)>${
+        w }</div>`;
+}
+OS13kReload();
+</script>

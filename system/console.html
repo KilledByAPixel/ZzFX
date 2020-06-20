@@ -1,0 +1,165 @@
+<style>*{font-family:monospace;font-size:20;background:#000;color:#ccc}pre{display:inline}</style>
+<iframe id=f style=display:none></iframe>JS> Options:
+<input id=o type=checkbox onclick=localStorage.OS13kCo=o.checked> Objects
+<input id=c type=checkbox onclick=localStorage.OS13kCc=c.checked> Clear
+<span id=G><input id=z type=checkbox onclick=X=0> Glitch</span>
+<input id=i style=background:#222;color:#fff;width:100% autocomplete=off>
+<div id=w><br>Enter JS code. Try not to freeze the browser! 😅
+<script>
+
+// allow console to run in standalone mode
+parent.OS13k = parent.OS13k ||
+{
+    GetTrophy:()=>1,
+    Speak:()=>1,
+    KillHTML:(string)=>(string+'').replace(/</g,'&lt;')
+}
+
+// add unicode glitches to a string
+// based on dweet by f8f82804 www.dwitter.net/d/11808
+Z=(s,c)=>{for(c;c-->0;)s=s.slice(0,r=Math.random()*(s+='').length+1)+String.fromCharCode(768+99*Math.random())+s.slice(r);return OS13k.KillHTML(s)}
+
+// focus on input
+onfocus=()=>i.focus()
+
+// set up OS13k
+W=f.contentWindow
+W.OS13k=OS13k=parent.OS13k
+
+// set saved config
+c.checked=localStorage.OS13kCc!='false'
+o.checked=localStorage.OS13kCo!='false'
+
+// create memory
+M=[]
+m=0
+
+// hide glitch checkbox if not unlocked
+t=OS13k.GetTrophy('OS13k','Frozen')||(G.style.display='none')
+
+// error check
+E=E=>(
+
+    // save error to e
+    e=E,
+
+    // set that code is BAD
+    C=0,
+
+    // check with iframe if it thinks its an error
+    W.eval('parent.e instanceof Error')
+
+    // this way usually works if cross frame communication fails
+    //e&&e.stack&&e.message&&typeof e.stack==='string'&&typeof e.message==='string'
+
+    ) // end error check
+
+// listen for key down
+i.onkeydown=K=>{
+
+    // check if up/down was pressed
+    K=K.keyCode
+    C=K==38&&M.length&&(i.value=M[m<M.length-1?m++:m])  // up
+    C=K==40&&m&&(i.value=M[--m])                        // down
+    I=i.value
+    
+    // check if enter was pressed and eval code
+    if (C=K==13){
+
+        // save to memory
+        I&&M[m=0]!=I&&M.unshift(I);
+
+        // try to eval code in parens first, fixes {1:2}
+        // save input to check frozen on restart
+        try{R=W.eval(`(${localStorage.OS13kFrozen=I})`)}
+
+        // check if code was invalid
+        catch(e){
+
+            // check if it was an error
+            if(E(e))
+            {
+                // set that code is OK again (for now)
+                C=1
+
+                // try to eval code without parens
+                try{R=W.eval(I)}
+
+                // check if code was invalid
+                catch(f){
+                
+                    // save error message
+                    R=E(e=E(f)?e:f)?e.message:e}
+            }
+        }
+
+        // save that code did not freeze
+        delete localStorage.OS13kFrozen
+
+        // build object info if object
+        O=''
+        if(typeof R=='object'){
+        
+            // loop through keys in object
+            for(k in R)
+
+                // show key info
+                O+=`  ${k}: ${
+            
+                // get key and wrap with quotes if string
+                typeof (v=R[k])=='string'?`"${v}"`:v
+
+                // add new line after each key
+                }\n`
+                
+            // wrap object in {}
+            O=`{\n${O}}`
+        }
+
+        // add quotes around strings
+        C&&(typeof R=='string')?R=`"${R}"`:0,
+
+        // build formatted output and add above w
+        w.innerHTML=
+
+            // create pre tag for output
+            `<br><pre style=white-space:pre-wrap>JS> ${
+
+                // show input
+                I
+
+            // create pre tag for result with red color if error
+            }</pre><br><pre ${C?'':'style=color:#f00'}>${
+
+                // show result
+                Z(R,Math.min(1e3,z.checked?C?9+X:9*++X:0))
+
+            // create colored pre tag for object info
+            }</pre><br><pre style=color:#0cc>${
+
+                // show object info
+                O
+
+            // end of object info
+            }</pre><br>`
+
+            // add current html on bottom
+            +w.innerHTML
+
+        // clear input if checked
+        c.checked?i.value='':0
+
+    }// end of enter pressed
+}// end of key down
+
+/* Throw Sierpinski dweet by lifthrasiir - https://www.dwitter.net/d/19116
+
+s=' ';z=['▲'];eval("z=z.map(x=>s+x+s).concat(z.map(x=>x+' '+x));s+=s;".repeat(3));throw `\n`+z.join`\n`
+
+   ▲   
+  ▲ ▲  
+ ▲   ▲ 
+▲ ▲ ▲ ▲
+*/
+
+</script>
