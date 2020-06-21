@@ -323,7 +323,7 @@ CreateAudioContext()
 } // class _ZZFX
 
 const ZZFX = new _ZZFX;
-function zzfxP() { return ZZFX.Play(...arguments) }
+function zzfx() { return ZZFX.Play(...arguments) }
 
 ///////////////////////////////////////////////////////////////////////////////
 
