@@ -121,21 +121,20 @@ BuildSamples
 )
 {
     // init parameters
-    const PI2 = Math.PI*2;
-    const sampleRate = this.sampleRate;
-    const random = r => r*2*Math.random()-r;
-    const sign = v => v>0?1:-1;
-    const startSlide = slide *= 500 * PI2 / sampleRate**2;
-    const modPhase = sign(modulation) * PI2/4
-    let startFrequency = frequency *= 
-        (1 + random(randomness)) * PI2 / sampleRate;
+    let PI2 = Math.PI*2,
+    sampleRate = this.sampleRate,
+    random =r=> 1 + r*2*Math.random() - r,
+    sign = v => v>0?1:-1,
+    startSlide = slide *= 500 * PI2 / sampleRate**2,
+    modPhase = sign(modulation) * PI2/4,
+    startFrequency = frequency *= random(randomness) * PI2 / sampleRate;
         
     // scale by sample rate
-    attack = 99 + attack * sampleRate | 0;
-    decay = decay * sampleRate | 0;
-    sustain = sustain * sampleRate | 0;
-    release = release * sampleRate | 0;
-    delay = delay * sampleRate | 0;
+    attack = 99 + attack * sampleRate;
+    decay = decay * sampleRate;
+    sustain = sustain * sampleRate;
+    release = release * sampleRate;
+    delay = delay * sampleRate;
     deltaSlide *= 500 * PI2 / sampleRate**3;
     modulation *= PI2 / sampleRate;
     pitchJump *= PI2 / sampleRate;
@@ -144,8 +143,8 @@ BuildSamples
     const length = attack + decay + sustain + release + delay;
 
     // generate waveform
-    let b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, d=.5;
-    for(; i < length;b[i++] = s)
+    let b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0;
+    for(; i < length; b[i++] = s)
     {
         if (++c>bitCrush*100)                            // bit crush
         {
@@ -170,16 +169,16 @@ BuildSamples
                 i < length - delay ?                     // release
                 (length - i - delay)/release *           // release falloff
                 sustainVolume :                          // release volume
-                0)                                       // post release
+                0);                                      // post release
 
             s = delay ?                                  // delay
                 s/2 + (delay > i ? 0 :
                 (i<length-delay? 1 : (i-length)/delay) * // release delay 
-                b[i-delay]/2) : s;
+                b[i-delay|0]/2) : s;                       // sample delay
         }
 
-        t += 1 + random(noise);                      // noise
-        tm += 1 + random(noise);                     // modulation noise
+        t += random(noise);                          // noise
+        tm += random(noise);                         // modulation noise
         frequency += slide += deltaSlide;            // frequency slide
 
         if (j && ++j > pitchJumpTime)                // pitch jump
@@ -204,14 +203,14 @@ BuildSamples
 BuildRandomSound(lengthScale=1, volume=1, randomness=.05)
 {
     // generate a random sound
-    const R=()=>Math.random(), C=()=>R()<.5?R():0, S=()=>C()?1:-1;
+    const R=()=>Math.random(), C=()=>R()<.5?R():0, S=()=>C()?1:-1,
 
     // randomize sound length
-    const attack  = R()**3/2*lengthScale;
-    const decay   = R()**3/2*lengthScale;
-    const sustain = R()**3/2*lengthScale;
-    const release = R()**3/2*lengthScale;
-    const length  = attack + decay + sustain + release;
+    attack  = R()**3/2*lengthScale,
+    decay   = R()**3/2*lengthScale,
+    sustain = R()**3/2*lengthScale,
+    release = R()**3/2*lengthScale,
+    length  = attack + decay + sustain + release;
 
     // create random sound
     return this.BuildSound
@@ -324,7 +323,7 @@ CreateAudioContext()
 } // class _ZZFX
 
 const ZZFX = new _ZZFX;
-function zzfx() { return ZZFX.Play(...arguments) }
+function zzfxP() { return ZZFX.Play(...arguments) }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -338,47 +337,42 @@ function zzfx() { return ZZFX.Play(...arguments) }
 // ==/ClosureCompiler==
 
 let zzfxV = .3;   // volume
-const zzfxP =     // play a sound
+const zzfxP =      // play a sound
 (
     // parameters
-    volume = 1, randomness = .05, frequency = 220, attackIn = 0, sustainIn = 0, releaseIn = .1, shape = 0, shapeCurve = 1, slide = 0, deltaSlideIn = 0, pitchJumpIn = 0, pitchJumpTimeIn = 0, repeatTimeIn = 0, noise = 0, modulationIn = 0, bitCrush = 0, delayIn = 0, sustainVolume = 1, decayIn = 0,
-    
-    // init parameters
-    PI2 = Math.PI*2,
-    sampleRate = 44100,
-    random = r => r*2*Math.random()-r,
-    sign = v => v>0?1:-1,
-    startSlide = slide *= 500 * PI2 / sampleRate**2,
-    modPhase = sign(modulationIn) * PI2/4,
-    startFrequency = frequency *= (1 + random(randomness)) * PI2 / sampleRate,
-    attack = 99 + attackIn * sampleRate | 0,
-    decay = decayIn * sampleRate | 0,
-    sustain = sustainIn * sampleRate | 0,
-    release = releaseIn * sampleRate | 0,
-    delay = delayIn * sampleRate | 0,
-    deltaSlide = deltaSlideIn * 500 * PI2 / sampleRate**3,
-    modulation = modulationIn * PI2 / sampleRate,
-    pitchJump = pitchJumpIn * PI2 / sampleRate,
-    pitchJumpTime = pitchJumpTimeIn * sampleRate,
-    repeatTime = repeatTimeIn * sampleRate,
-    length = attack + decay + sustain + release + delay,
-    b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, d=.5,
-    source = zzfxX.createBufferSource(),
-    buffer = zzfxX.createBuffer(1, length, sampleRate)
+    volume = 1, randomness = .05, frequency = 220, attack = 0, sustain = 0, release = .1, shape = 0, shapeCurve = 1, slide = 0, deltaSlide = 0, pitchJump = 0, pitchJumpTime = 0, repeatTime = 0, noise = 0, modulation = 0, bitCrush = 0, delay = 0, sustainVolume = 1, decay = 0, sampleRate = 44100, b = [],
+    source = zzfxX.createBufferSource()
 )=>
 {
-    // generate waveform
-    for(; i < length;b[i++] = s)
+    attack = 99 + attack * sampleRate;
+    sustain *= sampleRate;
+    release *= sampleRate;
+    decay *= sampleRate;
+    delay *= sampleRate;
+    
+    for(
+        // init parameters and helper functions
+        let PI2 = Math.PI*2,
+        random =r=> 1 + r*2*Math.random() - r,
+        sign =v=> v>0? 1 : -1,
+        length = attack + decay + sustain + release + delay,
+        startSlide = slide *= 500 * PI2 / sampleRate**2,
+        startFrequency = frequency *= random(randomness) * PI2 / sampleRate,
+        modPhase = sign(modulation) * PI2/4,
+        t=0, tm=0, i=0, j=1, r=0, c=0, s=0;
+    
+        // loop and generate waveform
+        i < length; b[i++] = s)
     {
         if (++c>bitCrush*100)                            // bit crush
         {
             c = 0;                                       // reset bit crush
             s = t * frequency *                          // frequency
-                Math.sin(tm * modulation - modPhase);    // modulation
+                Math.sin(tm * modulation * PI2 / sampleRate - modPhase); // modulation
 
             s = shape? shape>1? shape>2? shape>3?        // wave shape
                 Math.sin((s%PI2)**3) :                   // 4 noise
-                Math.max(Math.min(Math.tan(s),1),-1):    // 3 tan
+                Math.max(Math.min(Math.tan(s), 1), -1):  // 3 tan
                 1-(2*s/PI2%2+2)%2:                       // 2 saw
                 1-4*Math.abs(Math.round(s/PI2)-s/PI2):   // 1 triangle
                 Math.sin(s);                             // 0 sin
@@ -388,31 +382,34 @@ const zzfxP =     // play a sound
                 i < attack ? i/attack :                  // attack
                 i < attack + decay ?                     // decay
                 1-((i-attack)/decay)*(1-sustainVolume) : // decay falloff
-                i < attack  + decay + sustain ?          // sustain
+                i < attack + decay + sustain ?           // sustain
                 sustainVolume :                          // sustain volume
                 i < length - delay ?                     // release
                 (length - i - delay)/release *           // release falloff
                 sustainVolume :                          // release volume
-                0)                                       // post release
+                0);                                      // post release
 
             s = delay ?                                  // delay
                 s/2 + (delay > i ? 0 :
                 (i<length-delay? 1 : (i-length)/delay) * // release delay 
-                b[i-delay]/2) : s;
+                b[i - delay|0]/2) : s;                     // sample delay
         }
 
-        t += 1 + random(noise);                      // noise
-        tm += 1 + random(noise);                     // modulation noise
-        frequency += slide += deltaSlide;            // frequency slide
+        t += random(noise);                          // noise
+        tm += random(noise);                         // modulation noise
+        frequency += slide += deltaSlide             // frequency slide
+            * 500 * PI2 / sampleRate**3;             // apply sample rate
 
-        if (j && ++j > pitchJumpTime)                // pitch jump
+        if (j && ++j > pitchJumpTime * sampleRate)   // pitch jump
         {
-            frequency += pitchJump;                  // apply pitch jump
-            startFrequency += pitchJump;             // also apply to start
+            frequency += pitchJump                   // apply pitch jump
+                * PI2 / sampleRate;                  // apply sample rate
+            startFrequency += pitchJump              // also apply to start
+                * PI2 / sampleRate;                  // apply sample rate
             j = 0;                                   // reset pitch jump time
         }
 
-        if (repeatTime && ++r > repeatTime)           // repeat
+        if (repeatTime && ++r > repeatTime* sampleRate) // repeat
         {
             frequency = startFrequency;               // reset frequency
             slide = startSlide;                       // reset slide
@@ -421,13 +418,17 @@ const zzfxP =     // play a sound
         }
     }
 
-    buffer.getChannelData(0).set(b);
-    source.buffer = buffer;
+    // create buffer and set source
+    (source.buffer = zzfxX.createBuffer(1, attack + decay + sustain + release + delay,
+        sampleRate))
+        .getChannelData(0).set(b);
+        
+    // fix compatibility issues with old web audio (optional)
+    //source.start = source.start || source.noteOn;
+    //source.stop  = source.stop  || source.noteOff;
+    
     source.connect(zzfxX.destination);
     source.start();
+    return source;
 }
 const zzfxX = new AudioContext;
-
-// fix compatibility issues with old web audio (optional)
-// if this is used, you must remove the zzfxX=new AudioContext line above!
-//const zzfxX=new(AudioContext||webkitAudioContext);zzfxX.z=zzfxX.createBufferSource;zzfxX.createBufferSource=(s=zzfxX.z())=>(s.start=s.start||s.noteOn,s.stop=s.stop||s.noteOff,s)
