@@ -1,6 +1,6 @@
 # ZzFX - Zuper Zmall Zound Zynth
 
-# [ZzFX Sound Designer](https://zzfx.3d2k.com)
+# [ZzFX Sound Designer](https://killedbyapixel.github.io/ZzFX)
 # [ZzFX Sound Board Demo](https://codepen.io/KilledByAPixel/full/BaowKzv)
 
 ### ZzFX is a JavaScript sound effect engine and creation tool supported by most modern broswers.
