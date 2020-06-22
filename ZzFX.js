@@ -206,10 +206,10 @@ BuildRandomSound(lengthScale=1, volume=1, randomness=.05)
     const R=()=>Math.random(), C=()=>R()<.5?R():0, S=()=>C()?1:-1,
 
     // randomize sound length
-    attack  = R()**3/2*lengthScale,
-    decay   = R()**3/2*lengthScale,
-    sustain = R()**3/2*lengthScale,
-    release = R()**3/2*lengthScale,
+    attack  = R()**3/4*lengthScale,
+    decay   = R()**3/4*lengthScale,
+    sustain = R()**3/4*lengthScale,
+    release = R()**3/4*lengthScale,
     length  = attack + decay + sustain + release;
 
     // create random sound
@@ -392,7 +392,7 @@ const zzfxP =      // play a sound
             s = delay ?                                  // delay
                 s/2 + (delay > i ? 0 :
                 (i<length-delay? 1 : (i-length)/delay) * // release delay 
-                b[i - delay|0]/2) : s;                     // sample delay
+                b[i - delay|0]/2) : s;                   // sample delay
         }
 
         t += random(noise);                          // noise
