@@ -1,0 +1,22 @@
+<body bgcolor=#232><script>
+OS13kReload=()=>
+{
+    // clear the document html
+    this.document.body.innerHTML = '';
+    
+    // create the trophy list html
+    for (t of parent.OS13k.Trophies())
+        this.document.body.innerHTML += `<div style='display:inline-block;font-family:arial;padding:9;overflow:hidden;text-align:center;background:linear-gradient(#eee,#888);width:120;height:120;margin:9;font-size:18;box-shadow:5px 5px 9px;border:2px solid;border-radius:29px'title='${
+            i = t[2] || '🏆' } ${ // get icon
+            n = t[1] }\n${        // get name
+            g = t[0] }\n${        // get game
+            m = t[3]              // get message
+            }'onmousedown='parent.OS13k.Speak(\`${ // speak name
+            n }\`,1,1,1,"ja",1)'><div style='padding:3;white-space:nowrap;font-size:28;text-shadow:2px 2px 4px'>${
+            i }</div><div><b>${                     // icon
+            n }</b><br><i>${                        // name
+            g }</i><br><div style=font-size:14>${   // game
+            m }</div></div></div>`;                 // message
+}
+OS13kReload();
+</script>

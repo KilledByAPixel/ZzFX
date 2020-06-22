@@ -1,0 +1,63 @@
+<style>body{background:#111;color:#fff;user-select:none;text-align:center}</style>
+Seed <input id=S value=0>
+<button onclick=p(S.value)>Play</button>
+<button onclick=p(S.value,s())>Save</button>
+<button onclick=u(S.value=Math.random()*1e5)>Randomize</button>
+<button onclick=u(d())>Default</button>
+<button onclick='confirm`Clear All?`&&u(b(d(S.value=0),a=[]))'>Clear</button>
+<br><br>Length <input id=L type=range onchange=u()>
+Volume <input id=V type=range onchange=u() value=100>
+<hr>Saved Seeds
+<div id=A>
+<script>
+
+// set defaults
+d=()=>
+{
+L.value=20;
+V.value=100;
+}
+d()
+
+// update values
+u=()=>
+{
+    // get values
+    i = parseInt(S.value);    // seed
+    l = L.value / 20 +   '';   // length
+    v = V.value / 100 + '';   // volume
+    
+    // set seed
+    l!=1 | v!=1  && (i += ',' + l);
+    v!=1 && (i += ',' + v);
+    
+    // play and set seed
+    p(S.value = i);
+}
+
+// play a seed sound and save
+p=s=>{x && x.stop(); x = parent.OS13k.PlaySeed(s)}
+
+// save the seed
+s=()=> b(S.value, a.push(S.value));
+
+// remove from list
+m=i=> b(p(a[i]), a.splice(i, 1));
+
+// refresh list
+b=()=>
+{
+    localStorage.OS13kS = JSON.stringify(a);
+    A.innerHTML = '';
+    for(i in a)
+        A.prepend(v = document.createElement('div')),
+        v.innerHTML = `<button onclick=m(${i})>❌</button> &nbsp;<input style=display:inline-block onclick=p("${a[i]}") value=${a[i]} readonly>`;
+}
+
+// load saved sounds
+b(a = localStorage.OS13kS ? JSON.parse(localStorage.OS13kS) : []);
+
+// save last played sound
+x = 0;
+
+</script>

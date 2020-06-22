@@ -1,0 +1,66 @@
+<style>body{background:#222;color:#fff;user-select:none;text-align:center}</style>
+<div id=B></div>
+Volume <input type=range style=width:90 id=V value=100>
+Noise <input type=range style=width:90 id=N value=0>
+Shape <input type=range style=width:90 id=H value=50>
+<div><script>
+
+O=parent.OS13k
+
+
+n=  // seed
+t=0 // type of instruement
+
+
+// set up buttons
+b=e=>
+{
+    u = ['Organ', 'Piccolo','Fifth','Seed'];
+
+    B.innerHTML = ''
+    for(i in u)
+        B.innerHTML += `<button style='border:5px solid #${t-i? "222" : "f00"}' onclick=b(t=${i})>${u[i]}</button> `
+   
+    B.innerHTML += `Seed <input id=S oninput=t=3 value=${localStorage.OS13kP ? localStorage.OS13kP : 0} onchange=b(t=3,localStorage.OS13kP=event.target.value)>`
+
+    H.disabled = N.disabled = V.disabled = t==3;
+}
+b();
+
+// play a note
+p=i=>
+{
+    n = O.Note(i, 32.7032);     // low C
+
+    f =                         // frequency multiples
+    [
+        [0,2,4,8],              // organ
+        [1,3,5,7],              // piccolo
+        [0,O.Note(4,1)]         // fifth
+    ][t];                       // get instrument
+    
+    t-3 ?                       // instrument type
+        f.map(f=>zzfx
+        (
+            V.value/(1+Math.log2(f))/100, // scale volume
+            0,                      // no randomness
+            f*n,                    // frequency
+            0,                      // attack
+            .5,                     // sustain
+            .05,                    // release
+            0,                      // shape
+            H.value/50,             // shape curve
+            0,0,0,0,0,N.value/100   // noise
+            
+        )) :
+        [O.PlaySeed(S.value, 1, 1, 0, n)];
+}
+
+// create the keys
+for(i=0;i<72;)
+document.body.innerHTML +=`<div onmousedown=p(${i}) onmouseover=event.buttons&&p(${i}) style="display:inline-block;border:1px solid #000;background-color:#${
+    [1,3,6,8,10].includes(i%12) ?                                   // b or w
+    '000;position:absolute;margin-left:-9;width:17;height:70' :   // black
+    'fff;width:31;height:129'}"></div>${++i%24? '' : '<br>'}`       // white
+
+</script>

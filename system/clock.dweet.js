@@ -1,0 +1,1 @@
+D=new Date+"";if(c.title!=D){c.title=D;c.style.background="#111";c.width=200;x.translate(99,99);L=((t,e,l,o=-6)=>x.rotate(a=Math.PI*(1-2*t),x.fillRect(-e/2,o,e,l,x.rotate(-a))));D=D.slice(16,24).split`:`;for(i=61;--i;L(i/60,2,i%5?3:8,88))x.fillStyle="#fff";L(D[0]%12/12+D[1]/720,6,59);L(D[1]/60,3,85);x.fillStyle=R(255);L(D[2]/60,2,99)}

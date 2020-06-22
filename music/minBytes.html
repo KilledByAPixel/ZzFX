@@ -1,0 +1,109 @@
+<body style=background:#000;margin:0;overflow:hidden><canvas id=a><script>
+
+// MinBytes - A Minimal Bytebeat Album in 1k
+// Frank Force 2019
+    
+// main loop
+G=()=>
+{
+    requestAnimationFrame(G);
+    
+    // update song
+    A=(
+       f, // audio function
+       r, // sample rate
+       e, // star speed
+       n  // name
+       )=>
+    {
+        // draw actor
+        c.font = h+'px"';
+        c.fillStyle=`hsl(${t/5},99%,${++i-C&&i?95:50}%)`
+        c.fillText(i?i+'. '+n:F&&((t/1e3|0)%8<4)?F:n,x,y+h/3);
+        
+        // hitbox debug
+        //c.strokeRect(x-99,y-h/2,198,h,c.strokeStyle ="#F00");
+
+        // check if clicked on song
+        if ((Math.abs(M.x - x) < 99 && Math.abs(M.y - y) < h/2 || i == N))
+        {
+            S&&S.stop(); // stop last song
+
+            // init song
+            F=f;  // function
+            E=e;  // star speed
+            N=-1; // wait for song to end
+
+            if (C=i)
+            {
+                // fill buffer with music
+                s=[]
+                for(k=0;k<r*100;++k)
+                    s[k] = (e=f(k)*2-1, e>1?1:e)/8;
+                u=Date.now();
+                try{S=OS13k.PlaySamples(s, R=r);} catch(e) {}
+            }
+        }
+        y+=h; // next line
+    }
+    
+    // black background
+    c.fillStyle='#0008';
+    c.fillRect(0,0,a.width= innerWidth,a.height= innerHeight);              
+    //c.strokeStyle="#F00";c.strokeRect(a.width/2-1280/2,0,1280,720);  // debug 720p
+    
+    c.textAlign='center'; // center text
+    
+    // stars effect
+    for(i=1e3; document.hasFocus() && i--;)
+    {
+        c.fillStyle=`hsl(${i*20},99%,85%)`;
+        c.fillRect((Math.sin(i)*1e9-T*i)%a.width*2-9,i*9%a.height,j=i%4+2,j);
+    }
+        
+    // visualizer
+    for(i=32;F&&1e5>t&&i--;)
+    {
+        for(j=R/10;j--;)
+            q+=(F(t*R/1e3+j)&1<<i)>>i
+        q/=R/9;
+
+        c.fillStyle=`hsl(${i*20},99%,50%,.1)`;
+        c.fillRect(a.width/2-i*q*a.height/40,0,i*q*a.height/20,a.height);
+    }
+    
+    // advance to next song and update stars
+    t=Date.now()-u;
+    F&&t>1e5+2e3?C=N=C-9?C+1:0:T+=E/5e3;
+    
+    // track select menu
+    x=a.width/2;
+    y=h=59;
+    i=-1;
+    A(0,                  0,  .5, '𝓜𝓲𝓷𝓑𝔂𝓽𝓮𝓼');
+    h=40;
+    A(t=>t&t>>8,          1e5, 2, 'TAKEOFF');
+    A(t=>t&t>>11,         1e4, 1, 'BINARY');
+    A(t=>t&t>>4&t<<4,     1e4, 4, 'DENSITY');
+    A(t=>t&t>>9&(9*t),    5e4, 1, 'TWINKLE');
+    A(t=>t&t<<t/4>>9,     5e3, 3, 'RUMBLE');
+    A(t=>t&t>>6&t>>9,     1e5, 3, 'SIDEREAL');
+    A(t=>t&t>>5&t*131,    3e3, 9, 'ZODIAC');
+    A(t=>t&(t<<8^t>>5),   1e5, 99,'FTL');
+    
+    // reset mouse and visualizer
+    M.x=q=0;
+}
+
+// input
+onclick=({x,y})=>M={x,y};
+
+// stop the music
+onunload=_=>S&&S.stop();
+
+// init
+c=a.getContext`2d`;
+M={x:0};
+G(S=C=N=F=T=E=t=u=0);
+
+</script>
