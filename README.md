@@ -35,14 +35,14 @@ zzfx=    // play sound
 
 ## ZzFX Features
 
-- Tiny synth engine with 17 controllable parameters.
+- Tiny synth engine with 19 controllable parameters.
 - Play sounds via code, no need for sound asset files!
 - Compatible with nearly all web browsers.
 - Small code footprint, the micro version is under 1 kilobyte.
 - Can produce a massive variety of sound effect types.
 - Sounds can be played with a short call. zzfx(...[,,,,.1,,,,9])
-- Use ZZFX.GetNote to get frequencies on a standard diatonic scale.
 - Supports saving sounds as wav files for offline playback.
+- Use ZZFX.GetNote to get frequencies on a musical scale.
 - Both ZzFX and ZzFXMicro run in strict mode.
 - No additional libraries or dependencies are required.
 - Open source with MIT license, you can use this for anything!
@@ -84,10 +84,5 @@ zzfx=    // play sound
 - [Noegnud](https://js13kgames.com/entries/noegnud)
 - [Sausage Redemption](https://gogoprog.itch.io/sausage-redemption)
 - [Marshmallow Sky](https://github.com/baturinsky/marshmallow-sky) 
-
-## [ZzFX Community Soundboard](https://codepen.io/KilledByAPixel/full/dyYVwGP)
-
-- Just for fun I created a soundboard where everyone can have one sound.
-- Send me a zzfx code and emoji to get your sound added!
 
 ![ZzFX Image](/favicon.png) 
