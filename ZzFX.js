@@ -341,7 +341,7 @@ const zzfxP =      // play a sound
 (
     // parameters
     volume = 1, randomness = .05, frequency = 220, attack = 0, sustain = 0, release = .1, shape = 0, shapeCurve = 1, slide = 0, deltaSlide = 0, pitchJump = 0, pitchJumpTime = 0, repeatTime = 0, noise = 0, modulation = 0, bitCrush = 0, delay = 0, sustainVolume = 1, decay = 0, sampleRate = 44100, b = [],
-    source = zzfxX.createBufferSource()
+    source = zzfxX.createBufferSource(), buffer
 )=>
 {
     attack = 99 + attack * sampleRate;
@@ -419,14 +419,8 @@ const zzfxP =      // play a sound
     }
 
     // create buffer and set source
-    (source.buffer = zzfxX.createBuffer(1, attack + decay + sustain + release + delay,
-        sampleRate))
-        .getChannelData(0).set(b);
-        
-    // fix compatibility issues with old web audio (optional)
-    //source.start = source.start || source.noteOn;
-    //source.stop  = source.stop  || source.noteOff;
-    
+    (buffer = zzfxX.createBuffer(1, attack + decay + sustain + release + delay, sampleRate)).getChannelData(0).set(b);
+    source.buffer = buffer;
     source.connect(zzfxX.destination);
     source.start();
     return source;
