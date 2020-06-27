@@ -1,6 +1,7 @@
 # ZzFX - Zuper Zmall Zound Zynth
 
 # [ZzFX Sound Designer](https://killedbyapixel.github.io/ZzFX)
+# [ZzFX Music](https://github.com/keithclark/ZzFXM)
 # [ZzFX Sound Board Demo](https://codepen.io/KilledByAPixel/full/BaowKzv)
 
 ### ZzFX is a JavaScript sound effect engine and creation tool supported by most modern broswers.
@@ -46,6 +47,11 @@ zzfx=    // play sound
 - Both ZzFX and ZzFXMicro run in strict mode.
 - No additional libraries or dependencies are required.
 - Open source with MIT license, you can use this for anything!
+
+## ZzFX Music
+
+- [ZzFX now supports music with ZzFXM by Keith Clark!](https://github.com/keithclark/ZzFXM/)
+- Both the songs and player are super tiny. 
 
 ## ZzFX UI Features
 
