@@ -307,8 +307,8 @@ CreateAudioContext()
     audioContext.createBufferSource =
     (s = audioContext._createBufferSource())=>
     (
-        s.start = s.start || s.noteOn,
-        s.stop  = s.stop  || s.noteOff,
+        s.start = s.start || (t => audioContext.noteOn (t)),
+        s.stop  = s.stop  || (t => audioContext.noteOff(t)),
         s
     );
 
