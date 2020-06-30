@@ -88,32 +88,25 @@ body                         { user-select:none; }
 <i>Zuper Zmall Zound Zynth</i>
 </div>
 </td>
-<td style=text-align:center rowspan=2>
+<td style=text-align:center;width:350px rowspan=2>
 <div id=div_masterVolume></div>
-<input id=slider_masterVolume title='Volume to scale all sounds by in percent' type=range min=0 max=100 value=30 style=width:300px oninput=UpdateSettings();SaveLocalStorage()>
-<div id=div_masterPanning></div>
-<input id=slider_masterPanning title='Stero panning from -1 to 1' type=range min=-1 max=1 value=0 step=.1 style=width:300px oninput=UpdateSettings();SaveLocalStorage()>
-<br>
-<canvas title='Image of sound wave, click to play the sound [SPACE]' id=canvas_soundWave width=350 height=80></canvas>
-<br>
+<input id=slider_masterVolume title='Volume to scale all sounds by in percent' type=range min=0 max=100 value=30 style=width:90% oninput=UpdateSettings();SaveLocalStorage()>
+<canvas title='Image of sound wave, click to play the sound [SPACE]' id=canvas_soundWave width=350 height=80 style=width:100%></canvas>
 <button class=large title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button>
 <button class=large title='Make a new sound with mutated parameters [M]' onclick=CopySelected(1)>Mutate</button>
 <button class=large title='Make copy of selected sound [C]' onclick=CopySelected()>Copy</button>
-<br>
 <button class=large title='Generate random pickup sound' onclick="AddPresetSound('Pickup')">Pickup</button>
 <button class=large title='Generate random powerup sound' onclick="AddPresetSound('Powerup')">Powerup</button>
 <button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button>
-<br>
 <button class=large title='Generate random jump sound' onclick="AddPresetSound('Jump')">Jump</button>
 <button class=large title='Generate random blip sound' onclick="AddPresetSound('Blip')">Blip</button>
 <button class=large title='Generate random hit sound' onclick="AddPresetSound('Hit')">Hit</button>
 <button class=large title='Generate random explosion sound' onclick="AddPresetSound('Explosion')">Explosion</button>
-<br>
 <button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button>
 <button class=large title='Generate default sound' onclick="SelectedToTop()">Top</button>
 <button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
 <br>
-<select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2 style=margin:5px></select>
+<select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2 style=margin:5px;width:100%></select>
 </td></tr>
 <tr>
 <td colspan=2>
@@ -141,7 +134,7 @@ body                         { user-select:none; }
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?922></script>
+<script src=ZzFX.js?923></script>
 <script>
 
 'use strict'; // strict mode
@@ -149,7 +142,6 @@ let sounds = [];
 let generatedSoundCount = 0;
 let loadedSound;
 let lastPlayedSound;
-let stereoPanning = 0;
 
 const SeededRandom=_=>
 (
@@ -273,7 +265,7 @@ function PlaySelected()
     const sound = BuildSoundFromSettings();
     if (ZZFX.volume > 0)
     {
-        lastPlayedSound = ZZFX.Play(sound, stereoPanning);
+        lastPlayedSound = ZZFX.Play(sound);
         DrawSoundWave(ZZFX.samples, ZZFX.volume, sound);
     }
     else
@@ -309,10 +301,6 @@ function UpdateSettings()
     const v = slider_masterVolume.value;
     div_masterVolume.innerHTML = 'Master Volume ' + v + '%';
     ZZFX.volume = v / 100;
-    
-    const p = slider_masterPanning.value;
-    div_masterPanning.innerHTML = 'Stereo Panning ' + p;
-    stereoPanning = p;
     
     const sound = GetSelectedSound();
     if (sound)
@@ -788,7 +776,6 @@ function ClearSoundsButton(clearFavorites)
         if (!confirm('Are you sure you want clear all sounds?\nThis will DELETE your favorites!'))
             return;
         slider_masterVolume.value = 30;
-        slider_masterPanning.value = 0;
         input_shortenCode.checked = 1;
     }
     ClearSounds(clearFavorites);

@@ -68,7 +68,7 @@ constructor()
     this.samples = 0;                   // last played samples
 }
 
-Play(sound, pan=0)
+Play(sound)
 {
     // check if sound object was passed in
     const params = sound && typeof sound == 'object' ? 
@@ -76,22 +76,17 @@ Play(sound, pan=0)
 
     // build samples and start sound
     const samples = this.BuildSamples(...params);
-    return this.PlaySamples(samples, pan);
+    return this.PlaySamples(samples);
 }
 
-PlaySamples(samples, pan=0)
+PlaySamples(samples)
 {
-    // create streo panner
-    const panner = this.x.createStereoPanner();
-    panner.pan.value = pan;
-    panner.connect(this.x.destination);
-    
     // play an array of audio samples
     const buffer = this.x.createBuffer(1, samples.length, this.sampleRate);
     const source = this.x.createBufferSource();
     buffer.getChannelData(0).set(samples);
     source.buffer = buffer;
-    source.connect(panner);
+    source.connect(this.x.destination);
     source.start();
     this.samples = samples;
     return source;
@@ -426,3 +421,6 @@ const zzfxP =      // play a sound
     return source;
 }
 const zzfxX = new AudioContext;
+
+// fix compatibility issues with old web audio (optional)
+//zzfxX=new(window.AudioContext||webkitAudioContext);zzfxX.Z=zzfxX.createBufferSource;zzfxX.createBufferSource=(s=zzfxX.Z())=>(s.start=s.start||(t=>zzfxX.noteOn(t)),s.stop=s.stop||(t=>zzfxX.noteOff(t)),s)
