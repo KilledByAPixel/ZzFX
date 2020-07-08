@@ -4,9 +4,9 @@
 # [ZzFX Music](https://github.com/keithclark/ZzFXM)
 # [ZzFX Sound Board Demo](https://codepen.io/KilledByAPixel/full/BaowKzv)
 
-### ZzFX is a JavaScript sound effect engine and creation tool supported by most modern broswers.
+### ZzFX is a JavaScript sound effect engine and creation tool
 
-- Sound effects can be generated or manually created using the web based sound effect creation tool.
+- Sound effects can be generated or manually created using the web based sound designer.
 
 - Just include ZzFX.min.js to load ZzFX, it does not need to be initialized.
 
@@ -17,9 +17,6 @@ To play a sound in code, just call a simple function! Here are some examples...
 ```
 zzfx(...[,,537,.02,.02,.22,1,1.59,-6.98,4.97]); // Heart
 zzfx(...[,,925,.04,.3,.6,1,.3,,6.27,-184,.09,.17]); // Game Over
-zzfx(...[,,539,,.04,.29,1,1.92,,,567,.02,.02,,,,.04]); // Twinkle
-zzfx(...[,0,1600,.13,.52,.61,1,1.1,,,,,,.1,,.14]); // Phone Ring
-zzfx(...[,,709,,,.07,,,,3.7,,,,3.6,,,.11]); // Echo Click
 zzfx(...[1.5,.8,270,,.1,,1,1.5,,,,,,,,.1,.01]); // Piano
 zzfx(...[,,129,.01,,.15,,,,,,,,5]); // Drum
 ```
@@ -39,34 +36,33 @@ zzfx=    // play sound
 - Tiny synth engine with 19 controllable parameters.
 - Play sounds via code, no need for sound asset files!
 - Compatible with nearly all web browsers.
-- Small code footprint, the micro version is under 1 kilobyte.
-- Can produce a massive variety of sound effect types.
-- Sounds can be played with a short call. zzfx(...[,,,,.1,,,,9])
-- Supports saving sounds as wav files for offline playback.
-- Use ZZFX.GetNote to get frequencies on a musical scale.
+- Small code footprint, the micro version is under 1 kilobyte uncompressed.
+- Can produce a large variety of sound effect types.
+- Sounds can be played with a short function call. zzfx(...[,,,,.1,,,,9])
 - Both ZzFX and ZzFXMicro run in strict mode.
 - No additional libraries or dependencies are required.
 - Open source with MIT license, you can use this for anything!
 
 ## ZzFX Music
 
-- [ZzFX now supports music with ZzFXM by Keith Clark!](https://github.com/keithclark/ZzFXM/)
-- Both the songs and player are super tiny. 
+- [ZzFX now supports music via ZzFXM by Keith Clark!](https://github.com/keithclark/ZzFXM/)
+- [ZzFXM Demo](https://keithclark.github.io/ZzFXM/)
+- Both the songs and player are super tiny! 
 
 ## ZzFX UI Features
 
 - Generates random sounds from presets.
-- Sound list is saved automatically.
+- Sound list is automatically saved.
 - Each parameter can be modified with constraints.
 - Lock and mutate buttons for each parameter.
-- Sound name can be changed for easier workflow.
+- Sounds can be renamed.
 - Shortens code for zzfx sound calls.
 - Displays image of sound wave when played.
-- Sounds can be download as a wave file.
 - Sounds can be marked as favorites to prevent removal.
 - Sounds can be loaded by pasting zzfx code for easy sharing.
 - List of sounds can be exported and imported.
 - Supports drag-and-drop of exported files into sound list.
+- Supports saving sounds as wav files for offline playback.
 
 ## Games Using ZzFX
 
