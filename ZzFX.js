@@ -118,11 +118,11 @@ BuildSamples
     // init parameters
     let PI2 = Math.PI*2,
     sampleRate = this.sampleRate,
-    random =r=> 1 + r*2*Math.random() - r,
     sign = v => v>0?1:-1,
     startSlide = slide *= 500 * PI2 / sampleRate**2,
     modPhase = sign(modulation) * PI2/4,
-    startFrequency = frequency *= random(randomness) * PI2 / sampleRate;
+    startFrequency = frequency *= (1 + randomness*2*Math.random() - randomness) 
+        * PI2 / sampleRate;
         
     // scale by sample rate
     attack = 99 + attack * sampleRate; // soften attack
@@ -171,9 +171,9 @@ BuildSamples
                 b[i-delay|0]/2) : s;                     // sample delay
         }
 
-        t += random(noise);                          // noise
-        tm += random(noise);                         // modulation noise
-        frequency += slide += deltaSlide;            // frequency slide
+        t += 1 - noise + (Math.sin(i)+1)*1e9%2*noise;     // noise
+        tm += 1 - noise + (Math.sin(i)**2+1)*1e9%2*noise; // modulation noise
+        frequency += slide += deltaSlide;                 // frequency slide
 
         if (j && ++j > pitchJumpTime)                // pitch jump
         {
@@ -343,11 +343,11 @@ const zzfxP =     // play a sound
     decay = decayIn * sampleRate,
     delay = delayIn * sampleRate,
     PI2 = Math.PI*2,
-    random =r=> 1 + r*2*Math.random() - r,
     sign =v=> v>0? 1 : -1,
     length = attack + decay + sustain + release + delay,
     startSlide = slide *= 500 * PI2 / sampleRate**2,
-    startFrequency = frequency *= random(randomness) * PI2 / sampleRate,
+    startFrequency = frequency *= (1 + randomness*2*Math.random() - randomness) 
+        * PI2 / sampleRate,
     modPhase = sign(modulation) * PI2/4,
     t=0, tm=0, i=0, r=0, c=0, s=0, j=1, b = [],
     source = zzfxX.createBufferSource(), 
@@ -387,8 +387,8 @@ const zzfxP =     // play a sound
                 b[i - delay|0]/2) : s;                   // sample delay
         }
 
-        t += random(noise);                          // noise
-        tm += random(noise);                         // modulation noise
+        t += 1 - noise + (Math.sin(i)+1)*1e9%2*noise;     // noise
+        tm += 1 - noise + (Math.sin(i)**2+1)*1e9%2*noise; // modulation noise
         frequency += slide += deltaSlide             // frequency slide
             * 500 * PI2 / sampleRate**3;             // apply sample rate
 
