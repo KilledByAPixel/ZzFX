@@ -60,16 +60,16 @@ GitHub Corner is Copyright (c) 2016 Tim Holman - http://tholman.com
 <style>
 *                            { font-family:courier; }
 a                            { color:#5AF; }
-button                       { font-size:20px; margin:4px;}
-button.large                 { height:30px; }
-button.rand                  { width:20px; height:20px; background:#FF4; }
-button.reset                 { width:20px; height:20px; background:#4F4; }
-.soundSelect                 { overflow-x:hidden; width:350px; height:350px; }
+button                       { margin:3px; font-size:18px;}
+button.large                 { height:26px; }
+button.rand                  { width:15px; height:15px; background:#FF4; }
+button.reset                 { width:15px; height:15px; background:#4F4; }
+.soundSelect                 { overflow-x:hidden; height:350px; }
 .slider                      { cursor: pointer; }
-input.lock                   { width:20px; height:20px; }
+input.lock                   { width:15px; height:15px; }
 .setting                     { width:200px; }
 textarea                     { height:50px; cursor:text; resize:none; }
-body,input,select,textarea   { color:#FFF; font-size:20px; }
+body,input,select,textarea   { color:#FFF; font-size:18px;}
 select,input,textarea,canvas { background:#000; border:1px solid #FFF; }
 option:hover                 { background:#333; }
 option:checked               { background:#FF0; color:#F00; }
@@ -84,7 +84,7 @@ body                         { user-select:none; }
 <font size=7><b><div id=div_logo style='display:inline'>ℤ𝕫𝔽𝕏</div></b></font>
 </td>
 <td style=text-align:left>
-<div style=display:inline id=div_logo2>
+<div style=display:inline;font-size:22px id=div_logo2>
 <i>Zuper Zmall Zound Zynth</i>
 </div>
 </td>
@@ -92,19 +92,13 @@ body                         { user-select:none; }
 <div id=div_masterVolume></div>
 <input id=slider_masterVolume title='Volume to scale all sounds by in percent' type=range min=0 max=100 value=30 style=width:90% oninput=UpdateSettings();SaveLocalStorage()>
 <canvas title='Image of sound wave, click to play the sound [SPACE]' id=canvas_soundWave width=350 height=80 style=width:100%></canvas>
-<button class=large title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button>
-<button class=large title='Make a new sound with mutated parameters [M]' onclick=CopySelected(1)>Mutate</button>
-<button class=large title='Make copy of selected sound [C]' onclick=CopySelected()>Copy</button>
-<button class=large title='Generate random pickup sound' onclick="AddPresetSound('Pickup')">Pickup</button>
-<button class=large title='Generate random powerup sound' onclick="AddPresetSound('Powerup')">Powerup</button>
-<button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button>
-<button class=large title='Generate random jump sound' onclick="AddPresetSound('Jump')">Jump</button>
-<button class=large title='Generate random blip sound' onclick="AddPresetSound('Blip')">Blip</button>
-<button class=large title='Generate random hit sound' onclick="AddPresetSound('Hit')">Hit</button>
-<button class=large title='Generate random explosion sound' onclick="AddPresetSound('Explosion')">Explosion</button>
-<button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button>
-<button class=large title='Generate default sound' onclick="SelectedToTop()">Top</button>
-<button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
+<button class=large title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button><button class=large title='Make a new sound with mutated parameters [M]' onclick=CopySelected(1)>Mutate</button><button class=large title='Make copy of selected sound [C]' onclick=CopySelected()>Copy</button>
+<br>
+<button class=large title='Generate random pickup sound' onclick="AddPresetSound('Pickup')">Pickup</button><button class=large title='Generate random powerup sound' onclick="AddPresetSound('Powerup')">Powerup</button><button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button>
+<br>
+<button class=large title='Generate random jump sound' onclick="AddPresetSound('Jump')">Jump</button><button class=large title='Generate random blip sound' onclick="AddPresetSound('Blip')">Blip</button><button class=large title='Generate random hit sound' onclick="AddPresetSound('Hit')">Hit</button><button class=large title='Generate random explosion sound' onclick="AddPresetSound('Explosion')">Explosion</button>
+<br>
+<button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button><button class=large title='Generate default sound' onclick="SelectedToTop()">Top</button><button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
 <br>
 <select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2 style=margin:5px;width:100%></select>
 </td></tr>
@@ -193,7 +187,7 @@ BuildSetting(.01,0,1e9,'delay','Delay','Overlap with itself for reverb and flang
 function BuildSettingsTable()
 {
     const s = settings[0];
-    let html = '<center style=width:600px><table style=text-align:center>';
+    let html = '<center><table style=text-align:center>';
     html += '<tr><td style=text-align:right>' + s.niceName + '&nbsp;</td><td>'
     html += `<input title='${s.help}' class=setting step=${s.step} id=input_${s.name} oninput=SelectedWasChanged('${s.name}')>`
     
