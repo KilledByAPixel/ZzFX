@@ -47,22 +47,12 @@ ZzFX Features
 
 'use strict';
 
-// ==ClosureCompiler==
-// @compilation_level ADVANCED_OPTIMIZATIONS
-// @output_file_name zzfx.min.js
-// @js_externs zzfx, ZZFX, _ZZFX.samples, _ZZFX.volume
-// @js_externs _ZZFX, _ZZFX.Play, _ZZFX.PlaySamples, _ZZFX.BuildSamples
-// @js_externs _ZZFX.BuildRandomSound, _ZZFX.BuildSound, _ZZFX.GetNote
-// @js_externs _ZZFX.SoundToArray, _ZZFX.CreateAudioContext, _ZZFX.randomness
-// @language_out ECMASCRIPT_2019
-// ==/ClosureCompiler==
-
 class _ZZFX
 {
 
 constructor()
 {
-    this.x = this.CreateAudioContext(); // shared audio context
+    this.x = new (window.AudioContext || webkitAudioContext); // shared audio context
     this.volume = .3;                   // master volume scale
     this.sampleRate = 44100;            // sample rate for audio
     this.samples = 0;                   // last played samples
@@ -298,22 +288,6 @@ SoundToArray(sound)
     return array;
 }
 
-CreateAudioContext()
-{
-    // fix compatibility issues with old web audio
-    const audioContext = new (AudioContext || webkitAudioContext);
-    audioContext._createBufferSource = audioContext.createBufferSource;
-    audioContext.createBufferSource =
-    (s = audioContext._createBufferSource())=>
-    (
-        s.start = s.start || s.noteOn,
-        s.stop  = s.stop  || s.noteOff,
-        s
-    );
-
-    return audioContext;
-}
-
 } // class _ZZFX
 
 const ZZFX = new _ZZFX;
@@ -416,7 +390,4 @@ const zzfxP =     // play a sound
     source.start();
     return source;
 }
-const zzfxX = new AudioContext;
-
-// fix compatibility issues with old web audio (optional)
-//zzfxX=new(window.AudioContext||webkitAudioContext);zzfxX.Z=zzfxX.createBufferSource;zzfxX.createBufferSource=(s=zzfxX.Z())=>(s.start=s.start||s.noteOn,s.stop=s.stop||s.noteOff,s)
+const zzfxX = new (window.AudioContext||webkitAudioContext);
