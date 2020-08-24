@@ -125,7 +125,7 @@ BuildSamples
     pitchJump *= PI2 / sampleRate;
     pitchJumpTime *= sampleRate;
     repeatTime *= sampleRate;
-    const length = attack + decay + sustain + release + delay;
+    const length = attack + decay + sustain + release + delay | 0;
 
     // generate waveform
     let b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0;
@@ -318,7 +318,7 @@ const zzfxP =     // play a sound
     delay = delayIn * sampleRate,
     PI2 = Math.PI*2,
     sign =v=> v>0? 1 : -1,
-    length = attack + decay + sustain + release + delay,
+    length = attack + decay + sustain + release + delay | 0,
     startSlide = slide *= 500 * PI2 / sampleRate**2,
     startFrequency = frequency *= (1 + randomness*2*Math.random() - randomness) 
         * PI2 / sampleRate,
