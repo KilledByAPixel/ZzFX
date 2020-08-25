@@ -856,17 +856,15 @@ function LoadSound()
     if (!code)
         return;
         
-    code = code.trim();
-    const front = code.slice(0,9);
-    if (front != 'zzfx(...[')
+    code = code.split('[')[1];
+    if (!code)
     {
         alert('Error! Invalid zzfx code.');
         return;
     }
 
     // split up parameters
-    const end = code.slice(9);
-    const params = end.split(',');
+    const params = code.split(',');
     const paramArray = [];
     for (const p of params)
         paramArray.push(p.length? parseFloat(p) : undefined);
