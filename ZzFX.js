@@ -128,21 +128,19 @@ BuildSamples
     const length = attack + decay + sustain + release + delay | 0;
 
     // generate waveform
-    let b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0;
+    let b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f;
     for(; i < length; b[i++] = s)
     {
         if (++c>bitCrush*100)                            // bit crush
         {
             c = 0;                                       // reset bit crush
-            s = t * frequency *                          // frequency
-                Math.sin(tm * modulation - modPhase);    // modulation
 
             s = shape? shape>1? shape>2? shape>3?        // wave shape
-                Math.sin((s%PI2)**3) :                   // 4 noise
-                Math.max(Math.min(Math.tan(s),1),-1):    // 3 tan
-                1-(2*s/PI2%2+2)%2:                       // 2 saw
-                1-4*Math.abs(Math.round(s/PI2)-s/PI2):   // 1 triangle
-                Math.sin(s);                             // 0 sin
+                Math.sin((t%PI2)**3) :                   // 4 noise
+                Math.max(Math.min(Math.tan(t),1),-1):    // 3 tan
+                1-(2*t/PI2%2+2)%2:                       // 2 saw
+                1-4*Math.abs(Math.round(t/PI2)-t/PI2):   // 1 triangle
+                Math.sin(t);                             // 0 sin
             s = sign(s)*(Math.abs(s)**shapeCurve);       // curve 0=square, 2=pointy
 
             s *= volume * this.volume * (                // envelope
@@ -161,23 +159,25 @@ BuildSamples
                 b[i-delay|0]/2) : s;                     // sample delay
         }
 
-        t += 1 - noise + (Math.sin(i)+1)*1e9%2*noise;     // noise
-        tm += 1 - noise + (Math.sin(i)**2+1)*1e9%2*noise; // modulation noise
-        frequency += slide += deltaSlide;                 // frequency slide
+        f = (frequency += slide += deltaSlide) *     // frequency
+            Math.sin(tm * modulation - modPhase);    // modulation
+                
+        t += f*(1 - noise + (Math.sin(i)+1)*1e9%2*noise);     // noise
+        tm += f*(1 - noise + (Math.sin(i)**2+1)*1e9%2*noise); // modulation noise
 
-        if (j && ++j > pitchJumpTime)                // pitch jump
+        if (j && ++j > pitchJumpTime)       // pitch jump
         {
-            frequency += pitchJump;                  // apply pitch jump
-            startFrequency += pitchJump;             // also apply to start
-            j = 0;                                   // reset pitch jump time
+            frequency += pitchJump;         // apply pitch jump
+            startFrequency += pitchJump;    // also apply to start
+            j = 0;                          // reset pitch jump time
         }
 
-        if (repeatTime && ++r > repeatTime)           // repeat
+        if (repeatTime && ++r > repeatTime) // repeat
         {
-            frequency = startFrequency;               // reset frequency
-            slide = startSlide;                       // reset slide
-            r = 1;                                    // reset repeat time
-            j = j || 1;                               // reset pitch jump time
+            frequency = startFrequency;     // reset frequency
+            slide = startSlide;             // reset slide
+            r = 0;                          // reset repeat time
+            j = j || 1;                     // reset pitch jump time
         }
     }
 
@@ -300,17 +300,19 @@ function zzfx() { return ZZFX.Play(...arguments) }
 // ==ClosureCompiler==
 // @compilation_level ADVANCED_OPTIMIZATIONS
 // @output_file_name zzfx.micro.js
-// @js_externs zzfxP, zzfxV, zzfxX
+// @js_externs zzfxMicro, zzfxV, zzfxX
 // @language_out ECMASCRIPT_2019
 // ==/ClosureCompiler==
 
 let zzfxV = .3;   // volume
-const zzfxP =     // play a sound
+const zzfxMicro =     // play a sound
 (
     // parameters
-    volume = 1, randomness = .05, frequency = 220, attackIn = 0, sustainIn = 0, releaseIn = .1, shape = 0, shapeCurve = 1, slide = 0, deltaSlide = 0, pitchJump = 0, pitchJumpTime = 0, repeatTime = 0, noise = 0, modulation = 0, bitCrush = 0, delayIn = 0, sustainVolume = 1, decayIn = 0, sampleRate = 44100,
-    
+    volume = 1, randomness = .05, frequency = 220, attackIn = 0, sustainIn = 0, releaseIn = .1, shape = 0, shapeCurve = 1, slide = 0, deltaSlide = 0, pitchJump = 0, pitchJumpTime = 0, repeatTime = 0, noise = 0, modulation = 0, bitCrush = 0, delayIn = 0, sustainVolume = 1, decayIn = 0
+)=>
+{
     // init parameters and helper functions
+    let sampleRate = 44100,
     attack = 99 + attackIn * sampleRate, // soften attack
     sustain = sustainIn * sampleRate,
     release = releaseIn * sampleRate,
@@ -323,26 +325,23 @@ const zzfxP =     // play a sound
     startFrequency = frequency *= (1 + randomness*2*Math.random() - randomness) 
         * PI2 / sampleRate,
     modPhase = sign(modulation) * PI2/4,
-    t=0, tm=0, i=0, r=0, c=0, s=0, j=1, b = [],
+    t=0, tm=0, i=0, r=0, c=0, s=0, j=1, b = [], f,
     source = zzfxX.createBufferSource(), 
     buffer = zzfxX.createBuffer(1, length, sampleRate)
-)=>
-{
+
     // loop and generate waveform
     for(source.connect(zzfxX.destination); i < length; b[i++] = s)
     {
         if (++c>bitCrush*100)                            // bit crush
         {
             c = 0;                                       // reset bit crush
-            s = t * frequency *                          // frequency
-                Math.sin(tm * modulation * PI2 / sampleRate - modPhase); // modulation
 
             s = shape? shape>1? shape>2? shape>3?        // wave shape
-                Math.sin((s%PI2)**3) :                   // 4 noise
-                Math.max(Math.min(Math.tan(s), 1), -1):  // 3 tan
-                1-(2*s/PI2%2+2)%2:                       // 2 saw
-                1-4*Math.abs(Math.round(s/PI2)-s/PI2):   // 1 triangle
-                Math.sin(s);                             // 0 siny
+                Math.sin((t%PI2)**3) :                   // 4 noise
+                Math.max(Math.min(Math.tan(t),1),-1):    // 3 tan
+                1-(2*t/PI2%2+2)%2:                       // 2 saw
+                1-4*Math.abs(Math.round(t/PI2)-t/PI2):   // 1 triangle
+                Math.sin(t);                             // 0 sin
 
             s = sign(s) * (Math.abs(s)**shapeCurve) *       // curve 0=square
                 volume * zzfxV * (                          // envelope
@@ -361,10 +360,12 @@ const zzfxP =     // play a sound
                 b[i - delay|0]/2) : s;                   // sample delay
         }
 
-        t += 1 - noise + (Math.sin(i)+1)*1e9%2*noise;     // noise
-        tm += 1 - noise + (Math.sin(i)**2+1)*1e9%2*noise; // modulation noise
-        frequency += slide += deltaSlide             // frequency slide
-            * 500 * PI2 / sampleRate**3;             // apply sample rate
+        f = (frequency += slide += deltaSlide        // frequency
+            * 500 * PI2 / sampleRate**3) *           // apply sample rate
+            Math.sin(tm * modulation * PI2 / sampleRate - modPhase);    // modulation
+
+        t += f*(1 - noise + (Math.sin(i)+1)*1e9%2*noise);     // noise
+        tm += f*(1 - noise + (Math.sin(i)**2+1)*1e9%2*noise); // modulation noise
 
         if (j && ++j > pitchJumpTime * sampleRate)   // pitch jump
         {
@@ -379,7 +380,7 @@ const zzfxP =     // play a sound
         {
             frequency = startFrequency;               // reset frequency
             slide = startSlide;                       // reset slide
-            r = 1;                                    // reset repeat time
+            r = 0;                                    // reset repeat time
             j = j || 1;                               // reset pitch jump time
         }
     }
