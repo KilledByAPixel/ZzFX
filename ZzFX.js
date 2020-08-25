@@ -113,26 +113,26 @@ BuildSamples
     startSlide = slide *= 500 * PI2 / sampleRate**2,
     modPhase = sign(modulation) * PI2/4,
     startFrequency = frequency *= (1 + randomness*2*Math.random() - randomness) 
-        * PI2 / sampleRate;
+        * PI2 / sampleRate,
+    b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length;
         
     // scale by sample rate
     attack = 99 + attack * sampleRate;   // soften attack
-    release = 99 + release * sampleRate; // soften release
-    decay = decay * sampleRate;
-    sustain = sustain * sampleRate;
-    delay = delay * sampleRate;
+    decay *= sampleRate;
+    sustain *= sampleRate;
+    release *= sampleRate;
+    delay *= sampleRate;
     deltaSlide *= 500 * PI2 / sampleRate**3;
     modulation *= PI2 / sampleRate;
     pitchJump *= PI2 / sampleRate;
     pitchJumpTime *= sampleRate;
     repeatTime = repeatTime * sampleRate | 0;
-    const length = attack + decay + sustain + release + delay | 0;
 
     // generate waveform
-    let b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f;
-    for(; i < length; b[i++] = s)
+    for(length = attack + decay + sustain + release + delay | 0;
+        i < length; b[i++] = s)
     {
-        if (!(++c%(bitCrush*100|0)))                       // bit crush
+        if (!(++c%(bitCrush*100|0)))                     // bit crush
         {
             s = shape? shape>1? shape>2? shape>3?        // wave shape
                 Math.sin((t%PI2)**3) :                   // 4 noise
@@ -141,8 +141,10 @@ BuildSamples
                 1-4*Math.abs(Math.round(t/PI2)-t/PI2):   // 1 triangle
                 Math.sin(t);                             // 0 sin
                 
-            s = sign(s)*(Math.abs(s)**shapeCurve) *      // curve 0=square, 2=pointy
-                (repeatTime ? 1 - tremolo + tremolo*Math.sin(2*Math.PI*i/repeatTime) : 1) * // tremolo
+            s = (repeatTime ?
+                    1 - tremolo + tremolo*Math.sin(2*Math.PI*i/repeatTime) // tremolo
+                    : 1) *
+                sign(s)*(Math.abs(s)**shapeCurve) *      // curve 0=square, 2=pointy
                 volume * this.volume * (                 // envelope
                 i < attack ? i/attack :                  // attack
                 i < attack + decay ?                     // decay
@@ -312,29 +314,33 @@ let zzfxV = .3;    // volume
 let zzfxMicro =    // play sound
 (
     // parameters
-    volume = 1, randomness = .05, frequency = 220, attackIn = 0, sustainIn = 0, releaseIn = .1, shape = 0, shapeCurve = 1, slide = 0, deltaSlide = 0, pitchJump = 0, pitchJumpTime = 0, repeatTimeIn = 0, noise = 0, modulation = 0, bitCrush = 0, delayIn = 0, sustainVolume = 1, decayIn = 0, tremolo = 0
+    volume = 1, randomness = .05, frequency = 220, attack = 0, sustain = 0, release = .1, shape = 0, shapeCurve = 1, slide = 0, deltaSlide = 0, pitchJump = 0, pitchJumpTime = 0, repeatTime = 0, noise = 0, modulation = 0, bitCrush = 0, delay = 0, sustainVolume = 1, decay = 0, tremolo = 0
 )=>
 {
-    // init parameters and helper functions
+    // init parameters
     let PI2 = Math.PI*2,
-    attack = 99 + attackIn * zzfxR,   // soften attack
-    release = 99 + releaseIn * zzfxR, // soften release
-    sustain = sustainIn * zzfxR,
-    decay = decayIn * zzfxR,
-    delay = delayIn * zzfxR,
-    repeatTime = repeatTimeIn * zzfxR | 0,
-    sign =v=> v>0? 1 : -1,
-    length = attack + decay + sustain + release + delay | 0,
+    sign = v => v>0?1:-1,
     startSlide = slide *= 500 * PI2 / zzfxR**2,
+    modPhase = sign(modulation) * PI2/4,
     startFrequency = frequency *= (1 + randomness*2*Math.random() - randomness) 
         * PI2 / zzfxR,
-    modPhase = sign(modulation) * PI2/4,
-    t=0, tm=0, i=0, r=0, c=0, s=0, j=1, b = [], f,
-    source = zzfxX.createBufferSource(), 
-    buffer = zzfxX.createBuffer(1, length, zzfxR)
+    b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length, buffer, source;
+        
+    // scale by sample rate
+    attack = 99 + attack * zzfxR;   // soften attack
+    decay *= zzfxR;
+    sustain *= zzfxR;
+    release *= zzfxR;
+    delay *= zzfxR;
+    deltaSlide *= 500 * PI2 / zzfxR**3;
+    modulation *= PI2 / zzfxR;
+    pitchJump *= PI2 / zzfxR;
+    pitchJumpTime *= zzfxR;
+    repeatTime = repeatTime * zzfxR | 0;
 
-    // loop and generate waveform
-    for(source.connect(zzfxX.destination); i < length; b[i++] = s)
+    // generate waveform
+    for(length = attack + decay + sustain + release + delay | 0;
+        i < length; b[i++] = s)
     {
         if (!(++c%(bitCrush*100|0)))                     // bit crush
         {
@@ -344,53 +350,55 @@ let zzfxMicro =    // play sound
                 1-(2*t/PI2%2+2)%2:                       // 2 saw
                 1-4*Math.abs(Math.round(t/PI2)-t/PI2):   // 1 triangle
                 Math.sin(t);                             // 0 sin
+                
+            s = (repeatTime ?
+                    1 - tremolo + tremolo*Math.sin(2*Math.PI*i/repeatTime) // tremolo
+                    : 1) *
+                sign(s)*(Math.abs(s)**shapeCurve) *      // curve 0=square, 2=pointy
+                volume * zzfxV * (                       // envelope
+                i < attack ? i/attack :                  // attack
+                i < attack + decay ?                     // decay
+                1-((i-attack)/decay)*(1-sustainVolume) : // decay falloff
+                i < attack  + decay + sustain ?          // sustain
+                sustainVolume :                          // sustain volume
+                i < length - delay ?                     // release
+                (length - i - delay)/release *           // release falloff
+                sustainVolume :                          // release volume
+                0);                                      // post release
 
-            s = sign(s) * (Math.abs(s)**shapeCurve) *        // curve 0=square, 2=pointy
-                (repeatTime ? 1 - tremolo + tremolo*Math.sin(2*Math.PI*i/repeatTime) : 1) * // tremolo
-                volume * zzfxV * (                           // envelope
-                    i < attack ? i/attack :                  // attack
-                    i < attack + decay ?                     // decay
-                    1-((i-attack)/decay)*(1-sustainVolume) : // decay falloff
-                    i < attack + decay + sustain ?           // sustain
-                    sustainVolume :                          // sustain volume
-                    i < length - delay ?                     // release
-                    (length - i - delay)/release *           // release falloff
-                    sustainVolume :                          // release volume
-                0);                                          // post release
-
-            s = delay ? s/2 + (delay > i ? 0 :               // delay
-                (i<length-delay? 1 : (i-length)/delay) *     // release delay 
-                b[i - delay|0]/2) : s;                       // sample delay
+            s = delay ? s/2 + (delay > i ? 0 :           // delay
+                (i<length-delay? 1 : (i-length)/delay) * // release delay 
+                b[i-delay|0]/2) : s;                     // sample delay
         }
 
-        f = (frequency += slide += deltaSlide                   // frequency
-            * 500 * PI2 / zzfxR**3) *                           // apply sample rate
-            Math.sin(tm * modulation * PI2 / zzfxR - modPhase); // modulation
-
+        f = (frequency += slide += deltaSlide) *          // frequency
+            Math.sin(tm * modulation - modPhase);         // modulation
+                
         t += f - f*noise*(1 - (Math.sin(i)+1)*1e9%2);     // noise
         tm += f - f*noise*(1 - (Math.sin(i)**2+1)*1e9%2); // modulation noise
 
-        if (j && ++j > pitchJumpTime * zzfxR)             // pitch jump
+        if (j && ++j > pitchJumpTime)       // pitch jump
         {
-            frequency += pitchJump             // apply pitch jump
-                * PI2 / zzfxR;                 // apply sample rate
-            startFrequency += pitchJump        // also apply to start
-                * PI2 / zzfxR;                 // apply sample rate
-            j = 0;                             // reset pitch jump time
+            frequency += pitchJump;         // apply pitch jump
+            startFrequency += pitchJump;    // also apply to start
+            j = 0;                          // reset pitch jump time
         }
 
         if (repeatTime && !(++r % repeatTime)) // repeat
         {
-            frequency = startFrequency;        // reset frequency
-            slide = startSlide;                // reset slide
-            j = j || 1;                        // reset pitch jump time
+            frequency = startFrequency;     // reset frequency
+            slide = startSlide;             // reset slide
+            j = j || 1;                     // reset pitch jump time
         }
     }
 
-    // create buffer and set source
+    // play an array of audio samples
+    buffer = zzfxX.createBuffer(1, length, zzfxR);
     buffer.getChannelData(0).set(b);
+    source = zzfxX.createBufferSource();
     source.buffer = buffer;
+    source.connect(zzfxX.destination);
     source.start();
-    return source
+    return source;
 }
 let zzfxX = new (window.AudioContext||webkitAudioContext);
