@@ -128,7 +128,7 @@ body                         { user-select:none; }
 ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
-<script src=ZzFX.js?v11></script>
+<script src=ZzFX.js?v12></script>
 <script>
 
 'use strict'; // strict mode
@@ -902,7 +902,7 @@ function BuildWaveDataUrl(sound)
 {
     // build samples with full volume
     const v = ZZFX.volume;
-    ZZFX.volume = 1;
+    ZZFX.volume = .5;
     const samples = ZZFX.BuildSamples(...ZZFX.SoundToArray(sound));
     ZZFX.volume = v;
 

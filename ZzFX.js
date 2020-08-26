@@ -157,7 +157,7 @@ BuildSamples
                 0);                                      // post release
 
             s = delay ? s/2 + (delay > i ? 0 :           // delay
-                (i<length-delay? 1 : (i-length)/delay) * // release delay 
+                (i<length-delay? 1 : (length-i)/delay) * // release delay 
                 b[i-delay|0]/2) : s;                     // sample delay
         }
 
@@ -367,7 +367,7 @@ let zzfxMicro =    // play sound
                 0);                                      // post release
 
             s = delay ? s/2 + (delay > i ? 0 :           // delay
-                (i<length-delay? 1 : (i-length)/delay) * // release delay 
+                (i<length-delay? 1 : (length-i)/delay) * // release delay 
                 b[i-delay|0]/2) : s;                     // sample delay
         }
 
