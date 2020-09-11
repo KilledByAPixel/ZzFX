@@ -870,13 +870,8 @@ function LoadSound()
         return;
     }
 
-    // split up parameters
-    const params = code.split(',');
-    const paramArray = [];
-    for (const p of params)
-        paramArray.push(p.length? parseFloat(p) : undefined);
-    
     // build sound
+    const paramArray = code.split(',').map(p=>p.length? parseFloat(p) : undefined);
     const sound = ZZFX.BuildSound(...paramArray);
     const name = code.split('//')[1];
     sound.name = name || ('Loaded Sound ' + generatedSoundCount++);
