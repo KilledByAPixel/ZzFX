@@ -2,6 +2,7 @@
 
 ZzFX - Zuper Zmall Zound Zynth
 By Frank Force 2019
+https://github.com/KilledByAPixel/ZzFX
 
 ZzFX Features
 
