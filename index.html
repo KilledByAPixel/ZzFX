@@ -352,7 +352,7 @@ function UpdateSettings()
         // copy settings to selected
         const option = select_soundList.options[select_soundList.selectedIndex];
         const index = parseInt(option.value);
-    ;
+
         for(const s of settings)
         {
             const element = document.getElementById("input_"+s.name);
@@ -386,7 +386,7 @@ function UpdateSettings()
             }
         }
         
-        option.style.color = sounds[index].favorite? "#0F0" : "white";
+        option.style.color = sound.favorite? "#0F0" : "#fff";
         option.innerHTML = (sound.favorite?'-> ':sound.modified?'* ':'') + sound.name;
         textarea_code.value = GetCode(sound);
     }
@@ -653,6 +653,7 @@ function AddToList(sound)
     const i = sounds.push(sound) - 1;
     const option = document.createElement('option');
     option.value = i;
+    option.style.color = sound.favorite? "#0F0" : "#fff";
     option.innerHTML = (sound.favorite?'-> ':sound.modified?'* ':'') + sound.name;
     select_soundList.add(option, 0);
     select_soundList.selectedIndex = 0;
