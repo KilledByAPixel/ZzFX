@@ -8,6 +8,8 @@ function GetWavBlob(sampleChannels, sampleRate = 44100)
     const length = channelCount * sampleCount;
     const buffer = new Int16Array(length + 23);
 
+    console.assert(channelCount && sampleCount, 'No channels or samples found!');
+        
     // wave header
     // wave header
     buffer[ 0] = 0x4952; // RI

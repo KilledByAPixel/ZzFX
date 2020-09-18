@@ -118,7 +118,7 @@ BuildSamples
     b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length;
         
     // scale by sample rate
-    attack = 99 + attack * sampleRate;   // soften attack
+    attack = attack * sampleRate + 9;   // soften attack
     decay *= sampleRate;
     sustain *= sampleRate;
     release *= sampleRate;
@@ -328,7 +328,7 @@ let zzfxMicro =    // play sound
     b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length, buffer, source;
         
     // scale by sample rate
-    attack = 99 + attack * zzfxR;   // soften attack
+    attack = attack * zzfxR + 9;   // soften attack
     decay *= zzfxR;
     sustain *= zzfxR;
     release *= zzfxR;
