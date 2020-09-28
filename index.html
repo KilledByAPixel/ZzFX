@@ -415,7 +415,7 @@ function AddPresetSound(presetName='Random')
         }
         case 'Pickup':
         {
-            sound.frequency = R(300,2000);
+            sound.frequency = R(100,2000);
             sound.shape = R(3)|0;
             sound.shapeCurve = R(2);
             sound.attack = 0;
@@ -424,12 +424,16 @@ function AddPresetSound(presetName='Random')
             sound.sustainVolume = R(.5, 1);
             sound.release = R(.1,.3);
             sound.noise =  R()<.8 ? 0 : R(.1);
-            sound.pitchJump = R()<.5 ? 0 : R(200,1000);
-            sound.pitchJumpTime = R(.1);
-            sound.repeatTime = R()<.8 ? 0 : R(.2);
+            if (R()<.5)
+            {
+                sound.pitchJump = R(1000,-1000);
+                sound.pitchJumpTime = R(.1);
+            }
+            sound.repeatTime = R()<.5 ? 0 : R(.2);
             sound.bitCrush = R()<.5 ? 0 : R(.1);
             sound.delay = R()<.7 ? 0 : R(.1);
             sound.tremolo = R()<.5 ? 0 : R(.2);
+            sound.modulation = R()<.8 ? 0 : R(-.2,.2);
             break;
         }
         case 'Powerup':
