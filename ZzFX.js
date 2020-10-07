@@ -1,6 +1,6 @@
 /*
 
-ZzFX - Zuper Zmall Zound Zynth
+ZzFX - Zuper Zmall Zound Zynth v1.1
 By Frank Force 2019
 https://github.com/KilledByAPixel/ZzFX
 
@@ -293,7 +293,7 @@ SoundToArray(sound)
 } // class _ZZFX
 
 const ZZFX = new _ZZFX;
-function zzfxMicro() { return ZZFX.Play(...arguments) }
+function zzfx() { return ZZFX.Play(...arguments) }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -309,7 +309,7 @@ let zzfxR = 44100; // sample rate
 // ==/ClosureCompiler==
 
 let zzfxV = .3;    // volume
-let zzfx =    // play sound
+let zzfxMicro =    // play sound
 (
     // parameters
     volume = 1, randomness = .05, frequency = 220, attack = 0, sustain = 0, release = .1, shape = 0, shapeCurve = 1, slide = 0, deltaSlide = 0, pitchJump = 0, pitchJumpTime = 0, repeatTime = 0, noise = 0, modulation = 0, bitCrush = 0, delay = 0, sustainVolume = 1, decay = 0, tremolo = 0
