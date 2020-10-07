@@ -112,7 +112,6 @@ BuildSamples
     sampleRate = this.sampleRate,
     sign = v => v>0?1:-1,
     startSlide = slide *= 500 * PI2 / sampleRate**2,
-    modPhase = sign(modulation) * PI2/4,
     startFrequency = frequency *= (1 + randomness*2*Math.random() - randomness) 
         * PI2 / sampleRate,
     b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length;
@@ -163,10 +162,8 @@ BuildSamples
         }
 
         f = (frequency += slide += deltaSlide) *          // frequency
-            Math.sin(tm * modulation - modPhase);         // modulation
-                
+            Math.cos(modulation*tm++);                    // modulation
         t += f - f*noise*(1 - (Math.sin(i)+1)*1e9%2);     // noise
-        tm += f - f*noise*(1 - (Math.sin(i)**2+1)*1e9%2); // modulation noise
 
         if (j && ++j > pitchJumpTime)       // pitch jump
         {
@@ -188,7 +185,7 @@ BuildSamples
 
 BuildRandomSound(lengthScale=1, volume=1, randomness=.05)
 {
-    // generate a random sound
+    // generate a random sound2
     const R=()=>Math.random(), C=()=>R()<.5?R():0, S=()=>C()?1:-1,
 
     // randomize sound length
@@ -215,7 +212,7 @@ BuildRandomSound(lengthScale=1, volume=1, randomness=.05)
        R()**2 * length,  // pitchJumpTime
        C() * length,     // repeatTime
        C()**4,           // noise
-       C()**3*9*S(),     // modulation
+       R()*C()**3*500*S(),     // modulation
        C()**4,           // bitCrush
        C()**3/2,         // delay
        1 - C(),          // sustain volume
@@ -296,7 +293,7 @@ SoundToArray(sound)
 } // class _ZZFX
 
 const ZZFX = new _ZZFX;
-function zzfx() { return ZZFX.Play(...arguments) }
+function zzfxMicro() { return ZZFX.Play(...arguments) }
 
 ///////////////////////////////////////////////////////////////////////////////
 
@@ -312,7 +309,7 @@ let zzfxR = 44100; // sample rate
 // ==/ClosureCompiler==
 
 let zzfxV = .3;    // volume
-let zzfxMicro =    // play sound
+let zzfx =    // play sound
 (
     // parameters
     volume = 1, randomness = .05, frequency = 220, attack = 0, sustain = 0, release = .1, shape = 0, shapeCurve = 1, slide = 0, deltaSlide = 0, pitchJump = 0, pitchJumpTime = 0, repeatTime = 0, noise = 0, modulation = 0, bitCrush = 0, delay = 0, sustainVolume = 1, decay = 0, tremolo = 0
@@ -322,7 +319,6 @@ let zzfxMicro =    // play sound
     let PI2 = Math.PI*2,
     sign = v => v>0?1:-1,
     startSlide = slide *= 500 * PI2 / zzfxR**2,
-    modPhase = sign(modulation) * PI2/4,
     startFrequency = frequency *= (1 + randomness*2*Math.random() - randomness) 
         * PI2 / zzfxR,
     b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length, buffer, source;
@@ -373,10 +369,8 @@ let zzfxMicro =    // play sound
         }
 
         f = (frequency += slide += deltaSlide) *          // frequency
-            Math.sin(tm * modulation - modPhase);         // modulation
-                
+            Math.cos(modulation*tm++);                    // modulation
         t += f - f*noise*(1 - (Math.sin(i)+1)*1e9%2);     // noise
-        tm += f - f*noise*(1 - (Math.sin(i)**2+1)*1e9%2); // modulation noise
 
         if (j && ++j > pitchJumpTime)       // pitch jump
         {

@@ -97,7 +97,7 @@ body                         { user-select:none; }
 <canvas title='Image of sound wave, click to play the sound [SPACE]' id=canvas_soundWave width=350 height=80 style=width:100%></canvas>
 <button class=large title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button><button class=large title='Make a new sound with mutated parameters [M]' onclick=CopySelected(1)>Mutate</button><button class=large title='Make copy of selected sound [C]' onclick=CopySelected()>Copy</button>
 <br>
-<button class=large title='Generate random pickup sound' onclick="AddPresetSound('Pickup')">Pickup</button><button class=large title='Generate random powerup sound' onclick="AddPresetSound('Powerup')">Powerup</button><button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button><button class=large title='Generate a musical sound' onclick="AddPresetSound('Music')">Music</button>
+<button class=large title='Generate random pickup sound' onclick="AddPresetSound('Pickup')">Pickup</button><button class=large title='Generate random powerup sound' onclick="AddPresetSound('Powerup')">Powerup</button><button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button><button class=large title='Generate a tonal sound for music' onclick="AddPresetSound('Music')">Note</button>
 <br>
 <button class=large title='Generate random jump sound' onclick="AddPresetSound('Jump')">Jump</button><button class=large title='Generate random blip sound' onclick="AddPresetSound('Blip')">Blip</button><button class=large title='Generate random hit sound' onclick="AddPresetSound('Hit')">Hit</button><button class=large title='Generate random explosion sound' onclick="AddPresetSound('Explosion')">Explosion</button>
 <br>
@@ -132,8 +132,8 @@ ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
 </center>
-<script src=ZzFX.js?v15></script>
-<script src=wav.js?v15></script>
+<script src=ZzFX.js?v16></script>
+<script src=wav.js?v16></script>
 <script>
 
 'use strict'; // strict mode
@@ -433,7 +433,7 @@ function AddPresetSound(presetName='Random')
             sound.bitCrush = R()<.5 ? 0 : R(.1);
             sound.delay = R()<.7 ? 0 : R(.1);
             sound.tremolo = R()<.5 ? 0 : R(.2);
-            sound.modulation = R()<.8 ? 0 : R(-.2,.2);
+            sound.modulation = R()<.8 ? 0 : R(-1,1)**2*50;
             break;
         }
         case 'Powerup':
@@ -453,9 +453,9 @@ function AddPresetSound(presetName='Random')
             sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
             sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*10;
             sound.noise =  R()<.8 ? 0 : R(.2);
-            sound.modulation = R()<.8 ? 0 : R(-.2,.2);
             sound.bitCrush = R()<.5 ? 0 : R(.1);
             sound.tremolo = R()<.5 ? 0 : R(.5);
+            sound.modulation = R()<.8 ? 0 : R(-1,1)**2*50;
             break;
         }
         case 'Jump':
@@ -470,7 +470,6 @@ function AddPresetSound(presetName='Random')
             sound.noise =  R()<.8 ? 0 : R(.5);
             sound.slide = R(-10,10);
             sound.deltaSlide = R()<.8 ? 0 : R(-5,5);
-            sound.modulation = R()<.8 ? 0 : R(-1,1)**3*10;
             sound.bitCrush = R()<.5 ? 0 : R(.1);
             sound.delay = R()<.8 ? 0 : R(.05);
             sound.decay = R(.1);
@@ -491,7 +490,7 @@ function AddPresetSound(presetName='Random')
             sound.deltaSlide = R()<.5 ? 0 : R(-1,1);
             sound.noise =  R()<.8 ? 0 : R(5);
             sound.repeatTime = R()<.5 ? 0 : R(.1);
-            sound.modulation = R()<.8 ? 0 : R(-1,1)**3*10;
+            sound.modulation = R()<.8 ? 0 : R(-1,1)**2*500;
             sound.bitCrush = R()<.5 ? 0 : R(.1);
             sound.tremolo = R()<.5 ? 0 : R(.5);
             break;
@@ -520,7 +519,7 @@ function AddPresetSound(presetName='Random')
             sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
             sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*10;
             sound.noise = R(2);
-            sound.modulation = R()<.5 ? 0 : R(-1,1);
+            sound.modulation = R()<.8 ? 0 : R(-1,1)**3*500;
             sound.bitCrush = R(.5);
             sound.repeatTime = R()<.5 ? 0 : R(.2);
             sound.tremolo = R()<.5 ? 0 : R(.3);
@@ -540,7 +539,7 @@ function AddPresetSound(presetName='Random')
             sound.deltaSlide = R()<.5 ? 0 : R();
             sound.delay = R()<.5 ? 0 : R(.5);
             sound.noise = R(1);
-            sound.modulation = R()<.5 ? 0 : R(-1,1);
+            sound.modulation = R()<.8 ? 0 : R(-1,1)**3*99;
             sound.bitCrush = R(1,.1);
             sound.repeatTime = R()<.5 ? 0 : R(.2);
             sound.tremolo = R()<.5 ? 0 : R(.5);
