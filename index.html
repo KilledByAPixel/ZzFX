@@ -480,11 +480,11 @@ function AddPresetSound(presetName='Random')
             sound.frequency = R(0,700);
             sound.shape = R(5)|0;
             sound.shapeCurve = R(2);
-            sound.attack = R(.03);
+            sound.attack = R(.02);
             sound.decay = R(.1);
-            sound.sustain = 0;
+            sound.sustain = R(.1);
             sound.sustainVolume = R(.5, 1);
-            sound.release = R(.1,.5);
+            sound.release = R(.01,.3);
             sound.delay = R()<.3 ? 0 : R(.2);
             sound.slide = R()<.5 ? 0 : R(-1,1);
             sound.deltaSlide = R()<.5 ? 0 : R(-1,1);
@@ -500,7 +500,7 @@ function AddPresetSound(presetName='Random')
             sound = ZZFX.BuildRandomSound();
             sound.attack = R(.05);
             sound.decay = R(.05);
-            sound.sustain = 0;
+            sound.sustain = R(.1);
             sound.release = R(.05,.1);
             sound.bitCrush = R()<.5 ? 0 : R(.3);
             break;
@@ -604,6 +604,24 @@ function AddPresetSound(presetName='Random')
     sound.decay = Fixed(sound.decay);
     sound.tremolo = Fixed(sound.tremolo);
     
+    {
+        // just build samples without playing
+        const params = ZZFX.SoundToArray(sound);
+        const saveVolume = ZZFX.volume;
+        ZZFX.volume = 1;
+        const samples = ZZFX.BuildSamples(...params);
+        DrawSoundWave(samples, 1, sound);
+        ZZFX.volume = saveVolume;
+    
+        // get max sample
+        let maxSample = 0;
+        for(let i=0; i<samples.length; i++)
+            maxSample = Math.max(maxSample, Math.abs(samples[i]));
+            
+        console.log(maxSample);
+        sound.volume = Fixed(1/maxSample);
+    }
+    
     // replace with locked
     for(const s of settings)
         if (IsLocked(s.name))
@@ -613,7 +631,7 @@ function AddPresetSound(presetName='Random')
     AddToList(sound);
     LoadSelected();
     UpdateSettings();
-    PlaySelected();
+    PlaySelected(); 
 }
 
 function CopySelected(mutate=0)
