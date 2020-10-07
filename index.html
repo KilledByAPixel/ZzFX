@@ -482,13 +482,13 @@ function AddPresetSound(presetName='Random')
             sound.shapeCurve = R(2);
             sound.attack = R(.02);
             sound.decay = R(.1);
-            sound.sustain = R(.1);
+            sound.sustain = R(.05);
             sound.sustainVolume = R(.5, 1);
-            sound.release = R(.01,.3);
-            sound.delay = R()<.3 ? 0 : R(.2);
-            sound.slide = R()<.5 ? 0 : R(-1,1);
+            sound.release = R(.01,.1);
+            sound.delay = R()<.5 ? 0 : R(.2);
+            sound.slide = R()<.5 ? 0 : R(-9,9);
             sound.deltaSlide = R()<.5 ? 0 : R(-1,1);
-            sound.noise =  R()<.8 ? 0 : R(5);
+            sound.noise =  R()<.8 ? 0 : R(1);
             sound.repeatTime = R()<.5 ? 0 : R(.1);
             sound.modulation = R()<.8 ? 0 : R(-1,1)**2*500;
             sound.bitCrush = R()<.5 ? 0 : R(.1);
@@ -515,10 +515,10 @@ function AddPresetSound(presetName='Random')
             sound.sustain = R()<.5 ? 0 : R(.1);
             sound.sustainVolume = R(.5, 1);
             sound.release = R(.1,.5);
-            sound.delay = R()<.3 ? 0 : R(.2);
+            sound.delay = R()<.5 ? 0 : R(.2);
             sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
             sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*10;
-            sound.noise = R(2);
+            sound.noise = R(1);
             sound.modulation = R()<.8 ? 0 : R(-1,1)**3*500;
             sound.bitCrush = R(.5);
             sound.repeatTime = R()<.5 ? 0 : R(.2);
@@ -605,7 +605,7 @@ function AddPresetSound(presetName='Random')
     sound.tremolo = Fixed(sound.tremolo);
     
     {
-        // just build samples without playing
+        // renormalize sound volume
         const params = ZZFX.SoundToArray(sound);
         const saveVolume = ZZFX.volume;
         ZZFX.volume = 1;
@@ -617,8 +617,6 @@ function AddPresetSound(presetName='Random')
         let maxSample = 0;
         for(let i=0; i<samples.length; i++)
             maxSample = Math.max(maxSample, Math.abs(samples[i]));
-            
-        console.log(maxSample);
         sound.volume = Fixed(1/maxSample);
     }
     
