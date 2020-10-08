@@ -69,7 +69,7 @@ zzfx=       // play sound
 
 - [Bogus Roads](https://www.newgrounds.com/portal/view/747570)
 - [The Wandering Wraith](https://js13kgames.com/entries/the-wandering-wraith)
-- [Bounce Back](https://js13kgames.com/entries/bounce-back)
+- [Bounce Back](https://www.newgrounds.com/portal/view/755171)
 - [Egg Time Rewind](https://killedbyapixel.itch.io/egg-time)
 - [Hue Jumper](https://killedbyapixel.itch.io/hue-jumper)
 - [Bubba's Back Room](https://js13kgames.com/entries/bubbas-back-room)
