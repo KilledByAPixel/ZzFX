@@ -7,9 +7,7 @@
 ### ZzFX is a JavaScript sound effect engine and creation tool
 
 - Sound effects can be generated or manually created using the web based sound designer.
-
-- Just include ZzFX.min.js to load ZzFX, it does not need to be initialized.
-
+- Just include ZzFX.js to load ZzFX, it does not need to be initialized.
 - Or you can use ZzFX.micro.js a tiny (<1k) version that has only the ability to play sounds.
 
 To play a sound in code, just call a simple function! Here are some examples...
@@ -21,7 +19,7 @@ zzfx(...[1.5,.8,270,,.1,,1,1.5,,,,,,,,.1,.01]); // Piano
 zzfx(...[,,129,.01,,.15,,,,,,,,5]); // Drum
 ```
 
-### Here's the code for the ZzFXmicro, this all you need to play ZzFX sounds!
+### Here's the code for the ZzFX micro, this all you need to play ZzFX sounds!
 
 ```
 zzfxV=.3    // volume
