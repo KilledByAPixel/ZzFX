@@ -40,7 +40,6 @@ zzfx=       // play sound
 - Can produce a large variety of sound effect types.
 - Sounds can be played with a short function call. zzfx(...[,,,,.1,,,,9])
 - No additional libraries or dependencies are required.
-- Both ZzFX and ZzFXMicro run in strict mode.
 - Open source with MIT license, you can use this for anything!
 
 ## ZzFX Music
