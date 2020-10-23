@@ -618,6 +618,10 @@ function AddPresetSound(presetName='Random')
         for(let i=0; i<samples.length; i++)
             maxSample = Math.max(maxSample, Math.abs(samples[i]));
         sound.volume = Fixed(1/maxSample);
+
+        // prevent rounding up causing sound to go above 1
+        if (sound.volume > 1)
+            sound.volume = Math.max(1, Fixed(sound.volume - .01));
     }
     
     // replace with locked
