@@ -45,10 +45,9 @@ zzfx=       // play sound
 
 ## ZzFX Music
 
-- [ZzFX now supports music via ZzFXM by Keith Clark!](https://github.com/keithclark/ZzFXM/)
-- [ZzFXM Demo](https://keithclark.github.io/ZzFXM/)
-- Both the songs and player are super tiny! 
-- ZzFX also has the GetNote function that converts a musical note to a freqeuency.
+- [ZzFX now supports music via ZzFXM by Keith Clark!](https://keithclark.github.io/ZzFXM/)
+- Both the player and songs are super tiny and compress well! 
+- ZzFX also has a GetNote function that converts a musical note to a freqeuency.
 
 ## ZzFX UI Features
 
