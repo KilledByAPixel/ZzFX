@@ -34,19 +34,19 @@ zzfx=       // play sound
 ## ZzFX Features
 
 - Tiny synth engine with 20 controllable parameters.
-- Play sounds via code, no need for sound asset files!
+- Play sounds via code, no need for sound asset files.
 - Compatible with nearly all web browsers.
 - Small code footprint, the micro version is under 1 kilobyte uncompressed.
 - Can produce a large variety of sound effect types.
 - Sounds can be played with a short function call. zzfx(...[,,,,.1,,,,9])
-- Both ZzFX and ZzFXMicro run in strict mode.
 - No additional libraries or dependencies are required.
+- Both ZzFX and ZzFXMicro run in strict mode.
 - Open source with MIT license, you can use this for anything!
 
 ## ZzFX Music
 
 - [ZzFX now supports music via ZzFXM by Keith Clark!](https://keithclark.github.io/ZzFXM/)
-- Both the player and songs are super tiny and compress well! 
+- Both the player and songs are super tiny and compress well.
 - ZzFX also has a GetNote function that converts a musical note to a freqeuency.
 
 ## ZzFX UI Features
