@@ -138,11 +138,11 @@ BuildSamples
                 Math.sin((t%PI2)**3) :                   // 4 noise
                 Math.max(Math.min(Math.tan(t),1),-1):    // 3 tan
                 1-(2*t/PI2%2+2)%2:                       // 2 saw
-                1-4*Math.abs(Math.round(t/PI2)-t/PI2):   // 1 triangle
+                1-4*Math.abs((t/PI2+.5|0)-t/PI2):        // 1 triangle
                 Math.sin(t);                             // 0 sin
                 
             s = (repeatTime ?
-                    1 - tremolo + tremolo*Math.sin(2*Math.PI*i/repeatTime) // tremolo
+                    1 - tremolo + tremolo*Math.sin(PI2*i/repeatTime) // tremolo
                     : 1) *
                 sign(s)*(Math.abs(s)**shapeCurve) *      // curve 0=square, 2=pointy
                 volume * this.volume * (                 // envelope
@@ -345,11 +345,11 @@ let zzfxMicro =    // play sound
                 Math.sin((t%PI2)**3) :                   // 4 noise
                 Math.max(Math.min(Math.tan(t),1),-1):    // 3 tan
                 1-(2*t/PI2%2+2)%2:                       // 2 saw
-                1-4*Math.abs(Math.round(t/PI2)-t/PI2):   // 1 triangle
+                1-4*Math.abs((t/PI2+.5|0)-t/PI2):        // 1 triangle
                 Math.sin(t);                             // 0 sin
                 
             s = (repeatTime ?
-                    1 - tremolo + tremolo*Math.sin(2*Math.PI*i/repeatTime) // tremolo
+                    1 - tremolo + tremolo*Math.sin(PI2*i/repeatTime) // tremolo
                     : 1) *
                 sign(s)*(Math.abs(s)**shapeCurve) *      // curve 0=square, 2=pointy
                 volume * zzfxV * (                       // envelope
