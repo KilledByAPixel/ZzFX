@@ -111,7 +111,7 @@ BuildSamples
     let PI2 = Math.PI*2,
     sampleRate = this.sampleRate,
     sign = v => v>0?1:-1,
-    startSlide = slide *= 500 * PI2 / sampleRate**2,
+    startSlide = slide *= 500 * PI2 / sampleRate*zzfxR,
     startFrequency = frequency *= (1 + randomness*2*Math.random() - randomness) 
         * PI2 / sampleRate,
     b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length;
@@ -318,7 +318,7 @@ let zzfxMicro =    // play sound
     // init parameters
     let PI2 = Math.PI*2,
     sign = v => v>0?1:-1,
-    startSlide = slide *= 500 * PI2 / zzfxR**2,
+    startSlide = slide *= 500 * PI2 / zzfxR*zzfxR,
     startFrequency = frequency *= (1 + randomness*2*Math.random() - randomness) 
         * PI2 / zzfxR,
     b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length, buffer, source;
