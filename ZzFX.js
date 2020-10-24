@@ -1,23 +1,21 @@
 /*
 
-ZzFX - Zuper Zmall Zound Zynth v1.1
+ZzFX - Zuper Zmall Zound Zynth v1.1.1
 By Frank Force 2019
 https://github.com/KilledByAPixel/ZzFX
 
 ZzFX Features
 
-- Tiny synth engine with 17 controllable parameters.
+- Tiny synth engine with 20 controllable parameters.
 - Play sounds via code, no need for sound assed files!
-- Compatible with nearly all web browsers.
+- Compatible with most modern web browsers.
 - Small code footprint, the micro version is under 1 kilobyte.
 - Can produce a huge variety of sound effect types.
 - Sounds can be played with a short call. zzfx(...[,,,,.1,,,,9])
 - A small bit of randomness appied to sounds when played.
 - Use ZZFX.GetNote to get frequencies on a standard diatonic scale.
 - Sounds can be saved out as wav files for offline playback.
-- Both ZzFX and ZzFXMicro run in strict mode.
 - No additional libraries or dependencies are required.
-- Open source with MIT license, you can use this for anything!
 
 */
 /*
@@ -56,7 +54,6 @@ constructor()
     this.x = new (window.AudioContext || webkitAudioContext); // shared audio context
     this.volume = .3;                   // master volume scale
     this.sampleRate = 44100;            // sample rate for audio
-    this.samples = 0;                   // last played samples
 }
 
 Play(sound)
@@ -75,11 +72,11 @@ PlaySamples(samples)
     // play an array of audio samples
     const buffer = this.x.createBuffer(1, samples.length, this.sampleRate);
     const source = this.x.createBufferSource();
+    
     buffer.getChannelData(0).set(samples);
     source.buffer = buffer;
     source.connect(this.x.destination);
     source.start();
-    this.samples = samples;
     return source;
 }
 
@@ -108,16 +105,16 @@ BuildSamples
 )
 {
     // init parameters
-    let PI2 = Math.PI*2,
-    sampleRate = this.sampleRate,
+    const PI2 = Math.PI*2;
+    let sampleRate = this.sampleRate,
     sign = v => v>0?1:-1,
-    startSlide = slide *= 500 * PI2 / sampleRate*zzfxR,
-    startFrequency = frequency *= (1 + randomness*2*Math.random() - randomness) 
-        * PI2 / sampleRate,
+    startSlide = slide *= 500 * PI2 / sampleRate / sampleRate,
+    startFrequency = 
+        frequency *= (1 + randomness*2*Math.random() - randomness) * PI2 / sampleRate,
     b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length;
         
     // scale by sample rate
-    attack = attack * sampleRate + 9;   // soften attack
+    attack = attack * sampleRate + 9; // minimum attack to prevent pop
     decay *= sampleRate;
     sustain *= sampleRate;
     release *= sampleRate;
@@ -132,33 +129,33 @@ BuildSamples
     for(length = attack + decay + sustain + release + delay | 0;
         i < length; b[i++] = s)
     {
-        if (!(++c%(bitCrush*100|0)))                     // bit crush
-        {
-            s = shape? shape>1? shape>2? shape>3?        // wave shape
-                Math.sin((t%PI2)**3) :                   // 4 noise
-                Math.max(Math.min(Math.tan(t),1),-1):    // 3 tan
-                1-(2*t/PI2%2+2)%2:                       // 2 saw
-                1-4*Math.abs((t/PI2+.5|0)-t/PI2):        // 1 triangle
-                Math.sin(t);                             // 0 sin
+        if (!(++c%(bitCrush*100|0)))                      // bit crush
+        { 
+            s = shape? shape>1? shape>2? shape>3?         // wave shape
+                Math.sin((t%PI2)**3) :                    // 4 noise
+                Math.max(Math.min(Math.tan(t),1),-1):     // 3 tan
+                1-(2*t/PI2%2+2)%2:                        // 2 saw
+                1-4*Math.abs(Math.round(t/PI2)-t/PI2):    // 1 triangle
+                Math.sin(t);                              // 0 sin
                 
             s = (repeatTime ?
                     1 - tremolo + tremolo*Math.sin(PI2*i/repeatTime) // tremolo
                     : 1) *
-                sign(s)*(Math.abs(s)**shapeCurve) *      // curve 0=square, 2=pointy
-                volume * this.volume * (                 // envelope
-                i < attack ? i/attack :                  // attack
-                i < attack + decay ?                     // decay
-                1-((i-attack)/decay)*(1-sustainVolume) : // decay falloff
-                i < attack  + decay + sustain ?          // sustain
-                sustainVolume :                          // sustain volume
-                i < length - delay ?                     // release
-                (length - i - delay)/release *           // release falloff
-                sustainVolume :                          // release volume
-                0);                                      // post release
-
-            s = delay ? s/2 + (delay > i ? 0 :           // delay
-                (i<length-delay? 1 : (length-i)/delay) * // release delay 
-                b[i-delay|0]/2) : s;                     // sample delay
+                sign(s)*(Math.abs(s)**shapeCurve) *       // curve 0=square, 2=pointy
+                volume * this.volume * (                  // envelope
+                i < attack ? i/attack :                   // attack
+                i < attack + decay ?                      // decay
+                1-((i-attack)/decay)*(1-sustainVolume) :  // decay falloff
+                i < attack  + decay + sustain ?           // sustain
+                sustainVolume :                           // sustain volume
+                i < length - delay ?                      // release
+                (length - i - delay)/release *            // release falloff
+                sustainVolume :                           // release volume
+                0);                                       // post release
+ 
+            s = delay ? s/2 + (delay > i ? 0 :            // delay
+                (i<length-delay? 1 : (length-i)/delay) *  // release delay 
+                b[i-delay|0]/2) : s;                      // sample delay
         }
 
         f = (frequency += slide += deltaSlide) *          // frequency
@@ -198,26 +195,26 @@ BuildRandomSound(lengthScale=1, volume=1, randomness=.05)
     // create random sound
     return this.BuildSound
     (
-       volume,           // volume
-       randomness,       // randomness
-       R()**2*2e3,       // frequency
-       attack,           // attack
-       sustain,          // sustain
-       release,          // release
-       R()*5|0,          // shape
-       R()**2*3,         // shapeCurve
-       C()**3*99*S(),    // slide
-       C()**3*99*S(),    // deltaSlide
-       C()**2*1e3*S(),   // pitchJump
-       R()**2 * length,  // pitchJumpTime
-       C() * length,     // repeatTime
-       C()**4,           // noise
-       R()*C()**3*500*S(),     // modulation
-       C()**4,           // bitCrush
-       C()**3/2,         // delay
-       1 - C(),          // sustain volume
-       decay,            // decay
-       C()**4            // tremolo
+       volume,            // volume
+       randomness,        // randomness
+       R()**2*2e3,        // frequency
+       attack,            // attack
+       sustain,           // sustain
+       release,           // release
+       R()*5|0,           // shape
+       R()**2*3,          // shapeCurve
+       C()**3*99*S(),     // slide
+       C()**3*99*S(),     // deltaSlide
+       C()**2*1e3*S(),    // pitchJump
+       R()**2 * length,   // pitchJumpTime
+       C() * length,      // repeatTime
+       C()**4,            // noise
+       R()*C()**3*500*S(),// modulation
+       C()**4,            // bitCrush
+       C()**3/2,          // delay
+       1 - C(),           // sustain volume
+       decay,             // decay
+       C()**4             // tremolo
     );
 }
 
@@ -248,26 +245,26 @@ BuildSound
     // build sound object
     const sound = 
     {
-        'volume':       volume,
-        'randomness':   randomness,
-        'frequency':    frequency,
-        'attack':       attack,
-        'sustain':      sustain,
-        'release':      release,
-        'shape':        shape,
-        'shapeCurve':   shapeCurve,
-        'slide':        slide,
-        'deltaSlide':   deltaSlide,
-        'pitchJump':    pitchJump,
-        'pitchJumpTime':pitchJumpTime,
-        'repeatTime':   repeatTime,
-        'noise':        noise,
-        'modulation':   modulation,
-        'bitCrush':     bitCrush,
-        'delay':        delay,
-        'sustainVolume':sustainVolume,
-        'decay':        decay,
-        'tremolo':      tremolo
+        volume,
+        randomness,
+        frequency,
+        attack,
+        sustain,
+        release,
+        shape,
+        shapeCurve,
+        slide,
+        deltaSlide,
+        pitchJump,
+        pitchJumpTime,
+        repeatTime,
+        noise,
+        modulation,
+        bitCrush,
+        delay,
+        sustainVolume,
+        decay,
+        tremolo
     };
 
     return sound;
@@ -299,8 +296,6 @@ function zzfx() { return ZZFX.Play(...arguments) }
 
 // ZzFXMicro - super tiny version with only a function to play sounds
 
-let zzfxR = 44100; // sample rate
-
 // ==ClosureCompiler==
 // @compilation_level ADVANCED_OPTIMIZATIONS
 // @output_file_name zzfx.micro.js
@@ -308,8 +303,10 @@ let zzfxR = 44100; // sample rate
 // @language_out ECMASCRIPT_2019
 // ==/ClosureCompiler==
 
-let zzfxV = .3;    // volume
-let zzfxMicro =    // play sound
+const zzfxX = new (window.AudioContext||webkitAudioContext); // audio context
+const zzfxR = 44100; // sample rate
+let zzfxV   = .3;    // volume
+let zzfxMicro =      // play sound
 (
     // parameters
     volume = 1, randomness = .05, frequency = 220, attack = 0, sustain = 0, release = .1, shape = 0, shapeCurve = 1, slide = 0, deltaSlide = 0, pitchJump = 0, pitchJumpTime = 0, repeatTime = 0, noise = 0, modulation = 0, bitCrush = 0, delay = 0, sustainVolume = 1, decay = 0, tremolo = 0
@@ -318,13 +315,13 @@ let zzfxMicro =    // play sound
     // init parameters
     let PI2 = Math.PI*2,
     sign = v => v>0?1:-1,
-    startSlide = slide *= 500 * PI2 / zzfxR*zzfxR,
+    startSlide = slide *= 500 * PI2 / zzfxR / zzfxR,
     startFrequency = frequency *= (1 + randomness*2*Math.random() - randomness) 
         * PI2 / zzfxR,
     b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length, buffer, source;
         
     // scale by sample rate
-    attack = attack * zzfxR + 9;   // soften attack
+    attack = attack * zzfxR + 9; // minimum attack to prevent pop
     decay *= zzfxR;
     sustain *= zzfxR;
     release *= zzfxR;
@@ -339,33 +336,33 @@ let zzfxMicro =    // play sound
     for(length = attack + decay + sustain + release + delay | 0;
         i < length; b[i++] = s)
     {
-        if (!(++c%(bitCrush*100|0)))                     // bit crush
+        if (!(++c%(bitCrush*100|0)))                      // bit crush
         {
-            s = shape? shape>1? shape>2? shape>3?        // wave shape
-                Math.sin((t%PI2)**3) :                   // 4 noise
-                Math.max(Math.min(Math.tan(t),1),-1):    // 3 tan
-                1-(2*t/PI2%2+2)%2:                       // 2 saw
-                1-4*Math.abs((t/PI2+.5|0)-t/PI2):        // 1 triangle
-                Math.sin(t);                             // 0 sin
+            s = shape? shape>1? shape>2? shape>3?         // wave shape
+                Math.sin((t%PI2)**3) :                    // 4 noise
+                Math.max(Math.min(Math.tan(t),1),-1):     // 3 tan
+                1-(2*t/PI2%2+2)%2:                        // 2 saw
+                1-4*Math.abs(Math.round(t/PI2)-t/PI2):    // 1 triangle
+                Math.sin(t);                              // 0 sin
                 
             s = (repeatTime ?
                     1 - tremolo + tremolo*Math.sin(PI2*i/repeatTime) // tremolo
                     : 1) *
-                sign(s)*(Math.abs(s)**shapeCurve) *      // curve 0=square, 2=pointy
-                volume * zzfxV * (                       // envelope
-                i < attack ? i/attack :                  // attack
-                i < attack + decay ?                     // decay
-                1-((i-attack)/decay)*(1-sustainVolume) : // decay falloff
-                i < attack  + decay + sustain ?          // sustain
-                sustainVolume :                          // sustain volume
-                i < length - delay ?                     // release
-                (length - i - delay)/release *           // release falloff
-                sustainVolume :                          // release volume
-                0);                                      // post release
-
-            s = delay ? s/2 + (delay > i ? 0 :           // delay
-                (i<length-delay? 1 : (length-i)/delay) * // release delay 
-                b[i-delay|0]/2) : s;                     // sample delay
+                sign(s)*(Math.abs(s)**shapeCurve) *       // curve 0=square, 2=pointy
+                volume * zzfxV * (                        // envelope
+                i < attack ? i/attack :                   // attack
+                i < attack + decay ?                      // decay
+                1-((i-attack)/decay)*(1-sustainVolume) :  // decay falloff
+                i < attack  + decay + sustain ?           // sustain
+                sustainVolume :                           // sustain volume
+                i < length - delay ?                      // release
+                (length - i - delay)/release *            // release falloff
+                sustainVolume :                           // release volume
+                0);                                       // post release
+ 
+            s = delay ? s/2 + (delay > i ? 0 :            // delay
+                (i<length-delay? 1 : (length-i)/delay) *  // release delay 
+                b[i-delay|0]/2) : s;                      // sample delay
         }
 
         f = (frequency += slide += deltaSlide) *          // frequency
@@ -396,4 +393,3 @@ let zzfxMicro =    // play sound
     source.start();
     return source;
 }
-let zzfxX = new (window.AudioContext||webkitAudioContext);

@@ -63,8 +63,8 @@ GitHub Corner is Copyright (c) 2016 Tim Holman - http://tholman.com
 a                            { color:#5AF; }
 button                       { margin:3px; font-size:18px;}
 button.large                 { height:26px; }
-button.rand                  { width:15px; height:15px; background:#4ff; }
-button.reset                 { width:15px; height:15px; background:#4F4; }
+button.rand                  { width:15px; height:15px; background:#3ff; }
+button.reset                 { width:15px; height:15px; background:#3F3; }
 .soundSelect                 { overflow-x:hidden; height:400px; }
 .slider                      { cursor: pointer; }
 input.lock                   { width:15px; height:15px; }
@@ -132,8 +132,8 @@ ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
 </center>
-<script src=ZzFX.js?v19></script>
-<script src=wav.js?v19></script>
+<script src=ZzFX.js?v21></script>
+<script src=wav.js?v21></script>
 <script>
 
 'use strict'; // strict mode
@@ -307,15 +307,17 @@ function PlaySelected()
     }
     
     const sound = BuildSoundFromSettings();
+    const params = ZZFX.SoundToArray(sound);
+    
     if (ZZFX.volume > 0)
     {
+        const samples = ZZFX.BuildSamples(...params);
         lastPlayedSound = ZZFX.Play(sound);
-        DrawSoundWave(ZZFX.samples, ZZFX.volume, sound);
+        DrawSoundWave(samples, ZZFX.volume, sound);
     }
     else
     {
         // just build samples without playing
-        const params = ZZFX.SoundToArray(sound);
         const saveVolume = ZZFX.volume;
         ZZFX.volume = 1;
         const samples = ZZFX.BuildSamples(...params);
@@ -382,7 +384,7 @@ function UpdateSettings()
             if (elementReset)
             {
                 const isDefault = v == defaultSound[s.name];
-                elementReset.style.background = isDefault ? '' : '#f4f';
+                elementReset.style.background = isDefault ? '' : '#f33';
             }
         }
         
