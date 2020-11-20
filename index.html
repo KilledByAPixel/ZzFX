@@ -132,8 +132,19 @@ ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
 </center>
-<script src=ZzFX.js?v21></script>
-<script src=wav.js?v21></script>
+<script type=module>
+
+// load zzfx module into global scope
+import {ZZFX, zzfx} from './ZzFX.js';
+window.ZZFX = ZZFX;
+window.zzfx = zzfx;
+
+import {GetWavBlob} from './wav.js';
+window.GetWavBlob = GetWavBlob;
+
+Init();
+
+</script>
 <script>
 
 'use strict'; // strict mode
@@ -141,7 +152,7 @@ let sounds = [];
 let generatedSoundCount = 0;
 let loadedSound;
 let lastPlayedSound;
-const defaultSound = ZZFX.BuildSound();
+let defaultSound;
 
 const SeededRandom=_=>
 (
@@ -153,8 +164,73 @@ const SeededRandom=_=>
 let randomSeed = Date.now();
 let loadedSoundSeed = 0;
 
+// build a sound object with same defaults as zzfx
+function BuildSound
+(
+    volume = 1, 
+    randomness = .05,
+    frequency = 220,
+    attack = 0,
+    sustain = 0,
+    release = .1,
+    shape = 0,
+    shapeCurve = 1,
+    slide = 0, 
+    deltaSlide = 0, 
+    pitchJump = 0, 
+    pitchJumpTime = 0, 
+    repeatTime = 0, 
+    noise = 0,
+    modulation = 0,
+    bitCrush = 0,
+    delay = 0,
+    sustainVolume = 1,
+    decay = 0,
+    tremolo = 0
+)
+{
+    const sound = 
+    {
+        volume,
+        randomness,
+        frequency,
+        attack,
+        sustain,
+        release,
+        shape,
+        shapeCurve,
+        slide,
+        deltaSlide,
+        pitchJump,
+        pitchJumpTime,
+        repeatTime,
+        noise,
+        modulation,
+        bitCrush,
+        delay,
+        sustainVolume,
+        decay,
+        tremolo
+    };
+
+    return sound;
+}
+
+// convert sound parameters object to array
+function SoundToArray(sound)
+{
+    // use default sound for keys and order
+    const array = [];
+    for(const key in defaultSound)
+        array.push(sound[key]);
+    return array;
+}
+
 function Init()
 {
+    defaultSound = BuildSound();
+    UI.style.display = '';
+
     BuildSettingsTable();
     RandomizeLogo();
     LoadLocalStorage();
@@ -184,11 +260,11 @@ BuildSetting(.01,0,3,'release','Release','Release time, how fast sound fades out
 BuildSetting(.1,-1e9,1e9,'sustainVolume','Sustain Volume','Volume level for sustain (percent)'),
 BuildSetting(.1,-1e9,1e9,'slide','Slide','How much to slide frequency (kHz/s)'),
 BuildSetting(.1,-1e9,1e9,'deltaSlide','Delta Slide','How much to change slide (kHz/s/s)'),
-BuildSetting(.1,-1e9,1e9,'noise','Noise','How much random noise to add (percent)'),
 BuildSetting(50,-1e9,1e9,'pitchJump','Pitch Jump','Frequency of pitch jump (Hz)'),
 BuildSetting(.01,-1e9,1e9,'pitchJumpTime','Pitch Jump Time','Time of pitch jump (seconds)'),
 BuildSetting(.01,-1e9,1e9,'repeatTime','Repeat Time','Resets some parameters periodically (seconds)'),
 BuildSetting(1,-1e9,1e9,'modulation','Modulation','Frequency of modulation wave, negative flips phase (Hz)'),
+BuildSetting(.1,-1e9,1e9,'noise','Noise','How much random noise to add (percent)'),
 BuildSetting(.1,-1e9,1e9,'bitCrush','Bit Crush','Resamples at a lower frequency in (samples*100)'),
 BuildSetting(.01,0,1e9,'delay','Delay','Overlap sound with itself for reverb and flanger effects (seconds)'),
 BuildSetting(.01,0,1,'tremolo','Tremolo','Trembling effect, rate controlled by repeat time (precent)'),
@@ -307,12 +383,12 @@ function PlaySelected()
     }
     
     const sound = BuildSoundFromSettings();
-    const params = ZZFX.SoundToArray(sound);
+    const params = SoundToArray(sound);
     
     if (ZZFX.volume > 0)
     {
         const samples = ZZFX.BuildSamples(...params);
-        lastPlayedSound = ZZFX.Play(sound);
+        lastPlayedSound = ZZFX.Play(...params);
         DrawSoundWave(samples, ZZFX.volume, sound);
     }
     else
@@ -384,7 +460,7 @@ function UpdateSettings()
             if (elementReset)
             {
                 const isDefault = v == defaultSound[s.name];
-                elementReset.style.background = isDefault ? '' : '#f33';
+                elementReset.style.background = isDefault ? '' : '#f3f';
             }
         }
         
@@ -396,23 +472,59 @@ function UpdateSettings()
     SaveLocalStorage();
 }
 
+function BuildRandomSound(lengthScale=1, volume=1, randomness=.05)
+{
+    // generate a random sound
+    const R=()=>Math.random(), C=()=>R()<.5?R():0, S=()=>C()?1:-1,
+
+    // randomize sound length
+    attack  = R()**3/4*lengthScale,
+    decay   = R()**3/4*lengthScale,
+    sustain = R()**3/4*lengthScale,
+    release = R()**3/4*lengthScale,
+    length  = attack + decay + sustain + release;
+
+    // create random sound
+    return BuildSound
+    (
+       volume,            // volume
+       randomness,        // randomness
+       R()**2*2e3,        // frequency
+       attack,            // attack
+       sustain,           // sustain
+       release,           // release
+       R()*5|0,           // shape
+       R()**2*3,          // shapeCurve
+       C()**3*99*S(),     // slide
+       C()**3*99*S(),     // deltaSlide
+       C()**2*1e3*S(),    // pitchJump
+       R()**2 * length,   // pitchJumpTime
+       C() * length,      // repeatTime
+       C()**4,            // noise
+       R()*C()**3*500*S(),// modulation
+       C()**4,            // bitCrush
+       C()**3/2,          // delay
+       1 - C(),           // sustain volume
+       decay,             // decay
+       C()**4             // tremolo
+    );
+}
+
 function AddPresetSound(presetName='Random')
 {
-    let sound = ZZFX.BuildSound();
+    let sound = BuildSound();
     const R =(a=1,b=0) => b+(a-b)*Math.random();
-    
-    let repeatClamp = 2;
     
     switch (presetName)
     {
         case 'Random':
         {
-            sound = ZZFX.BuildRandomSound();
+            sound = BuildRandomSound();
             break;
         }
         case 'Default':
         {
-            sound = ZZFX.BuildSound();
+            sound = BuildSound();
             break;
         }
         case 'Pickup':
@@ -499,7 +611,7 @@ function AddPresetSound(presetName='Random')
         }
         case 'Blip':
         {
-            sound = ZZFX.BuildRandomSound();
+            sound = BuildRandomSound();
             sound.attack = R(.05);
             sound.decay = R(.05);
             sound.sustain = R(.1);
@@ -598,7 +710,7 @@ function AddPresetSound(presetName='Random')
     sound.noise = Fixed(sound.noise,1);
     sound.pitchJump = Fixed(sound.pitchJump,0);
     sound.pitchJumpTime = Fixed(sound.pitchJumpTime);
-    sound.repeatTime = Fixed(sound.repeatTime, repeatClamp);
+    sound.repeatTime = Fixed(sound.repeatTime, 2);
     sound.modulation = Fixed(sound.modulation,1);
     sound.bitCrush = Fixed(sound.bitCrush,1);
     sound.delay = Fixed(sound.delay);
@@ -608,7 +720,7 @@ function AddPresetSound(presetName='Random')
     
     {
         // renormalize sound volume
-        const params = ZZFX.SoundToArray(sound);
+        const params = SoundToArray(sound);
         const saveVolume = ZZFX.volume;
         ZZFX.volume = 1;
         const samples = ZZFX.BuildSamples(...params);
@@ -935,7 +1047,7 @@ function AddDefaultIfEmpty()
     if (select_soundList.length > 0)
         return;
 
-    const sound = ZZFX.BuildSound();
+    const sound = BuildSound();
     sound.name = 'Sound Default';
     AddToList(sound);
     LoadSelected();
@@ -956,11 +1068,11 @@ function CopyToCliboard(text)
 function GetCode(sound)
 {
     // create code string
-    const parameters = ZZFX.SoundToArray(sound);
+    const parameters = SoundToArray(sound);
         
     // remove defaults
     const shorten = input_shortenCode.checked;
-    const defaults = ZZFX.SoundToArray(ZZFX.BuildSound());
+    const defaults = SoundToArray(BuildSound());
     let isEnd = 1;
     for(let i = parameters.length-1; shorten&&i>=0; --i)
     {
@@ -1019,7 +1131,7 @@ function LoadSound()
 
     // build sound
     const paramArray = code.split(',').map(p=>p.length? parseFloat(p) : undefined);
-    const sound = ZZFX.BuildSound(...paramArray);
+    const sound = BuildSound(...paramArray);
     const name = code.split('//')[1];
     sound.name = name || ('Loaded Sound ' + generatedSoundCount++);
     sound.name = sound.name.trim();
@@ -1047,11 +1159,11 @@ function BuildWaveDataUrl(sound)
     // build samples with fixed volume
     const v = ZZFX.volume;
     ZZFX.volume = .5;
-    const samples = ZZFX.BuildSamples(...ZZFX.SoundToArray(sound));
+    const samples = ZZFX.BuildSamples(...SoundToArray(sound));
     ZZFX.volume = v;
     
     const URLObject = webkitURL || URL;
-    return URLObject.createObjectURL(GetWavBlob([samples], zzfxR));
+    return URLObject.createObjectURL(GetWavBlob([samples], ZZFX.sampleRate));
 }
 
 function DrawSoundWave(b, volume, sound)
@@ -1236,9 +1348,6 @@ select_soundList.addEventListener('drop', e=>
     LoadFile(e.dataTransfer.files[0]);
     select_soundList.style.background = '';
 });
-
-Init();
-UI.style.display = '';
 
 </script>
 <a href="https://github.com/KilledByAPixel/ZzFX" target="_blank" class="github-corner" aria-label="View source on GitHub"><svg width="80" height="80" viewBox="0 0 250 250" style="fill:#5AF; color:#222; position: absolute; top: 0; border: 0; right: 0;" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a><style>.github-corner:hover .octo-arm{animation:octocat-wave 560ms ease-in-out}@keyframes octocat-wave{0%,100%{transform:rotate(0)}20%,60%{transform:rotate(-25deg)}40%,80%{transform:rotate(10deg)}}@media (max-width:500px){.github-corner:hover .octo-arm{animation:none}.github-corner .octo-arm{animation:octocat-wave 560ms ease-in-out}}</style>

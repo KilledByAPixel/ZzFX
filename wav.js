@@ -1,6 +1,6 @@
 // wav.js by Frank Force 2020 - https://github.com/KilledByAPixel/ZzFX
 
-function GetWavBlob(sampleChannels, sampleRate = 44100)
+export function GetWavBlob(sampleChannels, sampleRate = 44100)
 {
     // adapted from https://gist.github.com/asanoboy/3979747
     const channelCount = sampleChannels.length;
@@ -9,8 +9,7 @@ function GetWavBlob(sampleChannels, sampleRate = 44100)
     const buffer = new Int16Array(length + 23);
 
     console.assert(channelCount && sampleCount, 'No channels or samples found!');
-        
-    // wave header
+    
     // wave header
     buffer[ 0] = 0x4952; // RI
     buffer[ 1] = 0x4646; // FF
