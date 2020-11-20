@@ -19,7 +19,7 @@ zzfx(...[1.5,.8,270,,.1,,1,1.5,,,,,,,,.1,.01]); // Piano
 zzfx(...[,,129,.01,,.15,,,,,,,,5]); // Drum
 ```
 
-### Here's the code for the ZzFX micro, this all you need to play ZzFX sounds!
+### Here is all the code you need to play ZzFX sounds!
 
 ```
 zzfxV=.3    // volume
