@@ -169,14 +169,14 @@ export const ZZFX =
             {
                 frequency += pitchJump;         // apply pitch jump
                 startFrequency += pitchJump;    // also apply to start
-                j = 0;                          // reset pitch jump time
+                j = 0;                          // stop pitch jump time
             }
 
             if (repeatTime && !(++r % repeatTime)) // repeat
             {
                 frequency = startFrequency;     // reset frequency
                 slide = startSlide;             // reset slide
-                j = j || 1;                     // reset pitch jump time
+                j ||= 1;                        // reset pitch jump time
             }
         }
 

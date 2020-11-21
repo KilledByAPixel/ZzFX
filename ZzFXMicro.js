@@ -97,7 +97,7 @@ const zzfx =         // play sound
         {
             frequency = startFrequency;     // reset frequency
             slide = startSlide;             // reset slide
-            j = j || 1;                     // reset pitch jump time
+            j ||= 1;                        // reset pitch jump time
         }
     }
 
