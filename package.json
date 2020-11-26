@@ -1,0 +1,26 @@
+{
+  "name": "zzfx",
+  "version": "1.1.3",
+  "description": "A Tiny Sound FX System",
+  "main": "ZzFX.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/KilledByAPixel/ZzFX.git"
+  },
+  "keywords": [
+    "sound",
+    "soundfx",
+    "audio",
+    "synth"
+  ],
+  "author": "Frank Force",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/KilledByAPixel/ZzFX/issues"
+  },
+  "homepage": "https://github.com/KilledByAPixel/ZzFX#readme"
+}
