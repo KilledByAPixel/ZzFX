@@ -86,5 +86,9 @@ zzfxX=new(window.AudioContext||webkitAudioContext) // audio context
 - [Marshmallow Sky](https://github.com/baturinsky/marshmallow-sky) 
 - [Big Champ](https://js13kgames.com/entries/big-champ)
 - [I want to google the game](https://js13kgames.com/entries/i-want-to-google-the-game)
+- [Edge Not Found](https://js13kgames.com/entries/edge-not-found)
+- [Stolen Sword](https://js13kgames.com/entries/stolen-sword)
+- [Highway 404](https://js13kgames.com/entries/highway-404)
+- [The Last Spartan](https://js13kgames.com/entries/the-last-spartan)
 
 ![ZzFX Image](/favicon.png) 
