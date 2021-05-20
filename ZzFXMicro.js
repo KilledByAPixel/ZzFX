@@ -11,7 +11,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// ZzFXMicro - Zuper Zmall Zound Zynth - v1.1.2
+// ZzFXMicro - Zuper Zmall Zound Zynth - v1.1.3
 
 // ==ClosureCompiler==
 // @compilation_level ADVANCED_OPTIMIZATIONS
