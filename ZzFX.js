@@ -176,7 +176,7 @@ export const ZZFX =
             {
                 frequency = startFrequency;     // reset frequency
                 slide = startSlide;             // reset slide
-                j ||= 1;                        // reset pitch jump time
+                j = j || 1;                     // reset pitch jump time
             }
         }
 
