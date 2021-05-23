@@ -65,6 +65,7 @@ zzfxX=new(window.AudioContext||webkitAudioContext) // audio context
 ## Games Using ZzFX
 
 - [Bogus Roads](https://www.newgrounds.com/portal/view/747570)
+- [Note Craft](https://js13kgames.com/entries/notecraft)
 - [The Wandering Wraith](https://js13kgames.com/entries/the-wandering-wraith)
 - [Bounce Back](https://www.newgrounds.com/portal/view/755171)
 - [Egg Time Rewind](https://killedbyapixel.itch.io/egg-time)
@@ -90,5 +91,6 @@ zzfxX=new(window.AudioContext||webkitAudioContext) // audio context
 - [Stolen Sword](https://js13kgames.com/entries/stolen-sword)
 - [Highway 404](https://js13kgames.com/entries/highway-404)
 - [The Last Spartan](https://js13kgames.com/entries/the-last-spartan)
+- [OS13k](https://github.com/KilledByAPixel/OS13k)
 
 ![ZzFX Image](/favicon.png) 
