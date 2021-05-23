@@ -45,7 +45,7 @@ zzfxX=new(window.AudioContext||webkitAudioContext) // audio context
 
 - [ZzFX now supports music via ZzFXM by Keith Clark!](https://keithclark.github.io/ZzFXM/)
 - Both the player and songs are super tiny and compress well.
-- ZzFX also has a GetNote function that converts a musical note to a freqeuency.
+- [NoteCraft](https://killedbyapixel.github.io/NoteCraft/) can also export to ZzFXM.
 
 ## ZzFX UI Features
 
