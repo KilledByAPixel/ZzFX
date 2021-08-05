@@ -104,7 +104,8 @@ export const ZZFX =
         delay = 0,
         sustainVolume = 1,
         decay = 0,
-        tremolo = 0
+        tremolo = 0,
+        filter = 0
     )
     {
         // init parameters
@@ -114,7 +115,9 @@ export const ZZFX =
         startSlide = slide *= 500 * PI2 / sampleRate / sampleRate,
         startFrequency = 
             frequency *= (1 + randomness*2*Math.random() - randomness) * PI2 / sampleRate,
-        b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length;
+        b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length,
+        x = 0, y = 0, x2 =0, x1 = 0, y2 = 0, y1 = 0,
+        b0, b1, b2, a1, a2;
 
         // scale by sample rate
         attack = attack * sampleRate + 9; // minimum attack to prevent pop
@@ -127,6 +130,8 @@ export const ZZFX =
         pitchJump *= PI2 / sampleRate;
         pitchJumpTime *= sampleRate;
         repeatTime = repeatTime * sampleRate | 0;
+
+        if (filter) [b0,b1,b2,a1,a2] = (filter > 0 ? lp : hp)(filter * 2 / sampleRate, 1)
 
         // generate waveform
         for(length = attack + decay + sustain + release + delay | 0;
@@ -159,6 +164,9 @@ export const ZZFX =
                 s = delay ? s/2 + (delay > i ? 0 :            // delay
                     (i<length-delay? 1 : (length-i)/delay) *  // release delay 
                     b[i-delay|0]/2) : s;                      // sample delay
+
+                // biquad filter
+                if (filter) x = s, y = b0*x + b1*x1 + b2*x2 - a1*y1 - a2*y2, s = y, x2 = x1, x1 = x, y2 = y1, y1 = y;
             }
 
             f = (frequency += slide += deltaSlide) *          // frequency
@@ -190,3 +198,17 @@ export const ZZFX =
     }
 
 } // ZZFX
+
+
+const lp = (f, resonance,
+    g=Math.pow(10.0, 0.05 * resonance),
+    d = Math.sqrt((4 - Math.sqrt(16 - 16 / (g * g))) / 2),
+    sn = 0.5 * d * Math.sin(Math.PI * f),
+    beta = 0.5 * (1 - sn) / (1 + sn),
+    gamma = (0.5 + beta) * Math.cos(Math.PI * f),
+    alpha = 0.25 * (0.5 + beta - gamma)
+) =>
+    f == 1 ? nc(1, 0, 0, 1, 0, 0) : f > 0 ? nc(2 * alpha, 4 * alpha, 2 * alpha, 1, 2 * -gamma, 2 * beta) : nc(0, 0, 0, 1, 0, 0);
+
+const hp = () => []
+const nc = (b0, b1, b2, a0, a1, a2, a0i=1/a0) => [b0 * a0i, b1 * a0i, b2 * a0i, a1 * a0i, a2 * a0i]
