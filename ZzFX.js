@@ -132,14 +132,10 @@ export const ZZFX =
         repeatTime = repeatTime * sampleRate | 0;
 
         if (filter) {
-            w0 = PI2 * Math.abs(filter) * 2 / sampleRate,
-            cos = Math.cos(w0),
-            alpha = Math.sin(w0) / (2 * q),
-            b2 = b0 = (1 + sign(filter) * cos) * 0.5,
-            b1 = -sign(filter) - cos,
-            a0 =  1 + alpha,
-            a1 = -2 * cos,
-            a2 =  1 - alpha;
+            w0 = PI2 * Math.abs(filter) * 2 / sampleRate, cos = Math.cos(w0), alpha = Math.sin(w0) / (2 * q),
+            b2 = b0 = (1 + sign(filter) * cos) * 0.5, b1 = -sign(filter) - cos,
+            a0 =  1 + alpha, a1 = -2 * cos, a2 =  1 - alpha;
+
             [b0,b1,b2,a1,a2] = [b0/a0,b1/a0,b2/a0,a1/a0,a2/a0]
         }
 
