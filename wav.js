@@ -1,6 +1,6 @@
 // wav.js by Frank Force 2020 - https://github.com/KilledByAPixel/ZzFX
 
-export function GetWavBlob(sampleChannels, sampleRate = 44100)
+export function buildWavBlob(sampleChannels, sampleRate = 44100)
 {
     // adapted from https://gist.github.com/asanoboy/3979747
     const channelCount = sampleChannels.length;
