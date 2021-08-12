@@ -1,6 +1,6 @@
 /*
 
-ZzFX - Zuper Zmall Zound Zynth v1.1.6
+ZzFX - Zuper Zmall Zound Zynth v1.1.7
 By Frank Force 2019
 https://github.com/KilledByAPixel/ZzFX
 
