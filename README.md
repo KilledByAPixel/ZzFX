@@ -30,7 +30,7 @@ zzfx(...[1.5,.8,270,,.1,,1,1.5,,,,,,,,.1,.01]); // Piano
 zzfx(...[,,129,.01,,.15,,,,,,,,5]); // Drum
 ```
 
-![ZzFX Image](/screenshot.jpg)
+![ZzFX Image](/screenshot.png)
 
 ## ZzFX Music
 
