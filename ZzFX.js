@@ -72,8 +72,8 @@ export const ZZFX =
     playSamples: function(...samples)
     {
         // create buffer and source
-        const buffer = this.x.createBuffer(samples.length, samples[0].length, this.sampleRate);
-        const source = this.x.createBufferSource();
+        const buffer = this.x.createBuffer(samples.length, samples[0].length, this.sampleRate),
+            source = this.x.createBufferSource();
 
         samples.map((d,i)=> buffer.getChannelData(i).set(d));
         source.buffer = buffer;
@@ -112,8 +112,8 @@ export const ZZFX =
         let sampleRate = this.sampleRate,
         sign = v => v>0?1:-1,
         startSlide = slide *= 500 * PI2 / sampleRate / sampleRate,
-        startFrequency = 
-            frequency *= (1 + randomness*2*Math.random() - randomness) * PI2 / sampleRate,
+        startFrequency = frequency *= 
+            (1 + randomness*2*Math.random() - randomness) * PI2 / sampleRate,
         b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length;
 
         // scale by sample rate

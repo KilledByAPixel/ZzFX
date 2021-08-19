@@ -2,9 +2,8 @@
 // MIT License - Copyright 2019 Frank Force
 // https://github.com/KilledByAPixel/ZzFX
 
-// This is a tiny build of zzfx with only a zzfx function to play sounds.
+// This is a minified build of zzfx for use in size coding projects.
 // You can use zzfxV to set volume.
-// There is a small bit of optional code to improve compatibility.
 // Feel free to minify it further for your own needs!
 
 'use strict';
@@ -16,7 +15,7 @@
 // ==ClosureCompiler==
 // @compilation_level ADVANCED_OPTIMIZATIONS
 // @output_file_name ZzFXMicro.min.js
-// @js_externs zzfx, zzfxV, zzfxX
+// @js_externs zzfx, zzfxG, zzfxP, zzfxV, zzfxX
 // @language_out ECMASCRIPT_2019
 // ==/ClosureCompiler==
 
@@ -27,7 +26,8 @@ const zzfxX = new (window.AudioContext||webkitAudioContext); // audio context
 const zzfxP = (...samples)=>  // play samples
 {
     // create buffer and source
-    let buffer = zzfxX.createBuffer(samples.length, samples[0].length, zzfxR), source = zzfxX.createBufferSource();
+    let buffer = zzfxX.createBuffer(samples.length, samples[0].length, zzfxR), 
+        source = zzfxX.createBufferSource();
 
     // copy samples to buffer and play
     samples.map((d,i)=> buffer.getChannelData(i).set(d));
@@ -39,7 +39,10 @@ const zzfxP = (...samples)=>  // play samples
 const zzfxG = // generate samples
 (
     // parameters
-    volume = 1, randomness = .05, frequency = 220, attack = 0, sustain = 0, release = .1, shape = 0, shapeCurve = 1, slide = 0, deltaSlide = 0, pitchJump = 0, pitchJumpTime = 0, repeatTime = 0, noise = 0, modulation = 0, bitCrush = 0, delay = 0, sustainVolume = 1, decay = 0, tremolo = 0
+    volume = 1, randomness = .05, frequency = 220, attack = 0, sustain = 0,
+    release = .1, shape = 0, shapeCurve = 1, slide = 0, deltaSlide = 0,
+    pitchJump = 0, pitchJumpTime = 0, repeatTime = 0, noise = 0, modulation = 0,
+    bitCrush = 0, delay = 0, sustainVolume = 1, decay = 0, tremolo = 0
 )=>
 {
     // init parameters
