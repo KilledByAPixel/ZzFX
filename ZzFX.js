@@ -1,6 +1,6 @@
 /*
 
-ZzFX - Zuper Zmall Zound Zynth v1.1.7
+ZzFX - Zuper Zmall Zound Zynth v1.1.8
 By Frank Force 2019
 https://github.com/KilledByAPixel/ZzFX
 
@@ -69,13 +69,13 @@ export const ZZFX =
     },
 
     // play an array of samples
-    playSamples: function(samples)
+    playSamples: function(...samples)
     {
-        // play an array of audio samples
-        const buffer = this.x.createBuffer(1, samples.length, this.sampleRate);
+        // create buffer and source
+        const buffer = this.x.createBuffer(samples.length, samples[0].length, this.sampleRate);
         const source = this.x.createBufferSource();
 
-        buffer.getChannelData(0).set(samples);
+        samples.map((d,i)=> buffer.getChannelData(i).set(d));
         source.buffer = buffer;
         source.connect(this.x.destination);
         source.start();

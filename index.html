@@ -132,12 +132,13 @@ ZzFX Â© <a href=https://www.frankforce.com target=_blank>Frank Force</a> 2019 â˜
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
 </center>
+<script src=ZzFXMicro.js></script>
 <script type=module>
 
 // load zzfx module into global scope
-import {ZZFX, zzfx} from './ZzFX.js';
+import {ZZFX} from './ZzFX.js';
 window.ZZFX = ZZFX;
-window.zzfx = zzfx;
+window.zzfx = zzfx; // uncomment to test zzfx micro
 
 import {buildWavBlob} from './wav.js';
 window.buildWavBlob = buildWavBlob;
