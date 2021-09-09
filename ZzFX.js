@@ -1,6 +1,6 @@
 /*
 
-ZzFX - Zuper Zmall Zound Zynth v1.1.5
+ZzFX - Zuper Zmall Zound Zynth v1.1.8
 By Frank Force 2019
 https://github.com/KilledByAPixel/ZzFX
 
@@ -47,7 +47,7 @@ ZzFX Features
 'use strict';
 
 // play a zzfx sound
-export function zzfx(...parameters) { return ZZFX.Play(...parameters) }
+export function zzfx(...parameters) { return ZZFX.play(...parameters) }
 
 // zzfx object with some extra functionalty
 export const ZZFX =
@@ -62,20 +62,20 @@ export const ZZFX =
     x: new (window.AudioContext || webkitAudioContext),
 
     // play a sound from zzfx paramerters
-    Play: function(...parameters)
+    play: function(...parameters)
     {
         // build samples and start sound
-        return this.PlaySamples(this.BuildSamples(...parameters));
+        return this.playSamples(this.buildSamples(...parameters));
     },
 
     // play an array of samples
-    PlaySamples: function(samples)
+    playSamples: function(...samples)
     {
-        // play an array of audio samples
-        const buffer = this.x.createBuffer(1, samples.length, this.sampleRate);
-        const source = this.x.createBufferSource();
+        // create buffer and source
+        const buffer = this.x.createBuffer(samples.length, samples[0].length, this.sampleRate),
+            source = this.x.createBufferSource();
 
-        buffer.getChannelData(0).set(samples);
+        samples.map((d,i)=> buffer.getChannelData(i).set(d));
         source.buffer = buffer;
         source.connect(this.x.destination);
         source.start();
@@ -83,7 +83,7 @@ export const ZZFX =
     },
 
     // build an array of samples
-    BuildSamples: function
+    buildSamples: function
     (
         volume = 1, 
         randomness = .05,
@@ -198,7 +198,7 @@ export const ZZFX =
     },
     
     // get frequency of a musical note on a diatonic scale
-    GetNote: function(semitoneOffset=0, rootNoteFrequency=440)
+    getNote: function(semitoneOffset=0, rootNoteFrequency=440)
     {
         return rootNoteFrequency * 2**(semitoneOffset/12);
     }

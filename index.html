@@ -93,7 +93,7 @@ body                         { user-select:none; }
 </td>
 <td style=text-align:center;width:380px rowspan=2>
 <div id=div_masterVolume></div>
-<input id=slider_masterVolume title='Volume to scale all sounds by in percent' type=range min=0 max=100 value=30 style=width:90% oninput=UpdateSettings();SaveLocalStorage()>
+<input id=slider_masterVolume title='Volume to scale all sounds by in percent' type=range min=0 max=100 value=25 style=width:90% oninput=UpdateSettings();SaveLocalStorage()>
 <canvas title='Image of sound wave, click to play the sound [SPACE]' id=canvas_soundWave width=350 height=80 style=width:100%></canvas>
 <button class=large title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button><button class=large title='Make a new sound with mutated parameters [M]' onclick=CopySelected(1)>Mutate</button><button class=large title='Make copy of selected sound [C]' onclick=CopySelected()>Copy</button>
 <br>
@@ -128,19 +128,20 @@ body                         { user-select:none; }
 </center>
 </td></tr>
 </table>
-ZzFX © <a href=http://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
+ZzFX © <a href=https://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
 <a hidden id=a_downloadLink></a>
 <input hidden id=input_importFile type=file accept=.txt>
 </center>
+<script src=ZzFXMicro.js></script>
 <script type=module>
 
 // load zzfx module into global scope
-import {ZZFX, zzfx} from './ZzFX.js';
+import {ZZFX} from './ZzFX.js';
 window.ZZFX = ZZFX;
-window.zzfx = zzfx;
+window.zzfx = zzfx; // uncomment to test zzfx micro
 
-import {GetWavBlob} from './wav.js';
-window.GetWavBlob = GetWavBlob;
+import {buildWavBlob} from './wav.js';
+window.buildWavBlob = buildWavBlob;
 
 Init();
 
@@ -286,7 +287,7 @@ function BuildSettingsTable()
         if ([1,3,6,8,10].includes(i%12))
             continue;
 
-        noteScale.push([ZZFX.GetNote(i+3-36).toPrecision(7), NoteName(i)]);
+        noteScale.push([ZZFX.getNote(i+3-36).toPrecision(7), NoteName(i)]);
     }
 
     const s = settings[0];
@@ -390,8 +391,8 @@ function PlaySelected()
     
     if (ZZFX.volume > 0)
     {
-        const samples = ZZFX.BuildSamples(...params);
-        lastPlayedSound = ZZFX.Play(...params);
+        const samples = ZZFX.buildSamples(...params);
+        lastPlayedSound = ZZFX.play(...params);
         DrawSoundWave(samples, ZZFX.volume, sound);
     }
     else
@@ -399,7 +400,7 @@ function PlaySelected()
         // just build samples without playing
         const saveVolume = ZZFX.volume;
         ZZFX.volume = 1;
-        const samples = ZZFX.BuildSamples(...params);
+        const samples = ZZFX.buildSamples(...params);
         DrawSoundWave(samples, 1, sound);
         ZZFX.volume = saveVolume;
     }
@@ -725,7 +726,7 @@ function AddPresetSound(presetName='Random')
         const params = SoundToArray(sound);
         const saveVolume = ZZFX.volume;
         ZZFX.volume = 1;
-        const samples = ZZFX.BuildSamples(...params);
+        const samples = ZZFX.buildSamples(...params);
         DrawSoundWave(samples, 1, sound);
         ZZFX.volume = saveVolume;
     
@@ -1035,7 +1036,7 @@ function ClearSoundsButton(clearFavorites)
     {
         if (!confirm('Are you sure you want clear all sounds?\nThis will DELETE your favorites!'))
             return;
-        slider_masterVolume.value = 30;
+        slider_masterVolume.value = 25;
         input_shortenCode.checked = 1;
     }
     ClearSounds(clearFavorites);
@@ -1161,11 +1162,11 @@ function BuildWaveDataUrl(sound)
     // build samples with fixed volume
     const v = ZZFX.volume;
     ZZFX.volume = .5;
-    const samples = ZZFX.BuildSamples(...SoundToArray(sound));
+    const samples = ZZFX.buildSamples(...SoundToArray(sound));
     ZZFX.volume = v;
     
     const URLObject = webkitURL || URL;
-    return URLObject.createObjectURL(GetWavBlob([samples], ZZFX.sampleRate));
+    return URLObject.createObjectURL(buildWavBlob([samples], ZZFX.sampleRate));
 }
 
 function DrawSoundWave(b, volume, sound)
