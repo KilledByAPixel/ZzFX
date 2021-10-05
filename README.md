@@ -4,14 +4,22 @@
 
 ## ZzFX Features
 
-- Tiny synth engine with 20 controllable parameters.
-- Play sounds via code, no need for sound asset files.
-- Compatible with nearly all web browsers.
-- Small code footprint, the micro version is under 1 kilobyte uncompressed.
-- Can produce a large variety of sound effect types.
+- Tiny synth engine with 20 controllable parameters
+- Play sounds via code, no need for sound asset files
+- Compatible with nearly all web browsers
+- Small code footprint, the micro version is under 1 kilobyte uncompressed
+- Can produce a large variety of sound effect types
 - Sounds can be played with a short function call. zzfx(...[,,,,.1,,,,9])
-- No additional libraries or dependencies are required.
+- No additional libraries or dependencies are required
 - Open source with MIT license, you can use this for anything!
+
+# Why Use ZzFX?
+
+- You can quickly add or change sound effects with just one line of code
+- Without sound asset files your game is smaller and faster for users to download
+- While prototyping you can use ZzFX for placeholder sound effects
+- For size limited game jams like [JS13K](https://js13kgames.com/), ZzFX uses very minimal overhead
+- ZzFX is not just for games, you can use it to easily add sounds to any website
 
 # How to Use
 
@@ -19,7 +27,7 @@
 * Import ZZFX as a module with using `import {ZZFX, zzfx} from './ZzFX.js'`
 * Or paste the code from [ZzFXMicro.min.js](https://github.com/KilledByAPixel/ZzFX/blob/master/ZzFXMicro.min.js)
 * To play a sound just call zzfx(), something like `zzfx(...[,,,,.1,,,,9])`
-* Use [the ZzFX sound designer web app](https://killedbyapixel.github.io/ZzFX) to create new sounds.
+* Use [the ZzFX sound designer web app](https://killedbyapixel.github.io/ZzFX) to create new sounds
 
 Here are a few more examples examples...
 
@@ -35,8 +43,8 @@ zzfx(...[,,129,.01,,.15,,,,,,,,5]); // Drum
 ## [ZzFX Music](https://keithclark.github.io/ZzFXM/)
 
 - [ZzFX now supports music via ZzFXM by Keith Clark!](https://keithclark.github.io/ZzFXM/)
-- Both the player and songs are super tiny and compress well.
-- [NoteCraft](https://killedbyapixel.github.io/NoteCraft/) can also export to ZzFXM.
+- Both the player and songs are super tiny and compress well
+- [NoteCraft](https://killedbyapixel.github.io/NoteCraft/) can also export to ZzFXM
 
 # ZzFX Micro Code
 
@@ -60,18 +68,18 @@ getChannelData(0).set(k);b=zzfxX.createBufferSource();b.buffer=p;b.connect(zzfxX
 
 ## ZzFX UI Features
 
-- Generates random sounds from presets.
-- Sound list is automatically saved.
-- Each parameter can be modified with constraints.
-- Lock and mutate buttons for each parameter.
-- Sounds can be renamed.
-- Shortens code for zzfx sound calls.
-- Displays image of sound wave when played.
-- Sounds can be marked as favorites to prevent removal.
-- Sounds can be loaded by pasting zzfx code for easy sharing.
-- List of sounds can be exported and imported.
-- Supports drag-and-drop of exported files into sound list.
-- Supports saving sounds as wav files for offline playback.
+- Generates random sounds from presets
+- Sound list is automatically saved
+- Each parameter can be modified with constraints
+- Lock and mutate buttons for each parameter
+- Sounds can be renamed
+- Shortens code for zzfx sound calls
+- Displays image of sound wave when played
+- Sounds can be marked as favorites to prevent removal
+- Sounds can be loaded by pasting zzfx code for easy sharing
+- List of sounds can be exported and imported
+- Supports drag-and-drop of exported files into sound list
+- Supports saving sounds as wav files for offline playback
 
 ## Games Using ZzFX
 
