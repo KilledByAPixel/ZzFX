@@ -83,8 +83,13 @@ getChannelData(0).set(k);b=zzfxX.createBufferSource();b.buffer=p;b.connect(zzfxX
 
 ## Games Using ZzFX
 
+- [Space Huggers](https://js13kgames.com/entries/space-huggers)
+- [Packabunchas](https://js13kgames.com/entries/packabunchas)
+- [Galaxy Rider](https://js13kgames.com/entries/galaxy-rider)
+- [The Adventures of Captain Callisto](https://js13kgames.com/entries/the-adventures-of-captain-callisto)
+- [Welcome to Space](https://js13kgames.com/entries/welcome-to-space)
 - [Bogus Roads](https://www.newgrounds.com/portal/view/747570)
-- [Note Craft](https://js13kgames.com/entries/notecraft)
+- [NoteCraft](https://js13kgames.com/entries/notecraft)
 - [The Wandering Wraith](https://js13kgames.com/entries/the-wandering-wraith)
 - [Bounce Back](https://www.newgrounds.com/portal/view/755171)
 - [Egg Time Rewind](https://killedbyapixel.itch.io/egg-time)
