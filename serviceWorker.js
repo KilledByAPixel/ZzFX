@@ -3,7 +3,7 @@ const path = "./ZzFX";
 const assets = [
   `${path}/`,
   `${path}/index.html`,
-  `${path}/facivon.png`,
+  `${path}/favicon.png`,
   `${path}/ZzFXMicro.min.js`,
   `${path}/wav.js`,
 ];
