@@ -4,7 +4,7 @@ const assets = [
   `${path}/`,
   `${path}/index.html`,
   `${path}/favicon.png`,
-  `${path}/ZzFXMicro.min.js`,
+  `${path}/ZzFXMicro.js`,
   `${path}/wav.js`,
 ];
 
