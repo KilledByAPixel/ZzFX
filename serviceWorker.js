@@ -3,6 +3,7 @@ const assets = [
   "./",
   "./index.html",
   "./favicon.png",
+  "./ZzFX.js",
   "./ZzFXMicro.js",
   "./wav.js",
 ];
