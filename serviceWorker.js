@@ -1,10 +1,10 @@
 const cache = "zzfx-1.1.8";
 const assets = [
-  "/",
-  "/index.html",
-  "/facivon.png",
-  "/ZzFXMicro.min.js",
-  "/wav.js",
+  ".",
+  "index.html",
+  "facivon.png",
+  "ZzFXMicro.min.js",
+  "wav.js",
 ];
 
 self.addEventListener("install", installEvent => {
