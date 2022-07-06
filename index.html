@@ -558,10 +558,10 @@ function AddPresetSound(presetName='Random')
             sound.shape = R(3)|0;
             sound.shapeCurve = R(2);
             sound.attack = R(.1);
-            sound.decay = R(.2);
-            sound.sustain = R(.2);
+            sound.decay = R(.1,.3);
+            sound.sustain = R(.1,.3);
             sound.sustainVolume = R(.4, 1);
-            sound.release = R(.1,.5);
+            sound.release = R(.2,.5);
             if (R()<.5)
             {
                 sound.pitchJump = R(1)**2*1000*R(-1,1);
