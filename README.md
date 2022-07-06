@@ -4,8 +4,8 @@
 
 ## ZzFX Features
 
-- Tiny synth engine with 20 controllable parameters
-- Play sounds via code, no need for sound asset files
+- Tiny sound generator with 20 controllable parameters
+- Play audio via code, no need for sound asset files
 - Compatible with nearly all web browsers
 - Small code footprint, the micro version is under 1 kilobyte uncompressed
 - Can produce a large variety of sound effect types
