@@ -72,8 +72,8 @@ input.lock                   { width:15px; height:15px; }
 textarea                     { height:50px; cursor:text; resize:none; }
 body,input,select,textarea   { color:#FFF; font-size:18px;}
 select,input,textarea,canvas { background:#000; border:1px solid #FFF; }
-option:hover                 { background:#333; }
-option:checked               { background:#FF0; color:#F00; }
+option:hover                 { background:#888; }
+option:checked               { background:#444; }
 body                         { user-select:none; }
 </style>
 </head>
@@ -153,6 +153,8 @@ let generatedSoundCount = 0;
 let loadedSound;
 let lastPlayedSound;
 let defaultSound;
+
+const favoriteColor = '#f00';
 
 const SeededRandom=_=>
 (
@@ -464,7 +466,7 @@ function UpdateSettings()
             }
         }
         
-        option.style.color = sound.favorite? "#0F0" : "#fff";
+        option.style.color = sound.favorite? favoriteColor : "inherit";
         option.innerHTML = (sound.favorite?'-> ':sound.modified?'* ':'') + sound.name;
         textarea_code.value = GetCode(sound);
     }
@@ -794,7 +796,7 @@ function AddToList(sound)
     const i = sounds.push(sound) - 1;
     const option = document.createElement('option');
     option.value = i;
-    option.style.color = sound.favorite? "#0F0" : "#fff";
+    option.style.color = sound.favorite? favoriteColor : "inherit";
     option.innerHTML = (sound.favorite?'-> ':sound.modified?'* ':'') + sound.name;
     select_soundList.add(option, 0);
     select_soundList.selectedIndex = 0;
