@@ -92,7 +92,6 @@ getChannelData(0).set(k);b=zzfxX.createBufferSource();b.buffer=p;b.connect(zzfxX
 - [NoteCraft](https://js13kgames.com/entries/notecraft)
 - [The Wandering Wraith](https://js13kgames.com/entries/the-wandering-wraith)
 - [Bounce Back](https://www.newgrounds.com/portal/view/755171)
-- [Egg Time Rewind](https://killedbyapixel.itch.io/egg-time)
 - [Hue Jumper](https://killedbyapixel.itch.io/hue-jumper)
 - [Bubba's Back Room](https://js13kgames.com/entries/bubbas-back-room)
 - [Backstabber Hero](https://js13kgames.com/entries/backstabber-hero)
@@ -117,5 +116,10 @@ getChannelData(0).set(k);b=zzfxX.createBufferSource();b.buffer=p;b.connect(zzfxX
 - [The Last Spartan](https://js13kgames.com/entries/the-last-spartan)
 - [OS13k](https://github.com/KilledByAPixel/OS13k)
 - [Crab Story](https://www.crabstory.io/)
+- [Egg Time Rewind](https://js13kgames.com/entries/egg-time-rewind)
+- [Charon Jr.](https://js13kgames.com/entries/charon-jr)
+- [13](https://js13kgames.com/entries/13)
+- [Soul Surf](https://js13kgames.com/entries/soul-surf)
+- [Dead Again](https://js13kgames.com/entries/dead-again)
 
 ![ZzFX Image](/favicon.png) 
