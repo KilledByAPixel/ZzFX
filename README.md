@@ -1,6 +1,6 @@
 # ZzFX - Zuper Zmall Zound Zynth
 
-## [ZzFX Sound Designer](https://killedbyapixel.github.io/ZzFX) / [ZzFX Sound Board Demo](https://codepen.io/KilledByAPixel/full/BaowKzv)
+# [ZzFX Sound Designer](https://killedbyapixel.github.io/ZzFX) - Live editor for making sounds
 
 ## ZzFX Features
 
@@ -28,6 +28,7 @@
 * Or paste the code from [ZzFXMicro.min.js](https://github.com/KilledByAPixel/ZzFX/blob/master/ZzFXMicro.min.js)
 * To play a sound just call zzfx(), something like `zzfx(...[,,,,.1,,,,9])`
 * Use [the ZzFX sound designer web app](https://killedbyapixel.github.io/ZzFX) to create new sounds
+* Check out [this soundboard demo](https://codepen.io/KilledByAPixel/full/BaowKzv) for ideas
 
 Here are a few more examples examples...
 
