@@ -28,7 +28,7 @@
 * Or paste the code from [ZzFXMicro.min.js](https://github.com/KilledByAPixel/ZzFX/blob/master/ZzFXMicro.min.js)
 * To play a sound just call zzfx(), something like `zzfx(...[,,,,.1,,,,9])`
 * Use [the ZzFX sound designer web app](https://killedbyapixel.github.io/ZzFX) to create new sounds
-* Check out [this soundboard demo](https://codepen.io/KilledByAPixel/full/BaowKzv) for ideas
+* Check out [this soundboard demo](https://codepen.io/KilledByAPixel/full/BaowKzv) for some examples
 
 Here are a few more examples examples...
 
