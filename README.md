@@ -9,7 +9,7 @@
 - Compatible with nearly all web browsers
 - Small code footprint, the micro version is under 1 kilobyte uncompressed
 - Can produce a large variety of sound effect types
-- Sounds can be played with a short function call. zzfx(...[,,,,.1,,,,9])
+- Sounds can be played with a short function call
 - No additional libraries or dependencies are required
 - Open source with MIT license, you can use this for anything!
 
