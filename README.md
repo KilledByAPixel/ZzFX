@@ -1,6 +1,6 @@
 # ZzFX - Zuper Zmall Zound Zynth
 
-# [ZzFX Sound Designer](https://killedbyapixel.github.io/ZzFX) - Live editor for making sounds
+# [ZzFX Sound Designer](https://killedbyapixel.github.io/ZzFX) - Use this to make sounds
 
 ## ZzFX Features
 
