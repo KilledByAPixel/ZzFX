@@ -121,9 +121,12 @@ body                         { user-select:none; }
 </center>
 </td></tr>
 <tr><td colspan=3 style=padding:5px>
-<center>ZzFX JavaScript (Use this code to play the sound)
-<input type=checkbox id=input_shortenCode checked onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Spread
-<br><textarea title='Code to play the selected sound' id=textarea_code style=width:90% readonly></textarea>
+<center>ZzFX JavaScript
+<input type=radio name=radio_codeStyle id=input_codeStyleCompact checked onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Compact
+<input type=radio name=radio_codeStyle id=input_codeStyleFull  onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Full
+<input type=radio name=radio_codeStyle id=input_codeStyleLittleJS onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">LittleJS
+
+<br><textarea title='Use this code to play the selected sound' id=textarea_code style=width:90% readonly></textarea>
 </center>
 </td></tr>
 </table>
@@ -1040,7 +1043,6 @@ function ClearSoundsButton(clearFavorites)
         if (!confirm('Are you sure you want clear all sounds?\nThis will DELETE your favorites!'))
             return;
         slider_masterVolume.value = 25;
-        input_shortenCode.checked = 1;
     }
     ClearSounds(clearFavorites);
     AddDefaultIfEmpty();
@@ -1077,7 +1079,8 @@ function GetCode(sound)
     const parameters = SoundToArray(sound);
         
     // remove defaults
-    const shorten = input_shortenCode.checked;
+    const littleJS = input_codeStyleLittleJS.checked;
+    const shorten = littleJS || input_codeStyleCompact.checked;
     const defaults = SoundToArray(BuildSound());
     let isEnd = 1;
     for(let i = parameters.length-1; shorten&&i>=0; --i)
@@ -1114,10 +1117,15 @@ function GetCode(sound)
         code += (i?',':'') + p;
     }
     
-    if (!code.length)
+    if (!code.length && !littleJS)
         return `zzfx(${code}); // ${sound.name.trim()}`;
     else if (shorten)
+    {
+        if (littleJS)
+            return `new Sound([${code}]); // ${sound.name.trim()}`;
+
         return `zzfx(...[${code}]); // ${sound.name.trim()}`;
+    }
     else
         return `zzfx(${code}); // ${sound.name.trim()}`;
 }
@@ -1227,11 +1235,17 @@ function RandomizeLogo()
 
 function BuildSaveData()
 {
+    const volume = slider_masterVolume.value;
+    const codeStyle = 
+        input_codeStyleCompact.checked ? 'compact' : 
+        input_codeStyleLittleJS.checked ? 'littlejs' : 'full';
+
     const data =
     {
         sounds,
         generatedSoundCount,
-        volume:slider_masterVolume.value
+        volume,
+        codeStyle
     }
     
     return JSON.stringify(data);
@@ -1246,12 +1260,23 @@ function LoadSaveData(dataJSON)
     }
 
     const data = JSON.parse(dataJSON);
-    if (data.volume)
-        slider_masterVolume.value = data.volume;
     if (data.generatedSoundCount)
         generatedSoundCount = data.generatedSoundCount;
     if (data.sounds)
         data.sounds.forEach(o=>o&&AddToList(o));
+
+    // settings
+    if (data.volume)
+        slider_masterVolume.value = data.volume;
+    if (data.codeStyle)
+    {
+        if (data.codeStyle == 'full')
+            input_codeStyleFull.checked = 1;
+        if (data.codeStyle == 'compact')
+            input_codeStyleCompact.checked = 1;
+        if (data.codeStyle == 'littlejs')
+            input_codeStyleLittleJS.checked = 1;
+    }
         
     AddDefaultIfEmpty();
     select_soundList.selectedIndex = 0;
