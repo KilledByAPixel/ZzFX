@@ -10,7 +10,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// ZzFXMicro - Zuper Zmall Zound Zynth - v1.1.8
+// ZzFXMicro - Zuper Zmall Zound Zynth - v1.1.8 by Frank Force
 
 // ==ClosureCompiler==
 // @compilation_level ADVANCED_OPTIMIZATIONS
@@ -22,7 +22,7 @@
 const zzfx = (...z)=> zzfxP(zzfxG(...z)); // generate and play sound
 const zzfxV = .3;    // volume
 const zzfxR = 44100; // sample rate
-const zzfxX = new (window.AudioContext||webkitAudioContext); // audio context
+const zzfxX = new AudioContext; // audio context
 const zzfxP = (...samples)=>  // play samples
 {
     // create buffer and source
@@ -46,12 +46,9 @@ const zzfxG = // generate samples
 )=>
 {
     // init parameters
-    let PI2 = Math.PI*2,
-    sign = v => v>0?1:-1,
-    startSlide = slide *= 500 * PI2 / zzfxR / zzfxR,
-    startFrequency = frequency *= (1 + randomness*2*Math.random() - randomness) 
-        * PI2 / zzfxR,
-    b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length;
+    let PI2 = Math.PI*2, sign = v => v>0?1:-1, startSlide = slide *= 500 * PI2 / zzfxR / zzfxR,
+        startFrequency = frequency *= (1 + randomness*2*Math.random() - randomness) * PI2 / zzfxR,
+        b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length;
         
     // scale by sample rate
     attack = attack * zzfxR + 9; // minimum attack to prevent pop

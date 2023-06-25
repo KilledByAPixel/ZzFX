@@ -1,7 +1,6 @@
 /*
 
-ZzFX - Zuper Zmall Zound Zynth v1.1.8
-By Frank Force 2019
+ZzFX - Zuper Zmall Zound Zynth v1.1.8 by Frank Force
 https://github.com/KilledByAPixel/ZzFX
 
 ZzFX Features
@@ -59,7 +58,7 @@ export const ZZFX =
     sampleRate: 44100,
     
     // create shared audio context
-    x: new (window.AudioContext || webkitAudioContext),
+    x: new AudioContext,
 
     // play a sound from zzfx paramerters
     play: function(...parameters)
@@ -108,13 +107,10 @@ export const ZZFX =
     )
     {
         // init parameters
-        const PI2 = Math.PI*2;
-        let sampleRate = this.sampleRate,
-        sign = v => v>0?1:-1,
-        startSlide = slide *= 500 * PI2 / sampleRate / sampleRate,
-        startFrequency = frequency *= 
-            (1 + randomness*2*Math.random() - randomness) * PI2 / sampleRate,
-        b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length;
+        let PI2 = Math.PI*2, sampleRate = this.sampleRate, sign = v => v>0?1:-1,
+            startSlide = slide *= 500 * PI2 / sampleRate / sampleRate,
+            startFrequency = frequency *= (1 + randomness*2*Math.random() - randomness) * PI2 / sampleRate,
+            b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length;
 
         // scale by sample rate
         attack = attack * sampleRate + 9; // minimum attack to prevent pop
