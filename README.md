@@ -117,6 +117,7 @@ connect(zzfxX.destination);b.start();return b};zzfxX=new AudioContext;
 - [The Last Spartan](https://js13kgames.com/entries/the-last-spartan)
 - [OS13k](https://github.com/KilledByAPixel/OS13k)
 - [Crab Story](https://www.crabstory.io/)
+- [Cooking for Skully](https://github.com/gheja/js13k2022)
 - [Egg Time Rewind](https://js13kgames.com/entries/egg-time-rewind)
 - [Charon Jr.](https://js13kgames.com/entries/charon-jr)
 - [13](https://js13kgames.com/entries/13)
