@@ -100,7 +100,7 @@ body                         { user-select:none; }
 <br>
 <button class=large title='Generate random jump sound' onclick="AddPresetSound('Jump')">Jump</button><button class=large title='Generate random blip sound' onclick="AddPresetSound('Blip')">Blip</button><button class=large title='Generate random hit sound' onclick="AddPresetSound('Hit')">Hit</button><button class=large title='Generate random explosion sound' onclick="AddPresetSound('Explosion')">Explosion</button>
 <br>
-<button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button><button class=large title='Generate default sound' onclick="SelectedToTop()">Top</button><button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
+<button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button><button class=large title='Move selected to top of the list' onclick="SelectedToTop()">Top</button><button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
 <br>
 <select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2 style=margin:5px;width:100%></select>
 </td></tr>
