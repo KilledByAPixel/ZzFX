@@ -124,4 +124,4 @@ buffer=p;b.connect(zzfxX.destination);b.start();return b};zzfxX=new AudioContext
 - [Soul Surf](https://js13kgames.com/entries/soul-surf)
 - [Dead Again](https://js13kgames.com/entries/dead-again)
 
-![ZzFX Image](/favicon.png) 
+![ZzFX Image](/icon.png) 
