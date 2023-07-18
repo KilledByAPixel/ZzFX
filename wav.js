@@ -35,8 +35,8 @@ export function buildWavBlob(sampleChannels, sampleRate = 44100)
     buffer[22] = ((2*length) & 0xffff0000) >> 16; // data size[byte]	
 
     // copy samples to buffer
-    for (let i = sampleCount; i--;)
     for (let j = channelCount; j--;)
+    for (let i = sampleCount; i--;)
     {
         const s = sampleChannels[j][i];
         buffer[i*channelCount + j + 23] = s<1 ? (s * (1<<15) | 0) : (1<<15) - 1;
