@@ -1,8 +1,7 @@
-// wav.js by Frank Force 2020 - https://github.com/KilledByAPixel/ZzFX
+// wav.js by Frank Force - https://github.com/KilledByAPixel/ZzFX
 
 export function buildWavBlob(sampleChannels, sampleRate = 44100)
 {
-    // adapted from https://gist.github.com/asanoboy/3979747
     const channelCount = sampleChannels.length;
     const sampleCount = sampleChannels[0].length;
     const length = channelCount * sampleCount;
@@ -10,7 +9,7 @@ export function buildWavBlob(sampleChannels, sampleRate = 44100)
 
     console.assert(channelCount && sampleCount, 'No channels or samples found!');
     
-    // wave header
+    // wave header adapted from https://gist.github.com/asanoboy/3979747
     buffer[ 0] = 0x4952; // RI
     buffer[ 1] = 0x4646; // FF
     buffer[ 2] = (2*length + 15) & 0x0000ffff; // RIFF size
@@ -36,27 +35,13 @@ export function buildWavBlob(sampleChannels, sampleRate = 44100)
     buffer[22] = ((2*length) & 0xffff0000) >> 16; // data size[byte]	
 
     // copy samples to buffer
-    for (let i = 0; i < sampleCount; i++)
-    for (let j = 0; j < channelCount; j++)
+    for (let i = sampleCount; i--;)
+    for (let j = channelCount; j--;)
     {
         const s = sampleChannels[j][i];
-        buffer[i*channelCount + j + 23] = s>=1 ? (1<<15) - 1 : (s * (1<<15) | 0);
+        buffer[i*channelCount + j + 23] = s<1 ? (s * (1<<15) | 0) : (1<<15) - 1;
     }
 
-    // build the blob
-    let end = 0;
-    let bufferNeedle = 0;
-    const blobData = [];
-    const GetBuffer = (length) =>
-    {
-        end = bufferNeedle + length >= buffer.length;
-        const rt = new Int16Array(end? buffer.length - bufferNeedle : length);
-        for(let i = 0; i < rt.length; i++)
-            rt[i] = buffer[i + bufferNeedle];
-        bufferNeedle += rt.length;
-        return rt.buffer;
-    }
-    while ( !end ) blobData.push(GetBuffer(1e3));
-    
-    return new Blob(blobData, {type:'audio/wav'});
+    // return the blob
+    return new Blob([buffer], {type:'audio/wav'});
 }
