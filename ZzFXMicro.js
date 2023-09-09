@@ -10,7 +10,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// ZzFXMicro - Zuper Zmall Zound Zynth - v1.2.0 by Frank Force
+// ZzFXMicro - Zuper Zmall Zound Zynth - v1.2.1 by Frank Force
 
 // ==ClosureCompiler==
 // @compilation_level ADVANCED_OPTIMIZATIONS
@@ -110,7 +110,7 @@ const zzfxG = // generate samples
         {
             frequency = startFrequency;        // reset frequency
             slide = startSlide;                // reset slide
-            j ||= 1;                           // reset pitch jump time
+            j = j || 1;                        // reset pitch jump time
         }
     }
     

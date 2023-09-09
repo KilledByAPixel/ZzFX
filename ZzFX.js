@@ -1,6 +1,6 @@
 /*
 
-ZzFX - Zuper Zmall Zound Zynth v1.2.0 by Frank Force
+ZzFX - Zuper Zmall Zound Zynth v1.2.1 by Frank Force
 https://github.com/KilledByAPixel/ZzFX
 
 ZzFX Features
@@ -172,7 +172,7 @@ export const ZZFX =
             {
                 frequency = startFrequency;        // reset frequency
                 slide = startSlide;                // reset slide
-                j ||= 1;                           // reset pitch jump time
+                j = j || 1;                        // reset pitch jump time
             }
         }
 
