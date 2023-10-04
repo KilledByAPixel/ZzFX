@@ -1,27 +1,26 @@
 # ZzFX - Zuper Zmall Zound Zynth
 
+ZzFX is a tiny sound generator designed to produce a wide variety of sound effects with minimal code overhead. It's perfect for web games, prototypes, and any web application that needs sound without the bulk of traditional sound files.
+
 # [ZzFX Sound Designer](https://killedbyapixel.github.io/ZzFX) - [Soundboard Demo](https://codepen.io/KilledByAPixel/full/BaowKzv)
 
-## ZzFX Features
+## 🌟 Features
 
-- Tiny sound generator with 20 controllable parameters
-- Play audio via code, no need for sound asset files
-- Compatible with nearly all web browsers
-- Small code footprint, the micro version is under 1 kilobyte uncompressed
-- Can produce a large variety of sound effect types
-- Sounds can be played with a short function call
-- No additional libraries or dependencies are required
-- Open source with MIT license, you can use this for anything!
+- Compact: The micro version is under 1 kilobyte uncompressed.
+- Versatile: 20 controllable parameters for diverse sound effects.
+- No Dependencies: Standalone with no external libraries.
+- Cross-Browser: Compatible with nearly all web browsers.
+- Open Source: MIT licensed, use it anywhere!
 
-# Why Use ZzFX?
+# 🔊 Why Use ZzFX?
 
-- You can quickly add or change sound effects with just one line of code
-- Without sound asset files your game is smaller and faster for users to download
-- While prototyping you can use ZzFX for placeholder sound effects
-- For size limited game jams like [JS13K](https://js13kgames.com/), ZzFX uses very minimal overhead
-- ZzFX is not just for games, you can use it to easily add sounds to any website
+- Code-Driven Sound: Add or change sound effects with just one line of code.
+- Lightweight: No sound asset files mean faster download times.
+- Prototyping: Ideal for placeholder sound effects.
+- Game Jams: Minimal overhead for size-limited competitions like [JS13K](https://js13kgames.com/).
+- Not Just for Games: Enhance any website with sound.
 
-# How to Use
+# 🚀 How to Use
 
 * Download from github or use `npm install zzfx`
 * Import ZZFX as a module with using `import {ZZFX, zzfx} from './ZzFX.js'`
@@ -29,7 +28,7 @@
 * To play a sound just call zzfx(), something like `zzfx(...[,,,,.1,,,,9])`
 * Use [the ZzFX sound designer web app](https://killedbyapixel.github.io/ZzFX) to create new sounds
 
-Here are a few more examples examples...
+Sample sounds...
 
 ```javascript
 zzfx(...[,,925,.04,.3,.6,1,.3,,6.27,-184,.09,.17]); // Game Over
@@ -40,13 +39,22 @@ zzfx(...[,,129,.01,,.15,,,,,,,,5]); // Drum
 
 ![ZzFX Image](/screenshot.png)
 
-## [ZzFX Music](https://keithclark.github.io/ZzFXM/)
+## 🎶 [ZzFX Music](https://keithclark.github.io/ZzFXM/)
 
 - [ZzFX now supports music via ZzFXM by Keith Clark!](https://keithclark.github.io/ZzFXM/)
 - Both the player and songs are super tiny and compress well
 - [NoteCraft](https://killedbyapixel.github.io/NoteCraft/) can also export to ZzFXM
 
-# ZzFX Micro Code
+## 🛠️ ZzFX UI Features
+
+- Random Sound Generation: Create sounds from presets.
+- Sound Management: Auto-save, rename, and favorite sounds.
+- Sound Visualization: View sound wave images on playback.
+- Sharing: Load sounds via pasted zzfx code.
+- Export/Import: Drag-and-drop support for sound lists.
+- Offline Playback: Save sounds as .wav files.
+
+# 🖥️ ZzFX Micro Code
 
 Here's all the code you need to play ZzFX sounds with JavaScript!
 
@@ -67,22 +75,8 @@ createBuffer(1,h,R);p.getChannelData(0).set(k);b=zzfxX.createBufferSource();b.
 buffer=p;b.connect(zzfxX.destination);b.start();return b};zzfxX=new AudioContext;
 ```
 
-## ZzFX UI Features
 
-- Generates random sounds from presets
-- Sound list is automatically saved
-- Each parameter can be modified with constraints
-- Lock and mutate buttons for each parameter
-- Sounds can be renamed
-- Shortens code for zzfx sound calls
-- Displays image of sound wave when played
-- Sounds can be marked as favorites to prevent removal
-- Sounds can be loaded by pasting zzfx code for easy sharing
-- List of sounds can be exported and imported
-- Supports drag-and-drop of exported files into sound list
-- Supports saving sounds as wav files for offline playback
-
-## Games Using ZzFX
+## 🎮 Games Using ZzFX
 
 - [Space Huggers](https://js13kgames.com/entries/space-huggers)
 - [Packabunchas](https://js13kgames.com/entries/packabunchas)
