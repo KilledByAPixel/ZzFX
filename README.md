@@ -1,6 +1,6 @@
 # ZzFX - Zuper Zmall Zound Zynth
 
-ZzFX is a tiny sound generator designed to produce a wide variety of sound effects with minimal code overhead. It's perfect for web games, prototypes, and any web application that needs sound without the bulk of traditional sound files.
+ZzFX is a tiny sound generator designed to produce a wide variety of sound effects with minimal code overhead. It's perfect for games, prototypes, and any web application that needs sound without the bulk of traditional sound files.
 
 # [ZzFX Sound Designer](https://killedbyapixel.github.io/ZzFX) - [Soundboard Demo](https://codepen.io/KilledByAPixel/full/BaowKzv)
 
