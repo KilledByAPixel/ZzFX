@@ -4,6 +4,8 @@ ZzFX is a tiny sound generator designed to produce a wide variety of sound effec
 
 # [ZzFX Sound Designer](https://killedbyapixel.github.io/ZzFX) - [Soundboard Demo](https://codepen.io/KilledByAPixel/full/BaowKzv)
 
+![ZzFX Image](/screenshot.png)
+
 ## 🌟 Features
 
 - Compact: The micro version is under 1 kilobyte uncompressed.
@@ -12,7 +14,7 @@ ZzFX is a tiny sound generator designed to produce a wide variety of sound effec
 - Cross-Browser: Compatible with nearly all web browsers.
 - Open Source: MIT licensed, use it anywhere!
 
-# 🔊 Why Use ZzFX?
+## 🔊 Why Use ZzFX?
 
 - Code-Driven Sound: Add or change sound effects with just one line of code.
 - Lightweight: No sound asset files mean faster download times.
@@ -20,13 +22,13 @@ ZzFX is a tiny sound generator designed to produce a wide variety of sound effec
 - Game Jams: Minimal overhead for size-limited competitions like [JS13K](https://js13kgames.com/).
 - Not Just for Games: Enhance any website with sound.
 
-# 🚀 How to Use
+## 🚀 How to Use
 
 * Download from github or use `npm install zzfx`
 * Import ZZFX as a module with using `import {ZZFX, zzfx} from './ZzFX.js'`
 * Or paste the code from [ZzFXMicro.min.js](https://github.com/KilledByAPixel/ZzFX/blob/master/ZzFXMicro.min.js)
 * To play a sound just call zzfx(), something like `zzfx(...[,,,,.1,,,,9])`
-* Use [the ZzFX sound designer web app](https://killedbyapixel.github.io/ZzFX) to create new sounds
+* Use [the ZzFX sound designer web app](https://killedbyapixel.github.io/ZzFX) to craft new sounds.
 
 Sample sounds...
 
@@ -37,13 +39,11 @@ zzfx(...[1.5,.8,270,,.1,,1,1.5,,,,,,,,.1,.01]); // Piano
 zzfx(...[,,129,.01,,.15,,,,,,,,5]); // Drum
 ```
 
-![ZzFX Image](/screenshot.png)
-
 ## 🎶 [ZzFX Music](https://keithclark.github.io/ZzFXM/)
 
 - [ZzFX now supports music via ZzFXM by Keith Clark!](https://keithclark.github.io/ZzFXM/)
-- Both the player and songs are super tiny and compress well
-- [NoteCraft](https://killedbyapixel.github.io/NoteCraft/) can also export to ZzFXM
+- Super tiny player and songs.
+- Compatible with [NoteCraft](https://killedbyapixel.github.io/NoteCraft/) exports.
 
 ## 🛠️ ZzFX UI Features
 
@@ -54,7 +54,7 @@ zzfx(...[,,129,.01,,.15,,,,,,,,5]); // Drum
 - Export/Import: Drag-and-drop support for sound lists.
 - Offline Playback: Save sounds as .wav files.
 
-# 🖥️ ZzFX Micro Code
+## 🖥️ ZzFX Micro Code
 
 Here's all the code you need to play ZzFX sounds with JavaScript!
 
@@ -74,7 +74,6 @@ round(g/d)-g/d):M.sin(g),f=(l?1-B+B*M.sin(d*a/l):1)*(0<f?1:-1)*M.abs(f)**D*zzfxV
 createBuffer(1,h,R);p.getChannelData(0).set(k);b=zzfxX.createBufferSource();b.
 buffer=p;b.connect(zzfxX.destination);b.start();return b};zzfxX=new AudioContext;
 ```
-
 
 ## 🎮 Games Using ZzFX
 
@@ -118,4 +117,4 @@ buffer=p;b.connect(zzfxX.destination);b.start();return b};zzfxX=new AudioContext
 - [Soul Surf](https://js13kgames.com/entries/soul-surf)
 - [Dead Again](https://js13kgames.com/entries/dead-again)
 
-![ZzFX Image](/icon.png) 
+![ZzFX Image](/icon.png)
