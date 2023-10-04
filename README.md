@@ -72,7 +72,7 @@ round(g/d)-g/d):M.sin(g),f=(l?1-B+B*M.sin(d*a/l):1)*(0<f?1:-1)*M.abs(f)**D*zzfxV
 (a<h-c?1:(h-a)/c)*k[a-c|0]/2):f),x=(b+=u+=y)*M.cos(A*H++),g+=x-x*E*(1-1E9*(M.sin
 (a)+1)%2),n&&++n>z&&(b+=v,C+=v,n=0),!l||++I%l||(b=C,u=G,n=n||1);p=zzfxX.
 createBuffer(1,h,R);p.getChannelData(0).set(k);b=zzfxX.createBufferSource();b.
-buffer=p;b.connect(zzfxX.destination);b.start();return b};zzfxX=new AudioContext;
+buffer=p;b.connect(zzfxX.destination);b.start();return b};zzfxX=new AudioContext
 ```
 
 ## 🎮 Games Using ZzFX
