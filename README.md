@@ -116,5 +116,9 @@ buffer=p;b.connect(zzfxX.destination);b.start();return b};zzfxX=new AudioContext
 - [13](https://js13kgames.com/entries/13)
 - [Soul Surf](https://js13kgames.com/entries/soul-surf)
 - [Dead Again](https://js13kgames.com/entries/dead-again)
+- [Trench Fisher](https://swashvirus.github.io/trench-fisher)
+- [Path to Glory](https://js13kgames.com/entries/path-to-glory)
+- [Merlin vs Alfonso](https://js13kgames.com/entries/merlin-vs-alfonso)
+- [Casual Crusade](https://js13kgames.com/entries/casual-crusade)
 
 ![ZzFX Image](/icon.png)
