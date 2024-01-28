@@ -134,5 +134,5 @@ buffer=p;b.connect(zzfxX.destination);b.start();return b};zzfxX=new AudioContext
 [build-size-url]: https://bundlephobia.com/result?p=zzfx
 [npm-downloads]: https://img.shields.io/npm/dw/zzfx
 [npmtrends-url]: https://www.npmtrends.com/zzfx
-[deepscan]: https://deepscan.io/api/teams/22950/projects/26229/branches/831487/badge/grade.svg
-[deepscan-url]: https://deepscan.io/dashboard#view=project&tid=22950&pid=26229&bid=831487
+[deepscan]: https://deepscan.io/api/teams/22950/projects/26379/branches/838286/badge/grade.svg
+[deepscan-url]: https://deepscan.io/dashboard#view=project&tid=22950&pid=26379&bid=838286
