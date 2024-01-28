@@ -13,7 +13,7 @@ ZzFX is a tiny sound generator designed to produce a wide variety of sound effec
 
 ## 🌟 Features
 
-- Compact: The micro version is under 1 kilobyte uncompressed.
+- Compact: Less than 1 kilobyte when compressed!
 - Versatile: 20 controllable parameters for diverse sound effects.
 - No Dependencies: Standalone with no external libraries.
 - Cross-Browser: Compatible with nearly all web browsers.
