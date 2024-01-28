@@ -130,7 +130,7 @@ buffer=p;b.connect(zzfxX.destination);b.start();return b};zzfxX=new AudioContext
 
 [npm]: https://img.shields.io/npm/v/zzfx
 [npm-url]: https://www.npmjs.com/package/zzfx
-[build-size]: https://badgen.net/bundlephobia/minzip/zzfx?2
+[build-size]: https://badgen.net/bundlephobia/minzip/zzfx?3
 [build-size-url]: https://bundlephobia.com/result?p=zzfx
 [npm-downloads]: https://img.shields.io/npm/dw/zzfx
 [npmtrends-url]: https://www.npmtrends.com/zzfx
