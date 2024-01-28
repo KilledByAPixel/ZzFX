@@ -1,5 +1,10 @@
 # ZzFX - Zuper Zmall Zound Zynth
 
+[![NPM Package][npm]][npm-url]
+[![Build Size][build-size]][build-size-url]
+[![NPM Downloads][npm-downloads]][npmtrends-url]
+[![DeepScan][deepscan]][deepscan-url]
+
 ZzFX is a tiny sound generator designed to produce a wide variety of sound effects with minimal code overhead. It's perfect for games, prototypes, and any web application that needs sound without the bulk of traditional sound files.
 
 # [ZzFX Sound Designer](https://killedbyapixel.github.io/ZzFX) - [Soundboard Demo](https://codepen.io/KilledByAPixel/full/BaowKzv)
@@ -122,3 +127,12 @@ buffer=p;b.connect(zzfxX.destination);b.start();return b};zzfxX=new AudioContext
 - [Casual Crusade](https://js13kgames.com/entries/casual-crusade)
 
 ![ZzFX Image](/icon.png)
+
+[npm]: https://img.shields.io/npm/v/zzfx
+[npm-url]: https://www.npmjs.com/package/zzfx
+[build-size]: https://badgen.net/bundlephobia/minzip/zzfx?2
+[build-size-url]: https://bundlephobia.com/result?p=zzfx
+[npm-downloads]: https://img.shields.io/npm/dw/zzfx
+[npmtrends-url]: https://www.npmtrends.com/zzfx
+[deepscan]: https://deepscan.io/api/teams/22950/projects/26229/branches/831487/badge/grade.svg
+[deepscan-url]: https://deepscan.io/dashboard#view=project&tid=22950&pid=26229&bid=831487
