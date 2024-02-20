@@ -44,7 +44,7 @@ zzfx(...[1.5,.8,270,,.1,,1,1.5,,,,,,,,.1,.01]); // Piano
 zzfx(...[,,129,.01,,.15,,,,,,,,5]); // Drum
 ```
 
-## 🎶 [ZzFX Music](https://keithclark.github.io/ZzFXM/)
+## 🎶 ZzFX Music
 
 - [ZzFX now supports music via ZzFXM by Keith Clark!](https://keithclark.github.io/ZzFXM/)
 - Super tiny player and songs.
