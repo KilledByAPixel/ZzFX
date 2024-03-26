@@ -4,7 +4,7 @@
   "description": "A Tiny JavaScript Sound FX System",
   "main": "ZzFX.js",
   "scripts": {
-    "test": "zzfx()"
+    "test": "jest"
   },
   "repository": {
     "type": "git",
@@ -25,5 +25,10 @@
   "bugs": {
     "url": "https://github.com/KilledByAPixel/ZzFX/issues"
   },
-  "homepage": "https://github.com/KilledByAPixel/ZzFX#readme"
+  "homepage": "https://github.com/KilledByAPixel/ZzFX#readme",
+  "devDependencies": {
+    "@babel/core": "^7.24.3",
+    "@babel/preset-env": "^7.24.3",
+    "jest": "^29.7.0"
+  }
 }
