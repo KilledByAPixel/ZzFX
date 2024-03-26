@@ -23,7 +23,7 @@ const zzfx = (...z)=> zzfxP(zzfxG(...z)); // generate and play sound
 const zzfxV = .3;    // volume
 const zzfxR = 44100; // sample rate
 const zzfxX = new AudioContext; // audio context
-const zzfxP = (...samples)=>  // play samples
+export const zzfxP = (...samples)=>  // play samples
 {
     // create buffer and source
     let buffer = zzfxX.createBuffer(samples.length, samples[0].length, zzfxR), 
@@ -36,7 +36,7 @@ const zzfxP = (...samples)=>  // play samples
     source.start();
     return source;
 }
-const zzfxG = // generate samples
+export const zzfxG = // generate samples
 (
     // parameters
     volume = 1, randomness = .05, frequency = 220, attack = 0, sustain = 0,

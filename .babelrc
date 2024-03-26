@@ -1,0 +1,7 @@
+
+// This is a configuration file for Babel, a tool that transpiles modern JavaScript code into older, more compatible versions.
+// It tells Babel to use the "@babel/preset-env" preset, which includes a set of plugins that transform modern JavaScript features into code that can be understood by older browsers and environments.
+
+{
+  "presets": ["@babel/preset-env"]
+}
