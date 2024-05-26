@@ -64,7 +64,7 @@ zzfx(...[,,129,.01,,.15,,,,,,,,5]); // Drum
 Here's all the code you need to play ZzFX sounds with JavaScript!
 
 ```javascript
-// ZzFXMicro - Zuper Zmall Zound Zynth - v1.2.1 by Frank Force ~ 880 bytes
+// ZzFXMicro - Zuper Zmall Zound Zynth - v1.2.2 by Frank Force ~ 880 bytes
 zzfxV=.3    // volume
 zzfx=       // play sound
 (p=1,k=.05,b=220,e=0,r=0,t=.1,q=0,D=1,u=0,y=0,v=0,z=0,l=0,E=0,A=0,F=0,c=0,w=1,m=
