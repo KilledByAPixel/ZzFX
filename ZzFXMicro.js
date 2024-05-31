@@ -10,7 +10,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// ZzFXMicro - Zuper Zmall Zound Zynth - v1.2.2 by Frank Force
+// ZzFXMicro - Zuper Zmall Zound Zynth - v1.2.3 by Frank Force
 
 // ==ClosureCompiler==
 // @compilation_level ADVANCED_OPTIMIZATIONS
