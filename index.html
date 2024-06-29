@@ -144,7 +144,7 @@ ZzFX Â© <a href=https://www.frankforce.com target=_blank>Frank Force</a> 2019 â˜
 // load zzfx module into global scope
 import {ZZFX} from './ZzFX.js';
 window.ZZFX = ZZFX;
-window.zzfx = zzfx; // uncomment to test zzfx micro
+window.zzfx = zzfx; // uncomment and use "Copy Sound" to test zzfx micro
 
 import {buildWavBlob} from './wav.js';
 window.buildWavBlob = buildWavBlob;
@@ -279,7 +279,7 @@ BuildSetting(.1,-1e9,1e9,'noise','Noise','How much random noise to add (percent)
 BuildSetting(.1,-1e9,1e9,'bitCrush','Bit Crush','Resamples at a lower frequency in (samples*100)'),
 BuildSetting(.01,0,1e9,'delay','Delay','Overlap sound with itself for reverb and flanger effects (seconds)'),
 BuildSetting(.01,0,1,'tremolo','Tremolo','Trembling effect, rate controlled by repeat time (precent)'),
-BuildSetting(10,-1e9,1e9,'filter','Filter','Filter cutoff frequency, negative for LPF, positive for HPF (Hz)'),
+BuildSetting(1,-1e9,1e9,'filter','Filter','Filter cutoff frequency, negative for LPF, positive for HPF (Hz)'),
 ]
 
 let noteScale;
@@ -494,7 +494,8 @@ function BuildRandomSound(lengthScale=1, volume=1, randomness=.05)
     decay   = R()**3/4*lengthScale,
     sustain = R()**3/4*lengthScale,
     release = R()**3/4*lengthScale,
-    length  = attack + decay + sustain + release;
+    length  = attack + decay + sustain + release,
+    filter  = C() ? R()**2*2e3 : -99-R()*3e3;
 
     // create random sound
     return BuildSound
@@ -518,7 +519,8 @@ function BuildRandomSound(lengthScale=1, volume=1, randomness=.05)
        C()**3/2,          // delay
        1 - C(),           // sustain volume
        decay,             // decay
-       C()**4             // tremolo
+       C()**4,            // tremolo
+       filter             // filter
     );
 }
 
@@ -526,6 +528,9 @@ function AddPresetSound(presetName='Random')
 {
     let sound = BuildSound();
     const R =(a=1,b=0) => b+(a-b)*Math.random();
+
+    // apply random filter
+    sound.filter = R()<.5 ? R()**2*2e3 : -99-R()*3e3;
     
     switch (presetName)
     {
@@ -534,11 +539,7 @@ function AddPresetSound(presetName='Random')
             sound = BuildRandomSound();
             break;
         }
-        case 'Default':
-        {
-            sound = BuildSound();
-            break;
-        }
+        case 'Default': break;
         case 'Pickup':
         {
             sound.frequency = R(100,2000);
@@ -711,7 +712,7 @@ function AddPresetSound(presetName='Random')
         if (v>10 || v < -10)
             l = 0;
         const f = v.toFixed(l);
-        return !parseFloat(f) ? '0': f;
+        return !parseFloat(f) ? 0 : f;
     }
      
     // convert to fixed point
@@ -733,6 +734,7 @@ function AddPresetSound(presetName='Random')
     sound.sustainVolume = Fixed(sound.sustainVolume);
     sound.decay = Fixed(sound.decay);
     sound.tremolo = Fixed(sound.tremolo);
+    sound.filter = Fixed(sound.filter,0);
     
     {
         // renormalize sound volume
@@ -851,12 +853,13 @@ function LoadSelected(playOnSelect = false)
     for(const s of settings)
         document.getElementById("input_"+s.name).value = sound[s.name];
     
-    if (loadedSound != sound)
+    const isNew = loadedSound != sound;
+    if (isNew)
         loadedSoundSeed = Date.now();
-    UpdateSettings();
-    if (playOnSelect && loadedSound != sound)
-        PlaySelected();
     loadedSound = sound;
+    UpdateSettings();
+    if (playOnSelect && isNew)
+        PlaySelected();
 }
 
 function FavoriteSelected()
@@ -878,14 +881,12 @@ function SelectedToTop()
     const sound = Object.assign({}, selectedSound);
     selectedSound.favorite = 0;
     
-    RemoveSelected();
+    RemoveSelected(0);
     AddToList(sound);
-    LoadSelected();
-    UpdateSettings();
-    PlaySelected();
+    LoadSelected(1);
 }
 
-function RemoveSelected()
+function RemoveSelected(playOnSelect=1)
 {
     let i = select_soundList.selectedIndex;
     let index = select_soundList.options[i].value;
@@ -902,7 +903,7 @@ function RemoveSelected()
     AddDefaultIfEmpty();
     i = Math.min(i, select_soundList.length-1);
     select_soundList.selectedIndex = i;
-    LoadSelected(1);
+    LoadSelected(playOnSelect);
 }
 
 function IsLocked(name)

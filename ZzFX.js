@@ -1,7 +1,6 @@
 /*
 
-ZzFX - Zuper Zmall Zound Zynth v1.1.8
-By Frank Force 2019
+ZzFX - Zuper Zmall Zound Zynth v1.3.0 by Frank Force
 https://github.com/KilledByAPixel/ZzFX
 
 ZzFX Features
@@ -59,7 +58,7 @@ export const ZZFX =
     sampleRate: 44100,
     
     // create shared audio context
-    x: new (window.AudioContext || webkitAudioContext),
+    x: new AudioContext,
 
     // play a sound from zzfx paramerters
     play: function(...parameters)
@@ -109,15 +108,19 @@ export const ZZFX =
     )
     {
         // init parameters
-        const PI2 = Math.PI*2;
-        let sampleRate = this.sampleRate,
-        sign = v => v>0?1:-1,
-        startSlide = slide *= 500 * PI2 / sampleRate / sampleRate,
-        startFrequency = 
-            frequency *= (1 + randomness*2*Math.random() - randomness) * PI2 / sampleRate,
-        b=[], t=0, tm=0, i=0, j=1, r=0, c=0, s=0, f, length,
-        x=0, y=0, x2 =0, x1=0, y2=0, y1=0,
-        b0, b1, b2, a0, a1, a2, q=2, w0, alpha, cos;
+        let PI2 = Math.PI*2, sign = v => v<0?-1:1, sampleRate = this.sampleRate,
+            startSlide = slide *= 500 * PI2 / sampleRate / sampleRate,
+            startFrequency = frequency *= 
+                (1 + randomness*2*Math.random() - randomness) * PI2 / sampleRate,
+            b = [], t = 0, tm = 0, i = 0, j = 1, r = 0, c = 0, s = 0, f, length,
+
+            // biquad LP/HP filter
+            quality = 2, w = PI2 * Math.abs(filter) * 2 / sampleRate,
+            cos = Math.cos(w), alpha = Math.sin(w) / 2 / quality,
+            a0 = 1 + alpha, a1 = -2*cos / a0, a2 = (1 - alpha) / a0,
+            b0 = (1 + sign(filter) * cos) / 2 / a0, 
+            b1 = -(sign(filter) + cos) / a0, b2 = b0,
+            x2 = 0, x1 = 0, y2 = 0, y1 = 0;
 
         // scale by sample rate
         attack = attack * sampleRate + 9; // minimum attack to prevent pop
@@ -131,26 +134,18 @@ export const ZZFX =
         pitchJumpTime *= sampleRate;
         repeatTime = repeatTime * sampleRate | 0;
 
-        if (filter) {
-            w0 = PI2 * Math.abs(filter) * 2 / sampleRate, cos = Math.cos(w0), alpha = Math.sin(w0) / (2 * q),
-            b2 = b0 = (1 + sign(filter) * cos) * 0.5, b1 = -sign(filter) - cos,
-            a0 =  1 + alpha, a1 = -2 * cos, a2 =  1 - alpha;
-
-            [b0,b1,b2,a1,a2] = [b0/a0,b1/a0,b2/a0,a1/a0,a2/a0]
-        }
-
         // generate waveform
         for(length = attack + decay + sustain + release + delay | 0;
             i < length; b[i++] = s)
         {
-            if (!(++c%(bitCrush*100|0)))                      // bit crush
-            { 
-                s = shape? shape>1? shape>2? shape>3?         // wave shape
-                    Math.sin((t%PI2)**3) :                    // 4 noise
-                    Math.max(Math.min(Math.tan(t),1),-1):     // 3 tan
-                    1-(2*t/PI2%2+2)%2:                        // 2 saw
-                    1-4*Math.abs(Math.round(t/PI2)-t/PI2):    // 1 triangle
-                    Math.sin(t);                              // 0 sin
+            if (!(++c%(bitCrush*100|0)))                  // bit crush
+            {
+                s = shape? shape>1? shape>2? shape>3?     // wave shape
+                    Math.sin((t%PI2)**3) :                // 4 noise
+                    Math.max(Math.min(Math.tan(t),1),-1): // 3 tan
+                    1-(2*t/PI2%2+2)%2:                    // 2 saw
+                    1-4*Math.abs((t/PI2+.5|0)-t/PI2):     // 1 triangle
+                    Math.sin(t);                          // 0 sin
 
                 s = (repeatTime ?
                         1 - tremolo + tremolo*Math.sin(PI2*i/repeatTime) // tremolo
@@ -171,26 +166,26 @@ export const ZZFX =
                     (i<length-delay? 1 : (length-i)/delay) *  // release delay 
                     b[i-delay|0]/2) : s;                      // sample delay
 
-                // biquad LP/HP filter
-                if (filter) x = s, s = b0*x + b1*x1 + b2*x2 - a1*y1 - a2*y2, x2 = x1, x1 = x, y2 = y1, y1 = s;
+                if (filter)                                   // apply filter
+                    s = y1 = b2*x2 + b1*(x2=x1) + b0*(x1=s) - a2*y2 - a1*(y2=y1);
             }
 
-            f = (frequency += slide += deltaSlide) *          // frequency
-                Math.cos(modulation*tm++);                    // modulation
-            t += f - f*noise*(1 - (Math.sin(i)+1)*1e9%2);     // noise
+            f = (frequency += slide += deltaSlide) *// frequency
+                Math.cos(modulation*tm++);          // modulation
+            t += f - f*noise*Math.sin(i**5);        // noise
 
-            if (j && ++j > pitchJumpTime)       // pitch jump
-            {
-                frequency += pitchJump;         // apply pitch jump
-                startFrequency += pitchJump;    // also apply to start
-                j = 0;                          // stop pitch jump time
-            }
+            if (j && ++j > pitchJumpTime)           // pitch jump
+            { 
+                frequency += pitchJump;             // apply pitch jump
+                startFrequency += pitchJump;        // also apply to start
+                j = 0;                              // stop pitch jump time
+            } 
 
-            if (repeatTime && !(++r % repeatTime)) // repeat
-            {
-                frequency = startFrequency;     // reset frequency
-                slide = startSlide;             // reset slide
-                j = j || 1;                     // reset pitch jump time
+            if (repeatTime && !(++r % repeatTime))  // repeat
+            { 
+                frequency = startFrequency;         // reset frequency
+                slide = startSlide;                 // reset slide
+                j = j || 1;                         // reset pitch jump time
             }
         }
 
