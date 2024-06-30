@@ -74,7 +74,7 @@ const zzfxG = // generate samples
 
     // generate waveform
     for(length = attack + decay + sustain + release + delay | 0;
-        i < length; b[i++] = s)
+        i < length; b[i++] = volume * zzfxV * s)
     {
         if (!(++c%(bitCrush*100|0)))                  // bit crush
         {
@@ -88,9 +88,8 @@ const zzfxG = // generate samples
             s = (repeatTime ?
                     1 - tremolo + tremolo*Math.sin(PI2*i/repeatTime) // tremolo
                     : 1) *
-                sign(s)*(Math.abs(s)**shapeCurve) *       // curve 0=square, 2=pointy
-                volume * zzfxV * (                        // envelope
-                i < attack ? i/attack :                   // attack
+                sign(s)*(Math.abs(s)**shapeCurve) *       // curve
+                (i < attack ? i/attack :                  // attack
                 i < attack + decay ?                      // decay
                 1-((i-attack)/decay)*(1-sustainVolume) :  // decay falloff
                 i < attack  + decay + sustain ?           // sustain
@@ -110,7 +109,7 @@ const zzfxG = // generate samples
 
         f = (frequency += slide += deltaSlide) *// frequency
             Math.cos(modulation*tm++);          // modulation
-        t += f - f*noise*Math.sin(i**5);        // noise
+        t += f + f*noise*Math.sin(i**5);        // noise
 
         if (j && ++j > pitchJumpTime)           // pitch jump
         { 

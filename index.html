@@ -144,7 +144,6 @@ ZzFX Â© <a href=https://www.frankforce.com target=_blank>Frank Force</a> 2019 â˜
 // load zzfx module into global scope
 import {ZZFX} from './ZzFX.js';
 window.ZZFX = ZZFX;
-window.zzfx = zzfx; // uncomment and use "Copy Sound" to test zzfx micro
 
 import {buildWavBlob} from './wav.js';
 window.buildWavBlob = buildWavBlob;
@@ -279,7 +278,7 @@ BuildSetting(.1,-1e9,1e9,'noise','Noise','How much random noise to add (percent)
 BuildSetting(.1,-1e9,1e9,'bitCrush','Bit Crush','Resamples at a lower frequency in (samples*100)'),
 BuildSetting(.01,0,1e9,'delay','Delay','Overlap sound with itself for reverb and flanger effects (seconds)'),
 BuildSetting(.01,0,1,'tremolo','Tremolo','Trembling effect, rate controlled by repeat time (precent)'),
-BuildSetting(1,-1e9,1e9,'filter','Filter','Filter cutoff frequency, negative for LPF, positive for HPF (Hz)'),
+BuildSetting(1,-1e9,1e9,'filter','Filter','Filter cutoff frequency, positive for HPF, negative for LPF (Hz)'),
 ]
 
 let noteScale;
@@ -490,19 +489,19 @@ function BuildRandomSound(lengthScale=1, volume=1, randomness=.05)
     const R=()=>Math.random(), C=()=>R()<.5?R():0, S=()=>C()?1:-1,
 
     // randomize sound length
-    attack  = R()**3/4*lengthScale,
-    decay   = R()**3/4*lengthScale,
-    sustain = R()**3/4*lengthScale,
-    release = R()**3/4*lengthScale,
+    attack  = R()**3/2*lengthScale,
+    decay   = R()**3/2*lengthScale,
+    sustain = R()**3/2*lengthScale,
+    release = R()**3/2*lengthScale,
     length  = attack + decay + sustain + release,
-    filter  = C() ? R()**2*2e3 : -99-R()*3e3;
+    filter  = C()? 0 : R()<.8? R()**2*1e3 : R()**2*1e3-1500;
 
     // create random sound
     return BuildSound
     (
        volume,            // volume
        randomness,        // randomness
-       R()**2*2e3,        // frequency
+       R()**2*1e3,        // frequency
        attack,            // attack
        sustain,           // sustain
        release,           // release
@@ -510,9 +509,9 @@ function BuildRandomSound(lengthScale=1, volume=1, randomness=.05)
        R()**2*3,          // shapeCurve
        C()**3*99*S(),     // slide
        C()**3*99*S(),     // deltaSlide
-       C()**2*1e3*S(),    // pitchJump
+       C()**2*500*S(),    // pitchJump
        R()**2 * length,   // pitchJumpTime
-       C() * length,      // repeatTime
+       C() * length/2,    // repeatTime
        C()**4,            // noise
        R()*C()**3*500*S(),// modulation
        C()**4,            // bitCrush
@@ -529,8 +528,8 @@ function AddPresetSound(presetName='Random')
     let sound = BuildSound();
     const R =(a=1,b=0) => b+(a-b)*Math.random();
 
-    // apply random filter
-    sound.filter = R()<.5 ? R()**2*2e3 : -99-R()*3e3;
+    if (R()<.5) // apply random filter
+        sound.filter = R()<.8 ? R()**2*1e3 : R()**2*1e3-1500;
     
     switch (presetName)
     {
@@ -542,145 +541,151 @@ function AddPresetSound(presetName='Random')
         case 'Default': break;
         case 'Pickup':
         {
-            sound.frequency = R(100,2000);
-            sound.shape = R(3)|0;
+            sound.frequency = R(200,700);
+            sound.shape = R(2)|0;
             sound.shapeCurve = R(2);
             sound.attack = R(.02);
             sound.decay = R(.05);
             sound.sustain = R(.1);
-            sound.sustainVolume = R(.4, 1);
+            sound.sustainVolume = R(.5, 1);
             sound.release = R(.1,.2);
-            sound.noise =  R()<.8 ? 0 : R(.1);
+            sound.noise =  R()<.8 ? 0 : R(.5);
             if (R()<.5)
             {
-                sound.pitchJump = R(1)**2*1000*R(-1,1);
-                sound.pitchJumpTime = R(.1);
+                sound.pitchJump = R(99,500);
+                sound.pitchJumpTime = R(.04,.1);
             }
             sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
-            sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*10;
+            sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*100;
             sound.repeatTime = R()<.5 ? 0 : R(.2);
             sound.bitCrush = R()<.5 ? 0 : R(.1);
             sound.delay = R()<.7 ? 0 : R(.1);
-            sound.tremolo = R()<.5 ? 0 : R(.2);
             sound.modulation = R()<.8 ? 0 : R(-1,1)**2*50;
             break;
         }
         case 'Powerup':
         {
-            sound.frequency = R(0,700);
-            sound.shape = R(3)|0;
+            sound.frequency = R(500);
+            sound.shape = R(2)|0;
             sound.shapeCurve = R(2);
             sound.attack = R(.1);
             sound.decay = R(.1,.3);
             sound.sustain = R(.1,.3);
-            sound.sustainVolume = R(.4, 1);
+            sound.sustainVolume = R(.5, 1);
             sound.release = R(.2,.5);
-            if (R()<.5)
-            {
-                sound.pitchJump = R(1)**2*1000*R(-1,1);
-                sound.pitchJumpTime = !sound.pitchJump ? 0 : R(.2);
-            }
             sound.delay = R()<.8 ? 0 : R(.2);
-            sound.repeatTime = R(.2);
+            sound.repeatTime = R(.01,.2);
             sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
-            sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*10;
-            sound.noise =  R()<.8 ? 0 : R(.2);
+            sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*200;
+            sound.noise =  R()<.8 ? 0 : R(.5);
             sound.bitCrush = R()<.5 ? 0 : R(.2);
             sound.tremolo = R()<.5 ? 0 : R(.5);
             sound.modulation = R()<.8 ? 0 : R(-1,1)**2*50;
+            if (R()<.5)
+            {
+                sound.pitchJump = sound.repeatTime && R()<.5 ? -R(50,200) : R(9,500);
+                sound.pitchJumpTime = !sound.pitchJump ? 0 : R(.05,.1);
+            }
             break;
         }
         case 'Jump':
         {
-            sound.frequency = R(0,500);
-            sound.shape = R(3)|0;
+            sound.frequency = R(500);
+            sound.shape = R(2)|0;
             sound.shapeCurve = R(2);
             sound.attack = R(.05);
             sound.decay = R(.1);
             sound.sustain = R(.1);
-            sound.sustainVolume = R(.4, 1);
-            sound.release = R(.05,.1);
-            sound.noise =  R()<.5 ? 0 : R(2);
-            sound.slide = R(-30,30);
-            sound.deltaSlide = R()<.5 ? 0 : R(-5,5);
+            sound.sustainVolume = R(.5, 1);
+            sound.release = R(.05,.2);
+            sound.noise =  R()<.5 ? 0 : R(1);
+            sound.slide = R()<.5 ? 0 : R()**2*50;
+            sound.deltaSlide = R()<.5 && sound.slide ? 0 : R(-50,100);
             sound.bitCrush = R()<.5 ? 0 : R(.1);
             sound.delay = R()<.8 ? 0 : R(.05);
             break;
         }
         case 'Shoot':
         {
-            sound.frequency = R(0,500);
-            sound.shape = R(5)|0;
+            sound.frequency = R(500);
+            sound.shape = R(4)|0;
             sound.shapeCurve = R(2);
-            sound.attack = R(.02);
-            sound.decay = R(.1);
-            sound.sustain = R(.1);
+            sound.attack = R(.03);
+            sound.decay = R(.1,.2);
+            sound.sustain = R(.2);
             sound.sustainVolume = R(.5, 1);
-            sound.release = R(.1);
+            sound.release = R(.1,.2);
             sound.delay = R()<.5 ? 0 : R(.3);
-            sound.slide = R()<.5 ? 0 : R(-9,9);
-            sound.deltaSlide = R()<.5 ? 0 : R(-1,1);
-            sound.noise =  R()<.8 ? 0 : R(2);
-            sound.repeatTime = R()<.5 ? 0 : R(.1);
+            sound.slide = R()<.5 ? 0 : R(-1,1)**3*50;
+            sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*50;
+            sound.noise =  R()<.8 ? 0 : R(1);
             sound.modulation = R()<.8 ? 0 : R(-1,1)**2*500;
             sound.bitCrush = R()<.5 ? 0 : R(.5);
-            sound.tremolo = R()<.5 ? 0 : R(.5);
+            if (R()<.5)
+            {
+                sound.tremolo = R(.3);
+                sound.repeatTime = R(.01,.2);
+            }
             break;
         }
         case 'Blip':
         {
             sound = BuildRandomSound();
-            sound.attack = R(.02);
-            sound.decay = R(.02);
-            sound.sustain = R(.02);
-            sound.release = R(.02);
+            sound.attack = R(.03);
+            sound.decay = R(.03,.01);
+            sound.sustain = R(.05);
+            sound.release = R(.05);
             break;
         }
         case 'Hit':
         {
-            sound.frequency = R(50,500);
+            sound.frequency = R(500);
             sound.shape = R(5)|0;
             sound.shapeCurve = R(3);
             sound.attack = R(.03);
             sound.decay = R(.1);
             sound.sustain = R(.1);
             sound.sustainVolume = R(.4, 1);
-            sound.release = R(.03,.2);
+            sound.release = R(.03,.3);
             sound.delay = R()<.5 ? 0 : R(.2);
             sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
-            sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*10;
+            sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*20;
             sound.noise = R(2);
             sound.modulation = R()<.8 ? 0 : R(-1,1)**3*500;
             sound.bitCrush = R(.5);
-            sound.repeatTime = R()<.5 ? 0 : R(.2);
-            sound.tremolo = R()<.5 ? 0 : R(.3);
+            sound.tremolo = R()<.5 ? 0 : R(.5);
+            if (sound.tremolo || R()<.5 && sound.pitchJump)
+                sound.repeatTime = R(.01,.2);
+            sound.filter = R()<.5 ? 0 : R()**2*2e3;
             break;
         }
         case 'Explosion':
         {
-            sound.frequency = R(0,1e3);
+            sound.frequency = R(1e3);
             sound.shape = R(5)|0;
             sound.shapeCurve = R(5);
-            sound.attack = R(.05);
-            sound.decay = R(.2);
+            sound.attack = R(.1);
+            sound.decay = R(.05,.3);
             sound.sustain = R(.3);
             sound.sustainVolume = R(.3, .5);
-            sound.release = R(.3, .6);
-            sound.slide = R()<.5 ? 0 : R();
-            sound.deltaSlide = R()<.5 ? 0 : R();
+            sound.release = R(.3, .8);
+            sound.slide = R()<.5 ? 0 : R(-9,9);
+            sound.deltaSlide = R()<.5 ? 0 : R(-9,9);
             sound.delay = R()<.5 ? 0 : R(.5);
             sound.noise = R(2);
             sound.modulation = R()<.8 ? 0 : R(-1,1)**3*99;
             sound.bitCrush = R(1,.1);
-            sound.repeatTime = R()<.5 ? 0 : R(.2);
             sound.tremolo = R()<.5 ? 0 : R(.5);
+            if (sound.tremolo || R()<.5 && sound.pitchJump)
+                sound.repeatTime = R(.05,.3);
+            sound.filter = R()<.5 ? 0 : R()**2*2e3;
             break;
         }
         case 'Music':
         {
             sound.frequency = noteScale[(R(3)|0)*7][0];
             sound.randomness = 0;
-            sound.shape = R(4)|0;
+            sound.shape = R(3)|0;
             sound.shapeCurve = R(2);
             sound.attack = R()<.3 ? R(.05) : R(.2);
             sound.decay = R(.2);
@@ -690,12 +695,11 @@ function AddPresetSound(presetName='Random')
             sound.delay = R()<.5 ? 0 : R(.2);
             sound.noise = R()<.3 ? 0 : R(.4);
             sound.bitCrush = R()<.3 ? 0 : R(.1);
-            
             if (R()<.5)
             {
                 // tremolo
-                sound.repeatTime = R(.4);
-                sound.tremolo = R(.4);
+                sound.repeatTime = R(.1,.4);
+                sound.tremolo = R(.5);
             }
         }
     }
@@ -722,8 +726,8 @@ function AddPresetSound(presetName='Random')
     sound.attack = Fixed(sound.attack);
     sound.sustain = Fixed(sound.sustain);
     sound.release = Fixed(sound.release);
-    sound.slide = Fixed(sound.slide,1);
-    sound.deltaSlide = Fixed(sound.deltaSlide,1);
+    sound.slide = Fixed(sound.slide,0);
+    sound.deltaSlide = Fixed(sound.deltaSlide,0);
     sound.noise = Fixed(sound.noise,1);
     sound.pitchJump = Fixed(sound.pitchJump,0);
     sound.pitchJumpTime = Fixed(sound.pitchJumpTime);
@@ -749,13 +753,18 @@ function AddPresetSound(presetName='Random')
         let maxSample = 0;
         for(let i=0; i<samples.length; i++)
             maxSample = Math.max(maxSample, Math.abs(samples[i]));
-        sound.volume = Fixed(1/maxSample);
+        let newVolume = Fixed(1/maxSample);
 
         // prevent rounding up causing sound to go above 1
-        if (sound.volume > 1)
-            sound.volume = Math.max(1, Fixed(sound.volume - .01));
+        if (newVolume > 1)
+            newVolume = Math.max(1, Fixed(newVolume - .01));
+        if (newVolume > 3)
+            newVolume = 3;
+        if (newVolume < .1)
+            newVolume = .1;
+        sound.volume = newVolume;
     }
-    
+  
     // replace with locked
     for(const s of settings)
         if (IsLocked(s.name))

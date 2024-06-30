@@ -136,8 +136,8 @@ export const ZZFX =
 
         // generate waveform
         for(length = attack + decay + sustain + release + delay | 0;
-            i < length; b[i++] = s)
-        {
+            i < length; b[i++] = volume * this.volume * s)
+        {      
             if (!(++c%(bitCrush*100|0)))                  // bit crush
             {
                 s = shape? shape>1? shape>2? shape>3?     // wave shape
@@ -147,12 +147,15 @@ export const ZZFX =
                     1-4*Math.abs((t/PI2+.5|0)-t/PI2):     // 1 triangle
                     Math.sin(t);                          // 0 sin
 
+                s = delay ? s/2 + (delay > i ? 0 :            // delay
+                    (i<length-delay? 1 : (length-i)/delay) *  // release delay 
+                    b[i-delay|0]/2) : s;                      // sample delay
+
                 s = (repeatTime ?
                         1 - tremolo + tremolo*Math.sin(PI2*i/repeatTime) // tremolo
                         : 1) *
-                    sign(s)*(Math.abs(s)**shapeCurve) *       // curve 0=square, 2=pointy
-                    volume * this.volume * (                  // envelope
-                    i < attack ? i/attack :                   // attack
+                    sign(s)*(Math.abs(s)**shapeCurve) *       // curve
+                    (i < attack ? i/attack :                  // attack
                     i < attack + decay ?                      // decay
                     1-((i-attack)/decay)*(1-sustainVolume) :  // decay falloff
                     i < attack  + decay + sustain ?           // sustain
@@ -161,18 +164,14 @@ export const ZZFX =
                     (length - i - delay)/release *            // release falloff
                     sustainVolume :                           // release volume
                     0);                                       // post release
-
-                s = delay ? s/2 + (delay > i ? 0 :            // delay
-                    (i<length-delay? 1 : (length-i)/delay) *  // release delay 
-                    b[i-delay|0]/2) : s;                      // sample delay
-
+                
                 if (filter)                                   // apply filter
                     s = y1 = b2*x2 + b1*(x2=x1) + b0*(x1=s) - a2*y2 - a1*(y2=y1);
             }
 
             f = (frequency += slide += deltaSlide) *// frequency
                 Math.cos(modulation*tm++);          // modulation
-            t += f - f*noise*Math.sin(i**5);        // noise
+            t += f + f*noise*Math.sin(i**5);        // noise
 
             if (j && ++j > pitchJumpTime)           // pitch jump
             { 
