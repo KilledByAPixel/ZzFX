@@ -133,10 +133,11 @@ export const ZZFX =
         pitchJump *= PI2 / sampleRate;
         pitchJumpTime *= sampleRate;
         repeatTime = repeatTime * sampleRate | 0;
+        volume *= this.volume;
 
         // generate waveform
         for(length = attack + decay + sustain + release + delay | 0;
-            i < length; b[i++] = volume * this.volume * s)
+            i < length; b[i++] = s * volume)               // sample
         {
             if (!(++c%(bitCrush*100|0)))                   // bit crush
             {
@@ -163,7 +164,7 @@ export const ZZFX =
 
                 s = delay ? s/2 + (delay > i ? 0 :           // delay
                     (i<length-delay? 1 : (length-i)/delay) * // release delay 
-                    b[i-delay|0]/2) : s;                     // sample delay
+                    b[i-delay|0]/2/volume) : s;              // sample delay
 
                 if (filter)                                   // apply filter
                     s = y1 = b2*x2 + b1*(x2=x1) + b0*(x1=s) - a2*y2 - a1*(y2=y1);
