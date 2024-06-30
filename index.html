@@ -145,8 +145,8 @@ ZzFX © <a href=https://www.frankforce.com target=_blank>Frank Force</a> 2019 �
 import {ZZFX} from './ZzFX.js';
 window.ZZFX = ZZFX;
 
-import {buildWavBlob} from './wav.js';
-window.buildWavBlob = buildWavBlob;
+import {buildWavURL} from './wav.js';
+window.buildWavURL = buildWavURL;
 
 Init();
 
@@ -306,10 +306,10 @@ function BuildSettingsTable()
     html += '<button title="Toggle lock all parameters" onclick=ToggleLockAll()>🔒</button>'
     
     html += '</td><td>';
-    html += '<button title="Sets all unlocked parameters to their default values." onclick=if(ResetAllSettings())PlaySelected()>♻️</button>';
+    html += '<button title="Mutate all unlocked parameters" onclick=if(MutateAllSettings())PlaySelected()>🎲</button>';
     
     html += '</td><td>';
-    html += '<button title="Mutate all unlocked parameters" onclick=if(MutateAllSettings())PlaySelected()>🎲</button>';
+    html += '<button title="Sets all unlocked parameters to their default values." onclick=if(ResetAllSettings())PlaySelected()>♻️</button>';
     
     html += '</td></tr>';
     
@@ -351,10 +351,10 @@ function BuildSettingsTable()
         html += `<input id=input_lock_${s.name} class=lock title='Lock ${s.niceName}' oninput=SelectedWasChanged('${s.name}') type=checkbox>`;
         
         html += '</td><td>';
-        html += `<button id=input_reset_${s.name} class=reset title='Reset ${s.niceName}' onclick=ResetSetting(settings[${i}]);PlaySelected()></button>`;
+        html += `<button id=input_mutate_${s.name} class=rand title='Mutate ${s.niceName}' onclick=MutateSetting(settings[${i}]);PlaySelected()></button>`;
         
         html += '</td><td>';
-        html += `<button id=input_mutate_${s.name} class=rand title='Mutate ${s.niceName}' onclick=MutateSetting(settings[${i}]);PlaySelected()></button>`;
+        html += `<button id=input_reset_${s.name} class=reset title='Reset ${s.niceName}' onclick=ResetSetting(settings[${i}]);PlaySelected()></button>`;
         
         html += '</td></tr>';
     }
@@ -530,6 +530,7 @@ function AddPresetSound(presetName='Random')
 
     if (R()<.5) // apply random filter
         sound.filter = R()<.5 ? 99+R()**2*900 : R()**2*1e3-1500;
+    sound.shapeCurve = R(sound.shape == 4 ? 9 : 4);
     
     switch (presetName)
     {
@@ -543,8 +544,7 @@ function AddPresetSound(presetName='Random')
         {
             sound.frequency = R(200,700);
             sound.shape = R(2)|0;
-            sound.shapeCurve = R(5);
-            sound.attack = R(.02);
+            sound.attack = R(.03);
             sound.decay = R(.05);
             sound.sustain = R(.1);
             sound.sustainVolume = R(.5, 1);
@@ -567,7 +567,6 @@ function AddPresetSound(presetName='Random')
         {
             sound.frequency = R(99,700);
             sound.shape = R(2)|0;
-            sound.shapeCurve = R(5);
             sound.attack = R(.1);
             sound.decay = R(.1,.3);
             sound.sustain = R(.1,.3);
@@ -580,7 +579,7 @@ function AddPresetSound(presetName='Random')
             sound.noise =  R()<.8 ? 0 : R(.5);
             sound.bitCrush = R()<.5 ? 0 : R(.2);
             sound.tremolo = R()<.5 ? 0 : R(.5);
-            sound.modulation = R()<.8 ? 0 : R()**2*99;
+            sound.modulation = R()<.8 ? 0 : R()**2*50;
             if (R()<.5)
             {
                 sound.pitchJump = sound.repeatTime && R()<.5 ? -R(50,200) : R(9,500);
@@ -592,7 +591,6 @@ function AddPresetSound(presetName='Random')
         {
             sound.frequency = R(50,500);
             sound.shape = R(2)|0;
-            sound.shapeCurve = R(5);
             sound.attack = R(.05);
             sound.decay = R(.1);
             sound.sustain = R(.1);
@@ -609,7 +607,6 @@ function AddPresetSound(presetName='Random')
         {
             sound.frequency = R(50,500);
             sound.shape = R(4)|0;
-            sound.shapeCurve = R(5);
             sound.attack = R(.03);
             sound.decay = R(.1,.2);
             sound.sustain = R(.2);
@@ -619,12 +616,12 @@ function AddPresetSound(presetName='Random')
             sound.slide = R(-1,1)*20;
             sound.deltaSlide = R(-1,1)*20;
             sound.noise =  R()<.8 ? 0 : R(1);
-            sound.modulation = R()<.8 ? 0 : R()**2*200;
+            sound.modulation = R()<.8 ? 0 : R()**2*50;
             sound.bitCrush = R()<.5 ? 0 : R(.5);
             if (R()<.5)
             {
                 sound.tremolo = R(.3);
-                sound.repeatTime = R(.01,.2);
+                sound.repeatTime = R(.01,.1);
             }
             break;
         }
@@ -641,7 +638,6 @@ function AddPresetSound(presetName='Random')
         {
             sound.frequency = R(30,500);
             sound.shape = R(5)|0;
-            sound.shapeCurve = R(5);
             sound.attack = R(.03);
             sound.decay = R(.1);
             sound.sustain = R(.1);
@@ -651,11 +647,11 @@ function AddPresetSound(presetName='Random')
             sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
             sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*20;
             sound.noise = R(2);
-            sound.modulation = R()<.8 ? 0 : R()**2*200;
+            sound.modulation = R()<.8 ? 0 : R()**2*50;
             sound.bitCrush = R(.5);
             sound.tremolo = R()<.5 ? 0 : R(.5);
             if (sound.tremolo || R()<.5 && sound.pitchJump)
-                sound.repeatTime = R(.01,.2);
+                sound.repeatTime = R(.01,.1);
             sound.filter = R()<.5 ? 0 : R()**2*2e3;
             break;
         }
@@ -663,7 +659,6 @@ function AddPresetSound(presetName='Random')
         {
             sound.frequency = R(30,99);
             sound.shape = R(5)|0;
-            sound.shapeCurve = R(5);
             sound.attack = R(.1);
             sound.decay = R(.05,.3);
             sound.sustain = R(.3);
@@ -673,7 +668,7 @@ function AddPresetSound(presetName='Random')
             sound.deltaSlide = R()<.5 ? 0 : R(-9,9);
             sound.delay = R()<.5 ? 0 : R(.5);
             sound.noise = R(2);
-            sound.modulation = R()<.8 ? 0 : R()**2*200;
+            sound.modulation = R()<.8 ? 0 : R()**2*99;
             sound.bitCrush = R(1,.1);
             sound.tremolo = R()<.5 ? 0 : R(.5);
             if (sound.tremolo || R()<.5 && sound.pitchJump)
@@ -686,7 +681,6 @@ function AddPresetSound(presetName='Random')
             sound.frequency = noteScale[(R(3)|0)*7][0];
             sound.randomness = 0;
             sound.shape = R(3)|0;
-            sound.shapeCurve = R(5);
             sound.attack = R()<.3 ? R(.05) : R(.2);
             sound.decay = R(.2);
             sound.sustain = R(1);
@@ -703,10 +697,10 @@ function AddPresetSound(presetName='Random')
             }
         }
     }
-    
+
+    // finalize settings
     if (!sound.pitchJumpTime || !sound.pitchJump)
         sound.pitchJumpTime = sound.pitchJump = 0;
-        
     const length = sound.attack + sound.sustain + sound.delay;
     if (sound.repeatTime > length)
         sound.repeatTime = 0;
@@ -743,6 +737,11 @@ function AddPresetSound(presetName='Random')
     // must have some release to prevent pop
     if (parseFloat(sound.release) == 0)
         sound.release = Fixed(R(.01),3);
+  
+    // replace with locked
+    for(const s of settings)
+        if (IsLocked(s.name))
+            sound[s.name]=document.getElementById('input_'+s.name).value;
     
     {
         // renormalize sound volume
@@ -768,11 +767,6 @@ function AddPresetSound(presetName='Random')
 
         sound.volume = volume;
     }
-  
-    // replace with locked
-    for(const s of settings)
-        if (IsLocked(s.name))
-            sound[s.name]=document.getElementById('input_'+s.name).value;
     
     sound.name = presetName + ' ' + generatedSoundCount++;
     AddToList(sound);
@@ -1177,28 +1171,20 @@ function LoadSound()
 }
 
 function SaveWave()
-{    
+{
     PlaySelected();
-    
     const sound = BuildSoundFromSettings();
-    a_downloadLink.href = BuildWaveDataUrl(sound);
+    const v = ZZFX.volume;
+    ZZFX.volume = .5;
+    const samples = ZZFX.buildSamples(...SoundToArray(sound));
+    ZZFX.volume = v;
+
+    a_downloadLink.href = buildWavURL([samples], ZZFX.sampleRate);
     name = sound.name.trim();
     if (!name.length)
         name = 'zzfx';
     a_downloadLink.download = name + ".wav";
     a_downloadLink.click();
-}
-
-function BuildWaveDataUrl(sound)
-{
-    // build samples with fixed volume
-    const v = ZZFX.volume;
-    ZZFX.volume = .5;
-    const samples = ZZFX.buildSamples(...SoundToArray(sound));
-    ZZFX.volume = v;
-    
-    const URLObject = webkitURL || URL;
-    return URLObject.createObjectURL(buildWavBlob([samples], ZZFX.sampleRate));
 }
 
 function DrawSoundWave(b, volume, sound)
