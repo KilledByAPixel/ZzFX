@@ -642,7 +642,7 @@ function AddPresetSound(presetName='Random')
             sound.decay = R(.1);
             sound.sustain = R(.1);
             sound.sustainVolume = R(.4, 1);
-            sound.release = R(.03,.3);
+            sound.release = R(.3);
             sound.delay = R()<.5 ? 0 : R(.2);
             sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
             sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*20;
@@ -756,13 +756,13 @@ function AddPresetSound(presetName='Random')
         let maxSample = 0;
         for(let i=0; i<samples.length; i++)
             maxSample = Math.max(maxSample, Math.abs(samples[i]));
-        let volume = Fixed(1/maxSample);
+        let volume = 1/maxSample;
+        volume = Fixed(volume,1);
         if (volume > 1) // prevent rounding up causing sound to go above 1
-            volume = Math.max(1, Fixed(volume - .01));
-        if (volume > 3) // prevent too loud
-            volume = 3;
-        if (volume < .1)// prevent too quiet
-            volume = .1;
+            volume = Math.max(1, Fixed(volume - .01,1));
+
+        volume = Math.min(5,volume);  // prevent too loud
+        volume = Math.max(.1,volume); // prevent too quiet
         sound.volume = volume;
     }
     
