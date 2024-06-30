@@ -331,7 +331,7 @@ function BuildSettingsTable()
         else if (s.type == SETTING_TYPE_SHAPE)
         {
             html += `<select id=input_${s.name} class=setting title='${s.help}' oninput=SelectedWasChanged('${s.name}')>`;
-            html += `<option value=0>sin</option>`;
+            html += `<option value=0>sine</option>`;
             html += `<option value=1>triangle</option>`;
             html += `<option value=2>saw</option>`;
             html += `<option value=3>tan</option>`;
@@ -494,7 +494,7 @@ function BuildRandomSound(lengthScale=1, volume=1, randomness=.05)
     sustain = R()**3/2*lengthScale,
     release = R()**3/2*lengthScale,
     length  = attack + decay + sustain + release,
-    filter  = C()? 0 : R()<.8? R()**2*1e3 : R()**2*1e3-1500;
+    filter  = C()? 0 : R()<.8? 200+R()**2*800 : R()**2*1e3-1500;
 
     // create random sound
     return BuildSound
@@ -529,7 +529,7 @@ function AddPresetSound(presetName='Random')
     const R =(a=1,b=0) => b+(a-b)*Math.random();
 
     if (R()<.5) // apply random filter
-        sound.filter = R()<.8 ? R()**2*1e3 : R()**2*1e3-1500;
+        sound.filter = R()<.8 ? 200+R()**2*800 : R()**2*1e3-1500;
     
     switch (presetName)
     {
@@ -565,14 +565,14 @@ function AddPresetSound(presetName='Random')
         }
         case 'Powerup':
         {
-            sound.frequency = R(500);
+            sound.frequency = R(99,700);
             sound.shape = R(2)|0;
             sound.shapeCurve = R(2);
             sound.attack = R(.1);
             sound.decay = R(.1,.3);
             sound.sustain = R(.1,.3);
             sound.sustainVolume = R(.5, 1);
-            sound.release = R(.2,.5);
+            sound.release = R(.1,.5);
             sound.delay = R()<.8 ? 0 : R(.2);
             sound.repeatTime = R(.01,.2);
             sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
@@ -590,7 +590,7 @@ function AddPresetSound(presetName='Random')
         }
         case 'Jump':
         {
-            sound.frequency = R(500);
+            sound.frequency = R(50,500);
             sound.shape = R(2)|0;
             sound.shapeCurve = R(2);
             sound.attack = R(.05);
@@ -607,7 +607,7 @@ function AddPresetSound(presetName='Random')
         }
         case 'Shoot':
         {
-            sound.frequency = R(500);
+            sound.frequency = R(50,500);
             sound.shape = R(4)|0;
             sound.shapeCurve = R(2);
             sound.attack = R(.03);
@@ -639,7 +639,7 @@ function AddPresetSound(presetName='Random')
         }
         case 'Hit':
         {
-            sound.frequency = R(500);
+            sound.frequency = R(30,500);
             sound.shape = R(5)|0;
             sound.shapeCurve = R(3);
             sound.attack = R(.03);
@@ -661,7 +661,7 @@ function AddPresetSound(presetName='Random')
         }
         case 'Explosion':
         {
-            sound.frequency = R(1e3);
+            sound.frequency = R(30,99);
             sound.shape = R(5)|0;
             sound.shapeCurve = R(5);
             sound.attack = R(.1);

@@ -76,32 +76,32 @@ const zzfxG = // generate samples
     for(length = attack + decay + sustain + release + delay | 0;
         i < length; b[i++] = volume * zzfxV * s)
     {
-        if (!(++c%(bitCrush*100|0)))                  // bit crush
+        if (!(++c%(bitCrush*100|0)))                   // bit crush
         {
-            s = shape? shape>1? shape>2? shape>3?     // wave shape
-                Math.sin((t%PI2)**3) :                // 4 noise
-                Math.max(Math.min(Math.tan(t),1),-1): // 3 tan
-                1-(2*t/PI2%2+2)%2:                    // 2 saw
-                1-4*Math.abs((t/PI2+.5|0)-t/PI2):     // 1 triangle
-                Math.sin(t);                          // 0 sin
+            s = shape? shape>1? shape>2? shape>3?      // wave shape
+                Math.sin(t**3) :                       // 4 noise
+                Math.max(Math.min(Math.tan(t),1),-1):  // 3 tan
+                1-(2*t/PI2%2+2)%2:                     // 2 saw
+                1-4*Math.abs(Math.round(t/PI2)-t/PI2): // 1 triangle
+                Math.sin(t);                           // 0 sin
 
             s = (repeatTime ?
                     1 - tremolo + tremolo*Math.sin(PI2*i/repeatTime) // tremolo
                     : 1) *
-                sign(s)*(Math.abs(s)**shapeCurve) *       // curve
-                (i < attack ? i/attack :                  // attack
-                i < attack + decay ?                      // decay
-                1-((i-attack)/decay)*(1-sustainVolume) :  // decay falloff
-                i < attack  + decay + sustain ?           // sustain
-                sustainVolume :                           // sustain volume
-                i < length - delay ?                      // release
-                (length - i - delay)/release *            // release falloff
-                sustainVolume :                           // release volume
-                0);                                       // post release
+                sign(s)*(Math.abs(s)**shapeCurve) *      // curve
+                (i < attack ? i/attack :                 // attack
+                i < attack + decay ?                     // decay
+                1-((i-attack)/decay)*(1-sustainVolume) : // decay falloff
+                i < attack  + decay + sustain ?          // sustain
+                sustainVolume :                          // sustain volume
+                i < length - delay ?                     // release
+                (length - i - delay)/release *           // release falloff
+                sustainVolume :                          // release volume
+                0);                                      // post release
 
-            s = delay ? s/2 + (delay > i ? 0 :            // delay
-                (i<length-delay? 1 : (length-i)/delay) *  // release delay 
-                b[i-delay|0]/2) : s;                      // sample delay
+            s = delay ? s/2 + (delay > i ? 0 :           // delay
+                (i<length-delay? 1 : (length-i)/delay) * // release delay 
+                b[i-delay|0]/2) : s;                     // sample delay
 
             if (filter)                                   // apply filter
                 s = y1 = b2*x2 + b1*(x2=x1) + b0*(x1=s) - a2*y2 - a1*(y2=y1);
