@@ -494,7 +494,7 @@ function BuildRandomSound(lengthScale=1, volume=1, randomness=.05)
     sustain = R()**3/2*lengthScale,
     release = R()**3/2*lengthScale,
     length  = attack + decay + sustain + release,
-    filter  = C()? 0 : R()<.5? 99+R()**2*900 : R()**2*1e3-1300;
+    filter  = C()? 0 : R()<.5? 99+R()**2*900 : R()**2*1e3-1500;
 
     // create random sound
     return BuildSound
@@ -529,7 +529,7 @@ function AddPresetSound(presetName='Random')
     const R =(a=1,b=0) => b+(a-b)*Math.random();
 
     if (R()<.5) // apply random filter
-        sound.filter = R()<.5 ? 99+R()**2*900 : R()**2*1e3-1300;
+        sound.filter = R()<.5 ? 99+R()**2*900 : R()**2*1e3-1500;
     
     switch (presetName)
     {
