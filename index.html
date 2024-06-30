@@ -761,8 +761,8 @@ function AddPresetSound(presetName='Random')
 
         if (volume > 1) // prevent rounding up causing sound to go above 1
             volume = Math.max(1, Fixed(volume - .01));
-        if (volume > 9) // prevent too loud
-            volume = 9;
+        if (volume > 3) // prevent too loud
+            volume = 3;
         if (volume < .1)// prevent too quiet
             volume = .1;
 
