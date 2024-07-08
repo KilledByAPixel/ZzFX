@@ -10,7 +10,7 @@
 
 ///////////////////////////////////////////////////////////////////////////////
 
-// ZzFXMicro - Zuper Zmall Zound Zynth - v1.3.0 by Frank Force
+// ZzFXMicro - Zuper Zmall Zound Zynth - v1.3.1 by Frank Force
 
 // ==ClosureCompiler==
 // @compilation_level ADVANCED_OPTIMIZATIONS
@@ -80,7 +80,7 @@ const zzfxG = // generate samples
         if (!(++c%(bitCrush*100|0)))                   // bit crush
         {
             s = shape? shape>1? shape>2? shape>3?      // wave shape
-                Math.sin(t*t) :                        // 4 noise
+                Math.sin(t**3) :                       // 4 noise
                 Math.max(Math.min(Math.tan(t),1),-1):  // 3 tan
                 1-(2*t/PI2%2+2)%2:                     // 2 saw
                 1-4*Math.abs(Math.round(t/PI2)-t/PI2): // 1 triangle
