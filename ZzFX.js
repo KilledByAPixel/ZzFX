@@ -48,7 +48,8 @@ ZzFX Features
 // play a zzfx sound
 export function zzfx(...parameters) { return ZZFX.play(...parameters) }
 
-// zzfx object with some extra functionalty
+///////////////////////////////////////////////////////////////////////////////
+// ZZFX API for playing sounds
 export const ZZFX =
 {
     // master volume scale
@@ -58,26 +59,41 @@ export const ZZFX =
     sampleRate: 44100,
     
     // create shared audio context
-    x: new AudioContext,
+    audioContext: new AudioContext,
 
     // play a sound from zzfx paramerters
     play: function(...parameters)
     {
         // build samples and start sound
-        return this.playSamples(this.buildSamples(...parameters));
+        return this.playSamples([this.buildSamples(...parameters)]);
     },
 
     // play an array of samples
-    playSamples: function(...samples)
+    playSamples: function(sampleChannels, volumeScale=1, rate=1, pan=0, loop=false)
     {
         // create buffer and source
-        const buffer = this.x.createBuffer(samples.length, samples[0].length, this.sampleRate),
-            source = this.x.createBufferSource();
+        const channelCount = sampleChannels.length;
+        const sampleLength = sampleChannels[0].length;
+        const buffer = this.audioContext.createBuffer(channelCount, sampleLength, this.sampleRate);
+        const source = this.audioContext.createBufferSource();
 
-        samples.map((d,i)=> buffer.getChannelData(i).set(d));
+        // copy samples to buffer and setup source
+        sampleChannels.forEach((c,i)=> buffer.getChannelData(i).set(c));
         source.buffer = buffer;
-        source.connect(this.x.destination);
+        source.playbackRate.value = rate;
+        source.loop = loop;
+
+        // create and connect gain node
+        const gainNode = this.audioContext.createGain();
+        gainNode.gain.value = this.volume*volumeScale;
+        gainNode.connect(this.audioContext.destination);
+
+        // connect source to stereo panner and gain
+        const pannerNode = new StereoPannerNode(this.audioContext, {'pan':pan});
+        source.connect(pannerNode).connect(gainNode);
         source.start();
+
+        // return sound
         return source;
     },
 
@@ -189,7 +205,7 @@ export const ZZFX =
             }
         }
 
-        return b;
+        return b; // return sample buffer
     },
     
     // get frequency of a musical note on a diatonic scale
@@ -197,5 +213,31 @@ export const ZZFX =
     {
         return rootNoteFrequency * 2**(semitoneOffset/12);
     }
+}
 
-} // ZZFX
+///////////////////////////////////////////////////////////////////////////////
+// Sound object that can precache and play ZZFX sounds
+export class ZZFXSound
+{
+    constructor(zzfxSound=[])
+    {
+        this.zzfxSound = zzfxSound;
+        
+        // extract randomness parameter from zzfxSound
+        this.randomness = zzfxSound[1] != undefined ? zzfxSound[1] : .05;
+        zzfxSound[1] = 0; // generate without frequency randomness
+        
+        // cache the sound samples
+        this.samples = ZZFX.buildSamples(...zzfxSound);
+    }
+
+    play(volume=1, pitch=1, randomnessScale=1, pan=0, loop=false)
+    {
+        if (!this.samples) return;
+
+        // play the sound
+        const playbackRate = pitch + pitch * this.randomness*randomnessScale*(Math.random()*2-1);
+        this.source = ZZFX.playSamples([this.samples], volume, playbackRate, pan, loop);
+        return this.source;
+    }
+}
