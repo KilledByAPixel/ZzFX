@@ -16,6 +16,7 @@ ZzFX is a tiny sound generator designed to produce a wide variety of sound effec
 - Compact: Less than 1 kilobyte when compressed!
 - Versatile: 20 controllable parameters for diverse sound effects.
 - No Dependencies: Standalone with no external libraries.
+- Fast: Precache generated sounds and play them later instantly.
 - Cross-Browser: Compatible with nearly all web browsers.
 - Open Source: MIT licensed, use it anywhere!
 
@@ -25,7 +26,7 @@ ZzFX is a tiny sound generator designed to produce a wide variety of sound effec
 - Lightweight: No sound asset files mean faster download times.
 - Prototyping: Ideal for placeholder sound effects.
 - Game Jams: Minimal overhead for size-limited competitions like [JS13K](https://js13kgames.com/).
-- Not Just for Games: Enhance any website with sound.
+- Not Just for Games: Enhance any website with sound!
 
 ## 🚀 How to Use
 
