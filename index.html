@@ -142,8 +142,9 @@ ZzFX Â© <a href=https://www.frankforce.com target=_blank>Frank Force</a> 2019 â˜
 <script type=module>
 
 // load zzfx module into global scope
-import {ZZFX} from './ZzFX.js';
+import {ZZFX, ZZFXSound} from './ZzFX.js';
 window.ZZFX = ZZFX;
+window.ZZFXSound = ZZFXSound;
 
 import {buildWavURL} from './wav.js';
 window.buildWavURL = buildWavURL;
@@ -159,7 +160,6 @@ let generatedSoundCount = 0;
 let loadedSound;
 let lastPlayedSound;
 let defaultSound;
-
 const favoriteColor = '#f00';
 
 const SeededRandom=_=>
@@ -571,7 +571,7 @@ function AddPresetSound(presetName='Random')
             sound.decay = R(.1,.3);
             sound.sustain = R(.1,.3);
             sound.sustainVolume = R(.5, 1);
-            sound.release = R(.05,.5);
+            sound.release = R(.05,.4);
             sound.delay = R()<.8 ? 0 : R(.2);
             sound.repeatTime = R(.01,.1);
             sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
@@ -592,10 +592,10 @@ function AddPresetSound(presetName='Random')
             sound.frequency = R(50,500);
             sound.shape = R(2)|0;
             sound.attack = R(.05);
-            sound.decay = R(.1);
-            sound.sustain = R(.1);
+            sound.decay = R(.05);
+            sound.sustain = R(.05);
             sound.sustainVolume = R(.5, 1);
-            sound.release = R(.05,.2);
+            sound.release = R(.05,.1);
             sound.noise =  R()<.5 ? 0 : R(1);
             sound.slide = R()<.5 ? 0 : R()**2*50;
             sound.deltaSlide = R()<.5 && sound.slide ? 0 : R(-50,99);
@@ -608,10 +608,10 @@ function AddPresetSound(presetName='Random')
             sound.frequency = R(50,500);
             sound.shape = R(4)|0;
             sound.attack = R(.03);
-            sound.decay = R(.1,.2);
+            sound.decay = R(.05,.1);
             sound.sustain = R(.2);
             sound.sustainVolume = R(.5, 1);
-            sound.release = R(.05,.2);
+            sound.release = R(.05,.1);
             sound.delay = R()<.5 ? 0 : R(.3);
             sound.slide = R(-1,1)*20;
             sound.deltaSlide = R(-1,1)*20;
@@ -629,9 +629,9 @@ function AddPresetSound(presetName='Random')
         {
             sound = BuildRandomSound();
             sound.attack = R(.03);
-            sound.decay = R(.03,.01);
-            sound.sustain = R(.05);
-            sound.release = R(.05);
+            sound.decay = R(.03);
+            sound.sustain = R(.04);
+            sound.release = R(.04);
             break;
         }
         case 'Hit':
@@ -642,7 +642,7 @@ function AddPresetSound(presetName='Random')
             sound.decay = R(.1);
             sound.sustain = R(.1);
             sound.sustainVolume = R(.4, 1);
-            sound.release = R(.3);
+            sound.release = R(.2);
             sound.delay = R()<.5 ? 0 : R(.2);
             sound.slide = R()<.5 ? 0 : R(-1,1)**3*10;
             sound.deltaSlide = R()<.5 ? 0 : R(-1,1)**3*20;
@@ -660,10 +660,10 @@ function AddPresetSound(presetName='Random')
             sound.frequency = R(30,99);
             sound.shape = R(5)|0;
             sound.attack = R(.1);
-            sound.decay = R(.05,.3);
+            sound.decay = R(.05,.2);
             sound.sustain = R(.3);
             sound.sustainVolume = R(.3, .5);
-            sound.release = R(.3, .8);
+            sound.release = R(.2, .6);
             sound.slide = R()<.5 ? 0 : R(-9,9);
             sound.deltaSlide = R()<.5 ? 0 : R(-9,9);
             sound.delay = R()<.5 ? 0 : R(.5);
