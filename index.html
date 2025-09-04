@@ -117,7 +117,7 @@ body                         { user-select:none; }
 <center>
 <button title='Download the selected wave file' onclick=SaveWave()>Save Wav</button>
 <button title='Load sound from zzfx code' onclick=LoadSound()>Load Sound</button>
-<button title='Copy ZzFX code to clipboard' onclick=if(CopyToCliboard(textarea_code.value))eval(textarea_code.value)>Copy Sound</button>
+<button title='Copy ZzFX code to clipboard' onclick=if(CopyToCliboard(textarea_code.value))PlaySelected()>Copy Sound</button>
 <button title='Import all sounds from a text file.' onclick=Import()>Import</button>
 <button title='Export all sounds to a text file.' onclick=Export()>Export</button>
 <button title='Clear non-favorite sounds' onclick=ClearSoundsButton()>Clear</button>
@@ -170,7 +170,6 @@ const SeededRandom=_=>
     (randomSeed%1e9)/1e9
 )
 let randomSeed = Date.now();
-let loadedSoundSeed = 0;
 
 // build a sound object with same defaults as zzfx
 function BuildSound
@@ -866,8 +865,6 @@ function LoadSelected(playOnSelect = false)
         document.getElementById("input_"+s.name).value = sound[s.name];
     
     const isNew = loadedSound != sound;
-    if (isNew)
-        loadedSoundSeed = Date.now();
     loadedSound = sound;
     UpdateSettings();
     if (playOnSelect && isNew)
@@ -1155,16 +1152,22 @@ function LoadSound()
     let code = prompt('Enter zzfx code.');
     if (!code)
         return;
-        
-    code = code.split('[')[1];
-    if (!code)
+
+    // remove parens
+    code = code.split('[')[1] || code.split('(')[1] || code;
+
+    // valiadate code
+    code.split(',').forEach(p=>
     {
-        alert('Error! Invalid zzfx code.');
-        return;
-    }
+        if (p.trim() != '' && !Number.isFinite(parseFloat(p)))
+        {
+            alert('Invalid zzfx code!');
+            return;
+        }
+    });
 
     // build sound
-    const paramArray = code.split(',').map(p=>p.length? parseFloat(p) : undefined);
+    const paramArray = code.split(',').map(p=>{let f=parseFloat(p); return Number.isFinite(f) ? f : undefined;});
     const sound = BuildSound(...paramArray);
     const name = code.split('//')[1];
     sound.name = name || ('Loaded Sound ' + generatedSoundCount++);
@@ -1199,7 +1202,7 @@ function DrawSoundWave(b, volume, sound)
     const w = canvas_soundWave.width;
     const h = canvas_soundWave.height;
     canvas_soundWave.width |= 0;
-    randomSeed = loadedSoundSeed;
+    randomSeed = Date.now();
     const R =()=> SeededRandom();
     
     if (!volume)
@@ -1370,7 +1373,7 @@ onkeydown =e=>
 }
 
 // click on canvas to play sound
-canvas_soundWave.onmousedown =e=> {loadedSound=0;LoadSelected(1);e.preventDefault();}
+canvas_soundWave.onmousedown =e=> {PlaySelected();e.preventDefault();}
 
 // drag and drop exported files into the sound list
 select_soundList.addEventListener('dragover', e=>
