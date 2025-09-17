@@ -171,7 +171,7 @@ export const ZZFX =
             if (!(++crush%(bitCrush*100|0)))                   // bit crush
             {
                 s = shape? shape>1? shape>2? shape>3? shape>4? // wave shape
-                    (t/PI2%1 < shapeCurve/2)*2-1 :             // 5 square duty
+                    (t/PI2%1 < shapeCurve/2? 1 : -1) :         // 5 square duty
                     Math.sin(t**3) :                           // 4 noise
                     Math.max(Math.min(Math.tan(t),1),-1):      // 3 tan
                     1-(2*t/PI2%2+2)%2:                         // 2 saw
