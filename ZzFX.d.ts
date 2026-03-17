@@ -1,5 +1,3 @@
-export type ZzfxWaveShape = 0 | 1 | 2 | 3 | 4 | 5
-
 export type ZzfxParams = [
     volume?: number,
     randomness?: number,
@@ -7,7 +5,7 @@ export type ZzfxParams = [
     attack?: number,
     sustain?: number,
     release?: number,
-    shape?: ZzfxWaveShape,
+    shape?: number,
     shapeCurve?: number,
     slide?: number,
     deltaSlide?: number,
@@ -24,24 +22,31 @@ export type ZzfxParams = [
     filter?: number
 ]
 
-export type ZzfxReturn = AudioBufferSourceNode
-
-export function zzfx(...parameters: ZzfxParams): ZzfxReturn
+export function zzfx(
+    ...parameters: ZzfxParams
+): AudioBufferSourceNode
 
 export const ZZFX: {
     volume: number
     sampleRate: number
     audioContext: AudioContext
-    play: (...parameters: ZzfxParams) => ZzfxReturn
+    play: (
+        ...parameters: ZzfxParams
+    ) => AudioBufferSourceNode
     playSamples: (
         sampleChannels: number[][],
         volumeScale?: number,
         rate?: number,
         pan?: number,
         loop?: boolean
-    ) => ZzfxReturn
-    buildSamples: (...parameters: ZzfxParams) => number[]
-    getNote: (semitoneOffset: number, rootNoteFrequency: number) => number
+    ) => AudioBufferSourceNode
+    buildSamples: (
+        ...parameters: ZzfxParams
+    ) => number[]
+    getNote: (
+        semitoneOffset: number,
+        rootNoteFrequency: number
+    ) => number
 }
 
 export class ZZFXSound {
