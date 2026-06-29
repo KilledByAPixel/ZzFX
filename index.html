@@ -1200,23 +1200,34 @@ function LoadSound()
     if (!code)
         return;
 
-    // remove parens
-    code = code.split('[')[1] || code.split('(')[1] || code;
+    // grab name from trailing comment (js // or lua --)
+    const name = code.split('//')[1] || code.split('--')[1];
+
+    // remove wrapper: js [ or ( , or lua {
+    code = code.split('{')[1] || code.split('[')[1] || code.split('(')[1] || code;
+
+    // drop trailing comment and closing wrapper junk ( ]});  // or -- )
+    code = code.split('//')[0].split('--')[0].replace(/[\s\])};]+$/, '');
+
+    // a gap is an empty entry (js) or nil (lua); both load as undefined (default)
+    const isGap = p => p.trim() == '' || p.trim().toLowerCase() == 'nil';
 
     // valiadate code
+    let valid = 1;
     code.split(',').forEach(p=>
     {
-        if (p.trim() != '' && !Number.isFinite(parseFloat(p)))
-        {
-            alert('Invalid zzfx code!');
-            return;
-        }
+        if (!isGap(p) && !Number.isFinite(parseFloat(p)))
+            valid = 0;
     });
+    if (!valid)
+    {
+        alert('Invalid zzfx code!');
+        return;
+    }
 
     // build sound
-    const paramArray = code.split(',').map(p=>{let f=parseFloat(p); return Number.isFinite(f) ? f : undefined;});
+    const paramArray = code.split(',').map(p=> isGap(p) ? undefined : parseFloat(p));
     const sound = BuildSound(...paramArray);
-    const name = code.split('//')[1];
     sound.name = name || ('Loaded Sound ' + generatedSoundCount++);
     sound.name = sound.name.trim();
     AddToList(sound);
