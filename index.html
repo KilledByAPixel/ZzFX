@@ -125,10 +125,11 @@ body                         { user-select:none; }
 </center>
 </td></tr>
 <tr><td colspan=3 style=padding:5px>
-<center>ZzFX JavaScript
+<center>ZzFX Code
 <input type=radio name=radio_codeStyle id=input_codeStyleCompact checked onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Compact
 <input type=radio name=radio_codeStyle id=input_codeStyleFull  onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Full
 <input type=radio name=radio_codeStyle id=input_codeStyleLittleJS onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">LittleJS
+<input type=radio name=radio_codeStyle id=input_codeStyleLua onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Lua
 
 <br><textarea title='Use this code to play the selected sound' id=textarea_code style=width:90% readonly></textarea>
 </center>
@@ -1132,7 +1133,8 @@ function GetCode(sound)
         
     // remove defaults
     const littleJS = input_codeStyleLittleJS.checked;
-    const shorten = littleJS || input_codeStyleCompact.checked;
+    const lua = input_codeStyleLua.checked;
+    const shorten = littleJS || lua || input_codeStyleCompact.checked;
     const defaults = SoundToArray(BuildSound());
     let isEnd = 1;
     for(let i = parameters.length-1; shorten&&i>=0; --i)
@@ -1153,10 +1155,18 @@ function GetCode(sound)
     for(let i = 0; i < parameters.length; ++i)
     {
         let p = parameters[i].toString();
+
+        // lua uses nil for interior gaps instead of empty entries
+        if (lua && p == '')
+        {
+            code += (i?',':'') + 'nil';
+            continue;
+        }
+
         // remove leading 0
         if (p.slice(0,2) == '0.')
             p = p.slice(1);
-        
+
         if (!settings[i].type)
         {
             let e = parseFloat(parameters[i]).toExponential();
@@ -1169,7 +1179,9 @@ function GetCode(sound)
         code += (i?',':'') + p;
     }
     
-    if (!code.length && !littleJS)
+    if (lua)
+        return `zzfx({${code}}) -- ${sound.name.trim()}`;
+    else if (!code.length && !littleJS)
         return `zzfx(${code}); // ${sound.name.trim()}`;
     else if (shorten)
     {
@@ -1286,9 +1298,10 @@ function RandomizeLogo()
 function BuildSaveData()
 {
     const volume = slider_masterVolume.value;
-    const codeStyle = 
-        input_codeStyleCompact.checked ? 'compact' : 
-        input_codeStyleLittleJS.checked ? 'littlejs' : 'full';
+    const codeStyle =
+        input_codeStyleCompact.checked ? 'compact' :
+        input_codeStyleLittleJS.checked ? 'littlejs' :
+        input_codeStyleLua.checked ? 'lua' : 'full';
 
     const data =
     {
@@ -1326,6 +1339,8 @@ function LoadSaveData(dataJSON)
             input_codeStyleCompact.checked = 1;
         if (data.codeStyle == 'littlejs')
             input_codeStyleLittleJS.checked = 1;
+        if (data.codeStyle == 'lua')
+            input_codeStyleLua.checked = 1;
     }
         
     AddDefaultIfEmpty();
