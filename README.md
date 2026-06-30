@@ -35,6 +35,7 @@ ZzFX is a tiny sound generator designed to produce a wide variety of sound effec
 * Or paste the code from [ZzFXMicro.min.js](https://github.com/KilledByAPixel/ZzFX/blob/master/ZzFXMicro.min.js)
 * To play a sound just call zzfx(), something like `zzfx(...[,,,,.1,,,,9])`
 * Use [the ZzFX sound designer web app](https://killedbyapixel.github.io/ZzFX) to craft new sounds.
+* [ZzFX is also available for the Playdate portable console.](https://github.com/KilledByAPixel/ZzFX-Playdate)
 
 Sample sounds...
 
