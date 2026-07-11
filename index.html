@@ -371,69 +371,53 @@ function BuildSettingsTable()
     }
 
     const s = settings[0];
-    let html = '<center><table style=text-align:center>';
-    html += '<tr><td style=text-align:right>' + s.niceName + '&nbsp;</td><td class=settingRow>'
-    html += `<input title='${s.help}' class=setting step=${s.step} id=input_${s.name} oninput=SelectedWasChanged('${s.name}')>`
-    
-    html += '</td><td>';
-    html += '<button title="Toggle lock all parameters" onclick=ToggleLockAll()>🔒</button>'
-    
-    html += '</td><td>';
+    let html = '<div class=param-grid>';
+
+    // header row: name + lock-all / mutate-all / reset-all
+    html += '<div class=param-row>';
+    html += `<div class=param-label>${s.niceName}</div>`;
+    html += `<div class=param-cell><input title='${s.help}' class=setting step=${s.step} id=input_${s.name} oninput=SelectedWasChanged('${s.name}')></div>`;
+    html += '<button title="Toggle lock all parameters" onclick=ToggleLockAll()>🔒</button>';
     html += '<button title="Mutate all unlocked parameters" onclick=if(MutateAllSettings())PlaySelected()>🎲</button>';
-    
-    html += '</td><td>';
     html += '<button title="Sets all unlocked parameters to their default values." onclick=if(ResetAllSettings())PlaySelected()>♻️</button>';
-    
-    html += '</td></tr>';
-    
+    html += '</div>';
+
     for(const i in settings)
     {
         const s = settings[i];
         if (s.name == 'name')
             continue;
-    
-        html += '<tr>';
-        html += '<td style=text-align:right>';
-        html += s.niceName + '&nbsp;';
-        html += '</td><td class=settingRow>';
-        
+
         const isFrequency = s.name == 'frequency';
-        
+        html += '<div class=param-row>';
+        html += `<div class=param-label>${s.niceName}</div>`;
+        html += '<div class=param-cell>';
+
         if (!s.type)
-            html += `<input id=input_${s.name} class=setting ${isFrequency?'style=width:140px':''} title='${s.help}' type=number step=${s.step} oninput=SelectedWasChanged('${s.name}') min=${s.min} max=${s.max} onfocusout=UpdateSettings()>`
+            html += `<input id=input_${s.name} class=setting title='${s.help}' type=number step=${s.step} oninput=SelectedWasChanged('${s.name}') min=${s.min} max=${s.max} onfocusout=UpdateSettings()>`;
         else if (s.type == SETTING_TYPE_SHAPE)
         {
             html += `<select id=input_${s.name} class=setting title='${s.help}' oninput=SelectedWasChanged('${s.name}')>`;
-            html += `<option value=0>sine</option>`;
-            html += `<option value=1>triangle</option>`;
-            html += `<option value=2>saw</option>`;
-            html += `<option value=3>tan</option>`;
-            html += `<option value=4>noise</option>`;
-            html += `<option value=5>square</option>`;
+            html += `<option value=0>sine</option><option value=1>triangle</option><option value=2>saw</option><option value=3>tan</option><option value=4>noise</option><option value=5>square</option>`;
             html += `</select>`;
         }
-        
+
         if (isFrequency)
         {
-            html += `<select id=input_note class=setting style=width:100px title='Set frequency to note' oninput=SetFrequencyToNote()>`;
+            html += `<select id=input_note class=setting title='Set frequency to note' oninput=SetFrequencyToNote()>`;
             html += `<option value=-1></option>`;
-            noteScale.map( (note, i)=>html += `<option value=${i}>${note[1]}</option>`);
+            noteScale.map((note,i)=>html += `<option value=${i}>${note[1]}</option>`);
             html += `</select>`;
         }
-        
-        html += '</td><td>';
+
+        html += '</div>';
         html += `<input id=input_lock_${s.name} class=lock title='Lock ${s.niceName}' oninput=SelectedWasChanged('${s.name}') type=checkbox>`;
-        
-        html += '</td><td>';
         html += `<button id=input_mutate_${s.name} class=rand title='Mutate ${s.niceName}' onclick=MutateSetting(settings[${i}]);PlaySelected()></button>`;
-        
-        html += '</td><td>';
         html += `<button id=input_reset_${s.name} class=reset title='Reset ${s.niceName}' onclick=ResetSetting(settings[${i}]);PlaySelected()></button>`;
-        
-        html += '</td></tr>';
+        html += '</div>';
     }
-    
-    html += '</table></center>'
+
+    html += '</div>';
     div_settingsTable.innerHTML = html;
 }
 
@@ -545,7 +529,7 @@ function UpdateSettings()
             if (elementReset)
             {
                 const isDefault = v == defaultSound[s.name];
-                elementReset.style.background = isDefault ? '' : '#f3f';
+                elementReset.style.background = isDefault ? '' : 'var(--accent-magenta)';
             }
         }
         
