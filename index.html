@@ -178,7 +178,7 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
     <div class="panel lib-panel">
       <div class=label>Library</div>
       <select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2></select>
-      <div class=lib-actions>
+      <div class="lib-actions btn-row">
         <button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button><button class=large title='Move selected to top of the list' onclick="SelectedToTop()">Top</button><button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
         <button title='Download the selected wave file' onclick=SaveWave()>Save Wav</button>
         <button title='Import all sounds from a text file.' onclick=Import()>Import</button>
@@ -221,7 +221,7 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
           <label><input type=radio name=radio_codeStyle id=input_codeStyleLua onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Lua</label>
         </div>
         <textarea title='Use this code to play the selected sound' id=textarea_code readonly></textarea>
-        <div class=code-actions>
+        <div class="code-actions btn-row">
           <button title='Copy ZzFX code to clipboard' onclick=if(CopyToCliboard(textarea_code.value))PlaySelected()>Copy Sound</button><button title='Load sound from zzfx code' onclick=LoadSound()>Load Sound</button>
         </div>
       </div>
