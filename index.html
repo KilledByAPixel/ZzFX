@@ -58,7 +58,7 @@ GitHub Corner is Copyright (c) 2016 Tim Holman - http://tholman.com
 <meta property="og:image" content="screenshot.jpg">
 <meta name="mobile-wep-app-capable" content="yes">
 <meta name="apple-mobile-wep-app-capable" content="yes">
-<meta name="viewport" content="user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <link rel="shortcut icon" type="image/x-icon" href="icon.png"/>
 <link rel="manifest" href="manifest.json">
 <style>
@@ -149,6 +149,15 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
 .codebar textarea{ flex:1; min-height:90px; }
 .codebar label{ cursor:pointer; }
 .footer{ text-align:center; color:var(--muted); margin-top:12px; font-size:13px; }
+
+/* narrow screens: stack the three columns */
+@media (max-width:900px){
+  .cols{ grid-template-columns:1fr; }
+}
+@media (max-width:480px){
+  .param-grid{ grid-template-columns:80px minmax(0,1fr) auto auto auto; }
+  .logo{ font-size:32px; }
+}
 </style>
 </head>
 <body bgcolor=#222>
@@ -460,7 +469,9 @@ function PlaySelected()
     
     const sound = BuildSoundFromSettings();
     const params = SoundToArray(sound);
-    
+
+    fitCanvas(canvas_soundWave);
+
     if (ZZFX.volume > 0)
     {
         const samples = ZZFX.buildSamples(...params);
@@ -477,6 +488,18 @@ function PlaySelected()
         ZZFX.volume = saveVolume;
     }
     RandomizeLogo();
+}
+
+// size a canvas's backing store to its on-screen size so it renders crisp
+// instead of being stretched from a fixed internal resolution
+function fitCanvas(cv)
+{
+    const w = cv.clientWidth, h = cv.clientHeight;
+    if (w && h && (cv.width != w || cv.height != h))
+    {
+        cv.width = w;
+        cv.height = h;
+    }
 }
 
 function BuildSoundFromSettings()
