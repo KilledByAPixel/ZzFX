@@ -183,7 +183,7 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
       <div class=label>Library</div>
       <select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2></select>
       <div class="lib-actions btn-row">
-        <button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button><button class=large title='Move selected to top of the list' onclick="SelectedToTop()">Top</button><button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
+        <button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button><button class=large title='Move selected to top of the list' onclick="SelectedToTop()">Top</button><button class=large title='Copy to the top of the list without changing your selection' onclick=CloneSelected()>Clone</button><button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
         <button title='Download the selected wave file' onclick=SaveWave()>Save Wav</button>
         <button title='Import all sounds from a text file.' onclick=Import()>Import</button>
         <button title='Export all sounds to a text file.' onclick=Export()>Export</button>
@@ -928,6 +928,29 @@ function CopySelected(mutate=0)
     PlaySelected();
 }
 
+function CloneSelected()
+{
+    const i = select_soundList.selectedIndex;
+    const original = GetSelectedSound();
+    if (!original)
+        return;
+
+    // copy, numbered off the original so repeated clones stay unique
+    const clone = Object.assign({}, original);
+    if (!original.originalName)
+        original.originalName = original.name;
+    original.copyCount = !original.copyCount ? 1 : original.copyCount + 1;
+    clone.originalName = original.originalName;
+    clone.copyCount = original.copyCount;
+    clone.name = original.originalName + ' - Copy ' + original.copyCount;
+    delete clone.favorite;
+
+    AddToList(clone);                        // inserts at top and selects it
+    select_soundList.selectedIndex = i + 1;  // keep the original selected (shifted down one)
+    LoadSelected();
+    SaveLocalStorage();
+}
+
 function AddToList(sound)
 {
     // copy default values if missing
@@ -1089,18 +1112,23 @@ function MutateAllSettings()
             return false;
     }
     
+    // don't add a filter to a sound that has none; the filter's own mutate
+    // button can still be used to introduce one deliberately
+    const filterIsZero = !parseFloat(document.getElementById('input_filter').value);
+    const canMut = s => s.canMutate && !IsLocked(s.name) && !(s.name == 'filter' && filterIsZero);
+
     let mutateCount = 0;
     for(const s of settings)
-        if (s.canMutate && !IsLocked(s.name))
+        if (canMut(s))
             ++mutateCount;
-            
+
     for(let i=6;i--;)
     {
         if (mutateCount)
         {
             let mutateIndex = (Math.random()*1e5)%mutateCount|0;
             for(const s of settings)
-                if (s.canMutate && !IsLocked(s.name) && !mutateIndex--)
+                if (canMut(s) && !mutateIndex--)
                     MutateSetting(s, 0);
         }
     }
