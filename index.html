@@ -62,23 +62,87 @@ GitHub Corner is Copyright (c) 2016 Tim Holman - http://tholman.com
 <link rel="shortcut icon" type="image/x-icon" href="icon.png"/>
 <link rel="manifest" href="manifest.json">
 <style>
-*                            { font-family:courier; }
-a                            { color:#5AF; }
-button                       { margin:3px; font-size:18px;}
-button.large                 { height:26px; }
-button.rand                  { width:15px; height:15px; background:#3ff; }
-button.reset                 { width:15px; height:15px; background:#3F3; }
-.soundSelect                 { overflow-x:hidden; height: 400px; }
-.slider                      { cursor: pointer; }
-input.lock                   { width:15px; height:15px; }
-.settingRow                  { width:200px; display:flex }
-.setting                     { width:100%; }
-textarea                     { height:50px; cursor:text; resize:none; }
-body,input,select,textarea   { color:#FFF; font-size:18px;}
-select,input,textarea,canvas { background:#000; border:1px solid #FFF; }
-option:hover                 { background:#888; }
-option:checked               { background:#444; }
-body                         { user-select:none; }
+:root{
+  --bg:#0b0b11; --surface:#14141d; --surface-2:#0f0f16; --border:#272733;
+  --text:#eaecf4; --muted:#8890a4;
+  --accent-cyan:#4df3ff; --accent-violet:#9b6bff; --accent-magenta:#ff6bd0;
+  --accent-grad:linear-gradient(90deg,var(--accent-cyan),var(--accent-violet),var(--accent-magenta));
+}
+*{ box-sizing:border-box; font-family:'Courier New',ui-monospace,monospace; }
+html,body{ margin:0; }
+body{ background:var(--bg); color:var(--text); font-size:16px; user-select:none; }
+a{ color:var(--accent-cyan); text-decoration:none; }
+a:hover{ text-decoration:underline; }
+
+.app{ max-width:1080px; margin:0 auto; padding:18px 16px 40px; }
+
+/* header */
+.header{ display:flex; align-items:baseline; gap:14px; margin-bottom:16px; }
+.logo{ font-size:40px; font-weight:bold; letter-spacing:1px;
+  background:var(--accent-grad); -webkit-background-clip:text; background-clip:text; color:transparent; }
+.tagline{ font-style:italic; font-size:20px; color:var(--muted); }
+
+/* panels + labels */
+.panel{ background:var(--surface); border:1px solid var(--border); border-radius:12px; padding:14px; }
+.label{ font-size:11px; letter-spacing:1.4px; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
+
+/* hero */
+.hero{ margin-bottom:14px; }
+.hero-top{ display:flex; align-items:center; gap:14px; margin-bottom:12px; }
+.hero-top .label{ margin:0; white-space:nowrap; }
+.hero-canvas{ display:block; width:100%; background:var(--surface-2);
+  border:1px solid var(--border); border-radius:8px; cursor:pointer; }
+#canvas_soundWave{ margin-bottom:10px; }
+
+/* layout split */
+.split{ display:grid; grid-template-columns:minmax(0,360px) minmax(0,1fr); gap:14px; align-items:start; }
+.col{ display:flex; flex-direction:column; gap:12px; }
+
+/* buttons */
+button{ font:inherit; font-size:15px; color:var(--text); cursor:pointer;
+  background:var(--surface); border:1px solid var(--border); border-radius:8px;
+  padding:7px 12px; margin:3px; transition:border-color .12s, box-shadow .12s, background .12s; }
+button:hover{ border-color:var(--accent-cyan); box-shadow:0 0 0 1px rgba(77,243,255,.25); }
+button.large{ padding:8px 12px; }
+.btn-primary{ background:linear-gradient(90deg,rgba(77,243,255,.18),rgba(155,107,255,.18));
+  border-color:#39506a; color:#eafcff; }
+button.rand{ width:16px; height:16px; padding:0; background:var(--accent-cyan); border:none; }
+button.reset{ width:16px; height:16px; padding:0; background:#3ad16b; border:none; }
+
+/* inputs + sliders + select */
+input,select,textarea{ font:inherit; color:var(--text);
+  background:var(--surface-2); border:1px solid var(--border); border-radius:7px; }
+input[type=number]{ padding:3px 6px; }
+input:focus,select:focus,textarea:focus{ outline:none; border-color:var(--accent-cyan);
+  box-shadow:0 0 0 2px rgba(77,243,255,.25); }
+textarea{ height:52px; cursor:text; resize:none; padding:8px; width:90%; }
+select option:checked{ background:#23283a; }
+input.lock{ width:16px; height:16px; accent-color:var(--accent-violet); }
+
+/* range sliders */
+input[type=range]{ -webkit-appearance:none; appearance:none; height:8px; border:none;
+  border-radius:5px; background:#20202c; cursor:pointer; }
+input[type=range]::-webkit-slider-thumb{ -webkit-appearance:none; width:16px; height:16px;
+  border-radius:50%; background:#eafcff; box-shadow:0 0 6px var(--accent-cyan); }
+input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; border-radius:50%;
+  background:#eafcff; box-shadow:0 0 6px var(--accent-cyan); }
+
+/* sound list */
+.soundSelect{ overflow-x:hidden; height:300px; width:100%; }
+
+/* parameter grid */
+.param-grid{ display:flex; flex-direction:column; gap:4px; }
+.param-row{ display:grid; grid-template-columns:120px 1fr auto auto auto; align-items:center; gap:8px; }
+.param-label{ text-align:right; font-size:13px; color:var(--muted); }
+.param-cell input.setting,.param-cell select.setting{ width:100%; }
+.param-cell{ display:flex; gap:6px; }
+
+/* code bar */
+.codebar{ margin-top:14px; text-align:center; }
+.codebar .styles{ display:flex; flex-wrap:wrap; gap:10px 16px; justify-content:center;
+  align-items:center; margin-bottom:10px; }
+.codebar label{ cursor:pointer; }
+.footer{ text-align:center; color:var(--muted); margin-top:20px; font-size:13px; }
 </style>
 </head>
 <body bgcolor=#222>
