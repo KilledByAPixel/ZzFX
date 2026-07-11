@@ -948,6 +948,7 @@ function CloneSelected()
     AddToList(clone);                        // inserts at top and selects it
     select_soundList.selectedIndex = i + 1;  // keep the original selected (shifted down one)
     LoadSelected();
+    PlaySelected();
     SaveLocalStorage();
 }
 
