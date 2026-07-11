@@ -74,7 +74,7 @@ body{ background:var(--bg); color:var(--text); font-size:16px; user-select:none;
 a{ color:var(--accent-cyan); text-decoration:none; }
 a:hover{ text-decoration:underline; }
 
-.app{ max-width:1080px; margin:0 auto; padding:18px 16px 40px; }
+.app{ max-width:min(1600px,97vw); margin:0 auto; padding:12px 16px 20px; }
 
 /* header */
 .header{ display:flex; align-items:baseline; gap:14px; margin-bottom:16px; }
@@ -87,7 +87,7 @@ a:hover{ text-decoration:underline; }
 .label{ font-size:11px; letter-spacing:1.4px; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
 
 /* hero */
-.hero{ margin-bottom:14px; }
+.hero{ margin:0; }
 .hero-top{ display:flex; align-items:center; gap:14px; margin-bottom:12px; }
 .hero-top .label{ margin:0; white-space:nowrap; }
 .hero-canvas{ display:block; width:100%; background:var(--surface-2);
@@ -95,7 +95,7 @@ a:hover{ text-decoration:underline; }
 #canvas_soundWave{ margin-bottom:10px; }
 
 /* layout split */
-.split{ display:grid; grid-template-columns:minmax(0,360px) minmax(0,1fr); gap:14px; align-items:start; }
+.cols{ display:grid; grid-template-columns:minmax(360px,400px) minmax(240px,290px) minmax(0,1fr); gap:14px; align-items:start; }
 .col{ display:flex; flex-direction:column; gap:12px; }
 
 /* buttons */
@@ -131,8 +131,10 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
 .soundSelect{ overflow-x:hidden; height:300px; width:100%; }
 
 /* parameter grid */
-.param-grid{ display:flex; flex-direction:column; gap:4px; }
-.param-row{ display:grid; grid-template-columns:120px 1fr auto auto auto; align-items:center; gap:8px; }
+.param-grid{ display:grid; grid-template-columns:104px minmax(0,1fr) auto auto auto; column-gap:8px; row-gap:6px; align-items:center; }
+.param-row{ display:contents; }
+.param-grid .lock,.param-grid .rand,.param-grid .reset{ justify-self:center; margin:0; }
+.param-grid button:not(.rand):not(.reset){ justify-self:center; margin:0; padding:3px 6px; }
 .param-label{ text-align:right; font-size:13px; color:var(--muted); }
 .param-cell input.setting,.param-cell select.setting{ width:100%; }
 .param-cell{ display:flex; gap:6px; }
@@ -154,27 +156,19 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
     <div class=tagline id=div_logo2>Zuper Zmall Zound Zynth</div>
   </div>
 
-  <div class="panel hero">
-    <div class=hero-top>
-      <div class=label id=div_masterVolume>Master Volume</div>
-      <input id=slider_masterVolume title='Volume to scale all sounds by in percent' type=range min=0 max=100 value=25 style=flex:1 oninput=UpdateSettings();SaveLocalStorage()>
-    </div>
-    <canvas title='Waveform — click to play [SPACE]' id=canvas_soundWave class=hero-canvas width=700 height=90></canvas>
-    <div class=label>Spectrogram · frequency × time</div>
-    <canvas title='Spectrogram — click to play [SPACE]' id=canvas_spectrogram class=hero-canvas width=700 height=170></canvas>
-  </div>
+  <div class=cols>
 
-  <div class=split>
+    <!-- LEFT: parameters -->
+    <div class=panel>
+      <div class=label>Parameters</div>
+      <div id=div_settingsTable></div>
+    </div>
+
+    <!-- MIDDLE: library + library/file actions -->
     <div class=col>
       <div class=panel>
         <div class=label>Library</div>
         <select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2></select>
-      </div>
-      <div class=panel>
-        <div class=label>Generate</div>
-        <button class="large btn-primary" title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button><button class="large btn-primary" title='Make a new sound with mutated parameters [M]' onclick=CopySelected(1)>Mutate</button><button class="large btn-primary" title='Make copy of selected sound [C]' onclick=CopySelected()>Copy</button>
-        <button class=large title='Generate random pickup sound' onclick="AddPresetSound('Pickup')">Pickup</button><button class=large title='Generate random powerup sound' onclick="AddPresetSound('Powerup')">Powerup</button><button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button><button class=large title='Generate a tonal sound for music' onclick="AddPresetSound('Music')">Note</button>
-        <button class=large title='Generate random jump sound' onclick="AddPresetSound('Jump')">Jump</button><button class=large title='Generate random blip sound' onclick="AddPresetSound('Blip')">Blip</button><button class=large title='Generate random hit sound' onclick="AddPresetSound('Hit')">Hit</button><button class=large title='Generate random explosion sound' onclick="AddPresetSound('Explosion')">Explosion</button>
       </div>
       <div class=panel>
         <div class=label>Sound</div>
@@ -189,10 +183,25 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
       </div>
     </div>
 
-    <div class=panel>
-      <div class=label>Parameters</div>
-      <div id=div_settingsTable></div>
+    <!-- RIGHT: visualization + master volume + generate -->
+    <div class=col>
+      <div class="panel hero">
+        <div class=hero-top>
+          <div class=label id=div_masterVolume>Master Volume</div>
+          <input id=slider_masterVolume title='Volume to scale all sounds by in percent' type=range min=0 max=100 value=25 style=flex:1 oninput=UpdateSettings();SaveLocalStorage()>
+        </div>
+        <canvas title='Waveform — click to play [SPACE]' id=canvas_soundWave class=hero-canvas width=700 height=90></canvas>
+        <div class=label>Spectrogram · frequency × time</div>
+        <canvas title='Spectrogram — click to play [SPACE]' id=canvas_spectrogram class=hero-canvas width=700 height=170></canvas>
+      </div>
+      <div class=panel>
+        <div class=label>Generate</div>
+        <button class="large btn-primary" title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button><button class="large btn-primary" title='Make a new sound with mutated parameters [M]' onclick=CopySelected(1)>Mutate</button><button class="large btn-primary" title='Make copy of selected sound [C]' onclick=CopySelected()>Copy</button>
+        <button class=large title='Generate random pickup sound' onclick="AddPresetSound('Pickup')">Pickup</button><button class=large title='Generate random powerup sound' onclick="AddPresetSound('Powerup')">Powerup</button><button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button><button class=large title='Generate a tonal sound for music' onclick="AddPresetSound('Music')">Note</button>
+        <button class=large title='Generate random jump sound' onclick="AddPresetSound('Jump')">Jump</button><button class=large title='Generate random blip sound' onclick="AddPresetSound('Blip')">Blip</button><button class=large title='Generate random hit sound' onclick="AddPresetSound('Hit')">Hit</button><button class=large title='Generate random explosion sound' onclick="AddPresetSound('Explosion')">Explosion</button>
+      </div>
     </div>
+
   </div>
 
   <div class="panel codebar">
