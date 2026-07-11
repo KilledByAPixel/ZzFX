@@ -108,6 +108,8 @@ button.large{ padding:8px 12px; }
   border-color:#39506a; color:#eafcff; }
 button.rand{ width:16px; height:16px; padding:0; background:var(--accent-cyan); border:none; }
 button.reset{ width:16px; height:16px; padding:0; background:#3ad16b; border:none; }
+.btn-row{ display:flex; flex-wrap:wrap; gap:6px; }
+.btn-row button{ margin:0; }
 
 /* inputs + sliders + select */
 input,select,textarea{ font:inherit; color:var(--text);
@@ -197,9 +199,11 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
     <div class=col>
       <div class=panel>
         <div class=label>Generate</div>
+        <div class=btn-row>
         <button class="large btn-primary" title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button><button class="large btn-primary" title='Make a new sound with mutated parameters [M]' onclick=CopySelected(1)>Mutate</button><button class="large btn-primary" title='Make copy of selected sound [C]' onclick=CopySelected()>Copy</button>
         <button class=large title='Generate random pickup sound' onclick="AddPresetSound('Pickup')">Pickup</button><button class=large title='Generate random powerup sound' onclick="AddPresetSound('Powerup')">Powerup</button><button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button><button class=large title='Generate a tonal sound for music' onclick="AddPresetSound('Music')">Note</button>
         <button class=large title='Generate random jump sound' onclick="AddPresetSound('Jump')">Jump</button><button class=large title='Generate random blip sound' onclick="AddPresetSound('Blip')">Blip</button><button class=large title='Generate random hit sound' onclick="AddPresetSound('Hit')">Hit</button><button class=large title='Generate random explosion sound' onclick="AddPresetSound('Explosion')">Explosion</button>
+        </div>
       </div>
       <div class="panel hero">
         <div class=hero-top>
