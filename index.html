@@ -97,6 +97,10 @@ a:hover{ text-decoration:underline; }
 /* layout split */
 .cols{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; align-items:stretch; }
 .col{ display:flex; flex-direction:column; gap:12px; }
+/* column order (desktop left->right, stacked top->bottom): viz/generate/code, parameters, library */
+.cols > .col{ order:1; }
+.cols > .panel:not(.lib-panel){ order:2; }
+.cols > .lib-panel{ order:3; }
 
 /* buttons */
 button{ font:inherit; font-size:15px; color:var(--text); cursor:pointer;
@@ -153,13 +157,9 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
 .codebar label{ cursor:pointer; }
 .footer{ text-align:center; color:var(--muted); margin-top:12px; font-size:13px; }
 
-/* narrow screens: stack the three columns, reversed (right group on top,
-   parameters in the middle, library at the bottom) */
+/* narrow screens: stack the three columns (order defined on .cols above) */
 @media (max-width:900px){
   .cols{ grid-template-columns:1fr; }
-  .cols > .col{ order:1; }                    /* right column (viz / generate / code) */
-  .cols > .panel:not(.lib-panel){ order:2; }  /* parameters */
-  .cols > .lib-panel{ order:3; }              /* library */
 }
 @media (max-width:480px){
   .param-grid{ grid-template-columns:80px minmax(0,1fr) auto auto auto; }
