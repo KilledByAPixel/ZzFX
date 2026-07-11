@@ -77,7 +77,7 @@ a:hover{ text-decoration:underline; }
 .app{ max-width:min(1600px,97vw); margin:0 auto; padding:12px 16px 20px; }
 
 /* header */
-.header{ display:flex; align-items:baseline; gap:14px; margin-bottom:16px; }
+.header{ display:flex; align-items:baseline; gap:14px; margin-bottom:10px; }
 .logo{ font-size:40px; font-weight:bold; letter-spacing:1px;
   background:var(--accent-grad); -webkit-background-clip:text; background-clip:text; color:transparent; }
 .tagline{ font-style:italic; font-size:20px; color:var(--muted); }
@@ -95,7 +95,7 @@ a:hover{ text-decoration:underline; }
 #canvas_soundWave{ margin-bottom:10px; }
 
 /* layout split */
-.cols{ display:grid; grid-template-columns:minmax(360px,400px) minmax(240px,290px) minmax(0,1fr); gap:14px; align-items:start; }
+.cols{ display:grid; grid-template-columns:minmax(250px,300px) minmax(360px,400px) minmax(0,1fr); gap:14px; align-items:start; }
 .col{ display:flex; flex-direction:column; gap:12px; }
 
 /* buttons */
@@ -129,9 +129,10 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
 
 /* sound list */
 .soundSelect{ overflow-x:hidden; height:300px; width:100%; }
+.lib-actions{ margin-top:10px; padding-top:10px; border-top:1px solid var(--border); }
 
 /* parameter grid */
-.param-grid{ display:grid; grid-template-columns:104px minmax(0,1fr) auto auto auto; column-gap:8px; row-gap:6px; align-items:center; }
+.param-grid{ display:grid; grid-template-columns:104px minmax(0,1fr) auto auto auto; column-gap:8px; row-gap:3px; align-items:center; }
 .param-row{ display:contents; }
 .param-grid .lock,.param-grid .rand,.param-grid .reset{ justify-self:center; margin:0; }
 .param-grid button:not(.rand):not(.reset){ justify-self:center; margin:0; padding:3px 6px; }
@@ -144,7 +145,7 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
 .codebar .styles{ display:flex; flex-wrap:wrap; gap:10px 16px; justify-content:center;
   align-items:center; margin-bottom:10px; }
 .codebar label{ cursor:pointer; }
-.footer{ text-align:center; color:var(--muted); margin-top:20px; font-size:13px; }
+.footer{ text-align:center; color:var(--muted); margin-top:12px; font-size:13px; }
 </style>
 </head>
 <body bgcolor=#222>
@@ -158,20 +159,11 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
 
   <div class=cols>
 
-    <!-- LEFT: parameters -->
+    <!-- LEFT: library (sound list + library/file actions in one box) -->
     <div class=panel>
-      <div class=label>Parameters</div>
-      <div id=div_settingsTable></div>
-    </div>
-
-    <!-- MIDDLE: library + library/file actions -->
-    <div class=col>
-      <div class=panel>
-        <div class=label>Library</div>
-        <select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2></select>
-      </div>
-      <div class=panel>
-        <div class=label>Sound</div>
+      <div class=label>Library</div>
+      <select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2></select>
+      <div class=lib-actions>
         <button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button><button class=large title='Move selected to top of the list' onclick="SelectedToTop()">Top</button><button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
         <button title='Download the selected wave file' onclick=SaveWave()>Save Wav</button>
         <button title='Load sound from zzfx code' onclick=LoadSound()>Load Sound</button>
@@ -181,6 +173,12 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
         <button title='Clear non-favorite sounds' onclick=ClearSoundsButton()>Clear</button>
         <button title='Clear all sounds' onclick=ClearSoundsButton(1)>Clear All</button>
       </div>
+    </div>
+
+    <!-- MIDDLE: parameters -->
+    <div class=panel>
+      <div class=label>Parameters</div>
+      <div id=div_settingsTable></div>
     </div>
 
     <!-- RIGHT: visualization + master volume + generate -->
