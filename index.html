@@ -183,6 +183,7 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
         <button title='Export all sounds to a text file.' onclick=Export()>Export</button>
         <button title='Clear non-favorite sounds' onclick=ClearSoundsButton()>Clear</button>
         <button title='Clear all sounds' onclick=ClearSoundsButton(1)>Clear All</button>
+        <button title='Sort the library alphabetically by name' onclick=SortSounds()>Sort</button>
       </div>
     </div>
 
@@ -1009,6 +1010,40 @@ function SelectedToTop()
     RemoveSelected(0);
     AddToList(sound);
     LoadSelected(1);
+}
+
+function SortSounds()
+{
+    if (select_soundList.length < 2)
+        return;
+    if (!confirm('Sort the library alphabetically by name?\nThis reorders the list.'))
+        return;
+
+    // remember the selected sound so we can reselect it after sorting
+    const selectedSound = GetSelectedSound();
+
+    // current sounds in display order, sorted alphabetically by name
+    const list = [...select_soundList.options].map(o => sounds[o.value]);
+    list.sort((a,b)=>
+        (a.name||'').toLowerCase().localeCompare((b.name||'').toLowerCase()));
+
+    // rebuild list + sounds array in sorted order (AddToList prepends,
+    // so add bottom-up to get A->Z from top to bottom)
+    sounds = [];
+    while (select_soundList.options.length)
+        select_soundList.options.remove(0);
+    for (let i = list.length; i--;)
+        AddToList(list[i]);
+
+    // reselect the previously selected sound
+    for (let i = 0; i < select_soundList.length; i++)
+        if (sounds[select_soundList.options[i].value] === selectedSound)
+        {
+            select_soundList.selectedIndex = i;
+            break;
+        }
+    LoadSelected();
+    SaveLocalStorage();
 }
 
 function RemoveSelected(playOnSelect=1)
