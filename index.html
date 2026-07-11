@@ -144,7 +144,7 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
 .param-cell{ display:flex; gap:6px; }
 
 /* code bar */
-.codebar{ margin-top:14px; text-align:center; }
+.codebar{ text-align:center; }
 .codebar .styles{ display:flex; flex-wrap:wrap; gap:10px 16px; justify-content:center;
   align-items:center; margin-bottom:10px; }
 .codebar label{ cursor:pointer; }
@@ -201,19 +201,18 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
         <button class=large title='Generate random pickup sound' onclick="AddPresetSound('Pickup')">Pickup</button><button class=large title='Generate random powerup sound' onclick="AddPresetSound('Powerup')">Powerup</button><button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button><button class=large title='Generate a tonal sound for music' onclick="AddPresetSound('Music')">Note</button>
         <button class=large title='Generate random jump sound' onclick="AddPresetSound('Jump')">Jump</button><button class=large title='Generate random blip sound' onclick="AddPresetSound('Blip')">Blip</button><button class=large title='Generate random hit sound' onclick="AddPresetSound('Hit')">Hit</button><button class=large title='Generate random explosion sound' onclick="AddPresetSound('Explosion')">Explosion</button>
       </div>
+      <div class="panel codebar">
+        <div class=styles>
+          <span class=label style=margin:0>ZzFX Code</span>
+          <label><input type=radio name=radio_codeStyle id=input_codeStyleCompact checked onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Compact</label>
+          <label><input type=radio name=radio_codeStyle id=input_codeStyleFull onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Full</label>
+          <label><input type=radio name=radio_codeStyle id=input_codeStyleLittleJS onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">LittleJS</label>
+          <label><input type=radio name=radio_codeStyle id=input_codeStyleLua onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Lua</label>
+        </div>
+        <textarea title='Use this code to play the selected sound' id=textarea_code readonly></textarea>
+      </div>
     </div>
 
-  </div>
-
-  <div class="panel codebar">
-    <div class=styles>
-      <span class=label style=margin:0>ZzFX Code</span>
-      <label><input type=radio name=radio_codeStyle id=input_codeStyleCompact checked onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Compact</label>
-      <label><input type=radio name=radio_codeStyle id=input_codeStyleFull onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Full</label>
-      <label><input type=radio name=radio_codeStyle id=input_codeStyleLittleJS onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">LittleJS</label>
-      <label><input type=radio name=radio_codeStyle id=input_codeStyleLua onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Lua</label>
-    </div>
-    <textarea title='Use this code to play the selected sound' id=textarea_code readonly></textarea>
   </div>
 
   <div class=footer>ZzFX © <a href=https://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌</div>
