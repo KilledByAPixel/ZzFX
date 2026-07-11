@@ -147,6 +147,7 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
 .codebar .styles{ display:flex; flex-wrap:wrap; gap:10px 16px; justify-content:center;
   align-items:center; margin-bottom:10px; }
 .codebar textarea{ flex:1; min-height:90px; }
+.code-actions{ margin-top:8px; }
 .codebar label{ cursor:pointer; }
 .footer{ text-align:center; color:var(--muted); margin-top:12px; font-size:13px; }
 
@@ -178,8 +179,6 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
       <div class=lib-actions>
         <button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button><button class=large title='Move selected to top of the list' onclick="SelectedToTop()">Top</button><button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
         <button title='Download the selected wave file' onclick=SaveWave()>Save Wav</button>
-        <button title='Load sound from zzfx code' onclick=LoadSound()>Load Sound</button>
-        <button title='Copy ZzFX code to clipboard' onclick=if(CopyToCliboard(textarea_code.value))PlaySelected()>Copy Sound</button>
         <button title='Import all sounds from a text file.' onclick=Import()>Import</button>
         <button title='Export all sounds to a text file.' onclick=Export()>Export</button>
         <button title='Clear non-favorite sounds' onclick=ClearSoundsButton()>Clear</button>
@@ -217,6 +216,9 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
           <label><input type=radio name=radio_codeStyle id=input_codeStyleLua onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Lua</label>
         </div>
         <textarea title='Use this code to play the selected sound' id=textarea_code readonly></textarea>
+        <div class=code-actions>
+          <button title='Copy ZzFX code to clipboard' onclick=if(CopyToCliboard(textarea_code.value))PlaySelected()>Copy Sound</button><button title='Load sound from zzfx code' onclick=LoadSound()>Load Sound</button>
+        </div>
       </div>
     </div>
 
