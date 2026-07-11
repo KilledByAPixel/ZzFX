@@ -87,15 +87,17 @@ a:hover{ text-decoration:underline; }
 .label{ font-size:11px; letter-spacing:1.4px; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
 
 /* hero */
-.hero{ margin:0; }
+.hero{ margin:0; display:flex; flex-direction:column; }
+.col .hero{ flex:1; }
 .hero-top{ display:flex; align-items:center; gap:14px; margin-bottom:12px; }
 .hero-top .label{ margin:0; white-space:nowrap; }
-.hero-canvas{ display:block; width:100%; background:var(--surface-2);
+.hero-canvas{ display:block; width:100%; flex:1; min-height:60px; background:var(--surface-2);
   border:1px solid var(--border); border-radius:8px; cursor:pointer; }
 #canvas_soundWave{ margin-bottom:10px; }
+#canvas_spectrogram{ flex:2; }
 
 /* layout split */
-.cols{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; align-items:start; }
+.cols{ display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; align-items:stretch; }
 .col{ display:flex; flex-direction:column; gap:12px; }
 
 /* buttons */
@@ -128,7 +130,8 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
   background:#eafcff; box-shadow:0 0 6px var(--accent-cyan); }
 
 /* sound list */
-.soundSelect{ overflow-x:hidden; height:300px; width:100%; }
+.lib-panel{ display:flex; flex-direction:column; }
+.soundSelect{ overflow-x:hidden; flex:1; min-height:200px; width:100%; }
 .lib-actions{ margin-top:10px; padding-top:10px; border-top:1px solid var(--border); }
 
 /* parameter grid */
@@ -160,7 +163,7 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
   <div class=cols>
 
     <!-- LEFT: library (sound list + library/file actions in one box) -->
-    <div class=panel>
+    <div class="panel lib-panel">
       <div class=label>Library</div>
       <select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2></select>
       <div class=lib-actions>
