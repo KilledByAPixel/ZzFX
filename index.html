@@ -147,62 +147,70 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
 </head>
 <body bgcolor=#222>
 <div id=UI style=display:none>
-<center>
-<table>
-<tr>
-<td style=text-align:right;>
-<font size=7><b><div id=div_logo style='display:inline'>ℤ𝕫𝔽𝕏</div></b></font>
-</td>
-<td style=text-align:left>
-<div style=display:inline;font-size:22px id=div_logo2>
-<i>Zuper Zmall Zound Zynth</i>
-</div>
-</td>
-<td style=text-align:center;width:380px rowspan=2>
-<div id=div_masterVolume></div>
-<input id=slider_masterVolume title='Volume to scale all sounds by in percent' type=range min=0 max=100 value=25 style=width:90% oninput=UpdateSettings();SaveLocalStorage()>
-<canvas title='Image of sound wave, click to play the sound [SPACE]' id=canvas_soundWave width=350 height=80 style=width:100%></canvas>
-<button class=large title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button><button class=large title='Make a new sound with mutated parameters [M]' onclick=CopySelected(1)>Mutate</button><button class=large title='Make copy of selected sound [C]' onclick=CopySelected()>Copy</button>
-<br>
-<button class=large title='Generate random pickup sound' onclick="AddPresetSound('Pickup')">Pickup</button><button class=large title='Generate random powerup sound' onclick="AddPresetSound('Powerup')">Powerup</button><button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button><button class=large title='Generate a tonal sound for music' onclick="AddPresetSound('Music')">Note</button>
-<br>
-<button class=large title='Generate random jump sound' onclick="AddPresetSound('Jump')">Jump</button><button class=large title='Generate random blip sound' onclick="AddPresetSound('Blip')">Blip</button><button class=large title='Generate random hit sound' onclick="AddPresetSound('Hit')">Hit</button><button class=large title='Generate random explosion sound' onclick="AddPresetSound('Explosion')">Explosion</button>
-<br>
-<button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button><button class=large title='Move selected to top of the list' onclick="SelectedToTop()">Top</button><button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
-<br>
-<select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2 style=margin:5px;width:100%></select>
-</td></tr>
-<tr>
-<td colspan=2>
-<div id=div_settingsTable></div>
-</td>
-</tr>
-<tr><td colspan=3 style=padding:5px>
-<center>
-<button title='Download the selected wave file' onclick=SaveWave()>Save Wav</button>
-<button title='Load sound from zzfx code' onclick=LoadSound()>Load Sound</button>
-<button title='Copy ZzFX code to clipboard' onclick=if(CopyToCliboard(textarea_code.value))PlaySelected()>Copy Sound</button>
-<button title='Import all sounds from a text file.' onclick=Import()>Import</button>
-<button title='Export all sounds to a text file.' onclick=Export()>Export</button>
-<button title='Clear non-favorite sounds' onclick=ClearSoundsButton()>Clear</button>
-<button title='Clear all sounds' onclick=ClearSoundsButton(1)>Clear All</button>
-</center>
-</td></tr>
-<tr><td colspan=3 style=padding:5px>
-<center>ZzFX Code
-<input type=radio name=radio_codeStyle id=input_codeStyleCompact checked onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Compact
-<input type=radio name=radio_codeStyle id=input_codeStyleFull  onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Full
-<input type=radio name=radio_codeStyle id=input_codeStyleLittleJS onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">LittleJS
-<input type=radio name=radio_codeStyle id=input_codeStyleLua onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Lua
+<div class=app>
 
-<br><textarea title='Use this code to play the selected sound' id=textarea_code style=width:90% readonly></textarea>
-</center>
-</td></tr>
-</table>
-ZzFX © <a href=https://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌
-<a hidden id=a_downloadLink></a>
-<input hidden id=input_importFile type=file accept=.txt>
-</center>
+  <div class=header>
+    <div class=logo id=div_logo>ℤ𝕫𝔽𝕏</div>
+    <div class=tagline id=div_logo2>Zuper Zmall Zound Zynth</div>
+  </div>
+
+  <div class="panel hero">
+    <div class=hero-top>
+      <div class=label id=div_masterVolume>Master Volume</div>
+      <input id=slider_masterVolume title='Volume to scale all sounds by in percent' type=range min=0 max=100 value=25 style=flex:1 oninput=UpdateSettings();SaveLocalStorage()>
+    </div>
+    <canvas title='Waveform — click to play [SPACE]' id=canvas_soundWave class=hero-canvas width=700 height=90></canvas>
+    <div class=label>Spectrogram · frequency × time</div>
+    <canvas title='Spectrogram — click to play [SPACE]' id=canvas_spectrogram class=hero-canvas width=700 height=170></canvas>
+  </div>
+
+  <div class=split>
+    <div class=col>
+      <div class=panel>
+        <div class=label>Library</div>
+        <select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2></select>
+      </div>
+      <div class=panel>
+        <div class=label>Generate</div>
+        <button class="large btn-primary" title='Create new random sound [INS]' onclick=AddPresetSound()>Random</button><button class="large btn-primary" title='Make a new sound with mutated parameters [M]' onclick=CopySelected(1)>Mutate</button><button class="large btn-primary" title='Make copy of selected sound [C]' onclick=CopySelected()>Copy</button>
+        <button class=large title='Generate random pickup sound' onclick="AddPresetSound('Pickup')">Pickup</button><button class=large title='Generate random powerup sound' onclick="AddPresetSound('Powerup')">Powerup</button><button class=large title='Generate random shoot sound' onclick="AddPresetSound('Shoot')">Shoot</button><button class=large title='Generate a tonal sound for music' onclick="AddPresetSound('Music')">Note</button>
+        <button class=large title='Generate random jump sound' onclick="AddPresetSound('Jump')">Jump</button><button class=large title='Generate random blip sound' onclick="AddPresetSound('Blip')">Blip</button><button class=large title='Generate random hit sound' onclick="AddPresetSound('Hit')">Hit</button><button class=large title='Generate random explosion sound' onclick="AddPresetSound('Explosion')">Explosion</button>
+      </div>
+      <div class=panel>
+        <div class=label>Sound</div>
+        <button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button><button class=large title='Move selected to top of the list' onclick="SelectedToTop()">Top</button><button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
+        <button title='Download the selected wave file' onclick=SaveWave()>Save Wav</button>
+        <button title='Load sound from zzfx code' onclick=LoadSound()>Load Sound</button>
+        <button title='Copy ZzFX code to clipboard' onclick=if(CopyToCliboard(textarea_code.value))PlaySelected()>Copy Sound</button>
+        <button title='Import all sounds from a text file.' onclick=Import()>Import</button>
+        <button title='Export all sounds to a text file.' onclick=Export()>Export</button>
+        <button title='Clear non-favorite sounds' onclick=ClearSoundsButton()>Clear</button>
+        <button title='Clear all sounds' onclick=ClearSoundsButton(1)>Clear All</button>
+      </div>
+    </div>
+
+    <div class=panel>
+      <div class=label>Parameters</div>
+      <div id=div_settingsTable></div>
+    </div>
+  </div>
+
+  <div class="panel codebar">
+    <div class=styles>
+      <span class=label style=margin:0>ZzFX Code</span>
+      <label><input type=radio name=radio_codeStyle id=input_codeStyleCompact checked onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Compact</label>
+      <label><input type=radio name=radio_codeStyle id=input_codeStyleFull onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Full</label>
+      <label><input type=radio name=radio_codeStyle id=input_codeStyleLittleJS onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">LittleJS</label>
+      <label><input type=radio name=radio_codeStyle id=input_codeStyleLua onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Lua</label>
+    </div>
+    <textarea title='Use this code to play the selected sound' id=textarea_code readonly></textarea>
+  </div>
+
+  <div class=footer>ZzFX © <a href=https://www.frankforce.com target=_blank>Frank Force</a> 2019 ☮♥☻␌</div>
+  <a hidden id=a_downloadLink></a>
+  <input hidden id=input_importFile type=file accept=.txt>
+
+</div>
 <script src=ZzFXMicro.js></script>
 <script type=module>
 
