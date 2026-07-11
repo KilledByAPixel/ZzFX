@@ -87,11 +87,10 @@ a:hover{ text-decoration:underline; }
 .label{ font-size:11px; letter-spacing:1.4px; text-transform:uppercase; color:var(--muted); margin:0 0 8px; }
 
 /* hero */
-.hero{ margin:0; display:flex; flex-direction:column; }
-.col .hero{ flex:1; }
+.hero{ margin:0; }
 .hero-top{ display:flex; align-items:center; gap:14px; margin-bottom:12px; }
 .hero-top .label{ margin:0; white-space:nowrap; }
-.hero-canvas{ display:block; width:100%; flex:1; min-height:60px; background:var(--surface-2);
+.hero-canvas{ display:block; width:100%; height:100px; background:var(--surface-2);
   border:1px solid var(--border); border-radius:8px; cursor:pointer; }
 #canvas_soundWave{ margin-bottom:10px; }
 
@@ -143,9 +142,11 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
 .param-cell{ display:flex; gap:6px; }
 
 /* code bar */
-.codebar{ text-align:center; }
+.codebar{ text-align:center; display:flex; flex-direction:column; align-items:center; }
+.col .codebar{ flex:1; }
 .codebar .styles{ display:flex; flex-wrap:wrap; gap:10px 16px; justify-content:center;
   align-items:center; margin-bottom:10px; }
+.codebar textarea{ flex:1; min-height:90px; }
 .codebar label{ cursor:pointer; }
 .footer{ text-align:center; color:var(--muted); margin-top:12px; font-size:13px; }
 </style>
@@ -1071,6 +1072,11 @@ function MutateSetting(setting, refresh = true)
         v += r * step;
         v = parseFloat(v.toFixed(2));
     }
+
+    // filter: crossing from >= 0 into a small negative value is a near-DC
+    // low-pass that mutes the sound; jump to a usable low-pass cutoff instead.
+    if (name == 'filter' && v < 0 && sound[name] >= 0)
+        v = -(1000 + Math.random()*1000 | 0);
     
     document.getElementById('input_'+name).value = v;
     sound[setting.name] = v;
