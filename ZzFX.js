@@ -87,6 +87,7 @@ export const ZZFX =
         const gainNode = this.audioContext.createGain();
         gainNode.gain.value = this.volume*volumeScale;
         gainNode.connect(this.audioContext.destination);
+        source.gainNode = gainNode; // expose so callers can adjust or fade
 
         // connect source to stereo panner and gain
         const pannerNode = new StereoPannerNode(this.audioContext, {'pan':pan});
@@ -162,7 +163,6 @@ export const ZZFX =
         pitchJump *= PI2 / sampleRate;
         pitchJumpTime *= sampleRate;
         repeatTime = repeatTime * sampleRate | 0;
-        volume *= this.volume;
 
         // generate waveform
         for(length = attack + decay + sustain + release + delay | 0;

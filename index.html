@@ -181,7 +181,7 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
     <!-- LEFT: library (sound list + library/file actions in one box) -->
     <div class="panel lib-panel">
       <div class=label>Library</div>
-      <select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onchange=LoadSelected(1) size=2></select>
+      <select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onkeyup=LoadSelected(1) size=2></select>
       <div class="lib-actions btn-row">
         <button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button><button class=large title='Move selected to top of the list' onclick="SelectedToTop()">Top</button><button class=large title='Copy to the top of the list without changing your selection' onclick=CloneSelected()>Clone</button><button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
         <button title='Download the selected wave file' onclick=SaveWave()>Save Wav</button>
@@ -460,18 +460,13 @@ function PlaySelected()
 {
     if (lastPlayedSound)
     {
+        // fade out through the sound's own gain node so master volume still applies
         try
         {
-            const context = lastPlayedSound.context;
-            const gain = context.createGain();
-
-            lastPlayedSound.disconnect();
-            lastPlayedSound.connect(gain);
-            gain.connect(context.destination);
-
-            const t = lastPlayedSound.context.currentTime + .02;
-            gain.gain.linearRampToValueAtTime(1, t);
-            gain.gain.linearRampToValueAtTime(0, t + .1);
+            const gain = lastPlayedSound.gainNode.gain;
+            const t = lastPlayedSound.context.currentTime;
+            gain.setValueAtTime(gain.value, t);
+            gain.linearRampToValueAtTime(0, t + .1);
         }
         catch (e) { lastPlayedSound.stop(); }
         
@@ -483,21 +478,11 @@ function PlaySelected()
 
     fitCanvas(canvas_soundWave);
 
+    // samples are full scale, master volume is applied at playback
+    const samples = ZZFX.buildSamples(...params);
+    DrawSoundWave(samples, 1, sound);
     if (ZZFX.volume > 0)
-    {
-        const samples = ZZFX.buildSamples(...params);
-        lastPlayedSound = ZZFX.play(...params);
-        DrawSoundWave(samples, ZZFX.volume, sound);
-    }
-    else
-    {
-        // just build samples without playing
-        const saveVolume = ZZFX.volume;
-        ZZFX.volume = 1;
-        const samples = ZZFX.buildSamples(...params);
-        DrawSoundWave(samples, 1, sound);
-        ZZFX.volume = saveVolume;
-    }
+        lastPlayedSound = ZZFX.playSamples([samples]);
     RandomizeLogo();
 }
 
@@ -877,11 +862,8 @@ function AddPresetSound(presetName='Random')
     {
         // renormalize sound volume
         const params = SoundToArray(sound);
-        const saveVolume = ZZFX.volume;
-        ZZFX.volume = 1;
         const samples = ZZFX.buildSamples(...params);
         DrawSoundWave(samples, 1, sound);
-        ZZFX.volume = saveVolume;
     
         // get max sample
         let maxSample = 0;
@@ -1405,10 +1387,8 @@ function SaveWave()
 {
     PlaySelected();
     const sound = BuildSoundFromSettings();
-    const v = ZZFX.volume;
-    ZZFX.volume = .5;
-    const samples = ZZFX.buildSamples(...SoundToArray(sound));
-    ZZFX.volume = v;
+    const wavVolume = .5; // export at half scale to leave headroom
+    const samples = ZZFX.buildSamples(...SoundToArray(sound)).map(s=>s*wavVolume);
 
     a_downloadLink.href = buildWavURL([samples], ZZFX.sampleRate);
     name = sound.name.trim();
