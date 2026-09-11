@@ -157,6 +157,11 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
 .codebar label{ cursor:pointer; }
 .footer{ text-align:center; color:var(--muted); margin-top:12px; font-size:13px; }
 
+/* load sounds dialog */
+dialog{ background:var(--surface); color:var(--text); border:1px solid var(--border);
+  border-radius:12px; padding:14px; width:min(720px,92vw); }
+dialog::backdrop{ background:rgba(0,0,0,.6); }
+dialog textarea{ width:100%; height:180px; margin-bottom:10px; white-space:pre; overflow:auto; }
 /* narrow screens: stack the three columns (order defined on .cols above) */
 @media (max-width:900px){
   .cols{ grid-template-columns:1fr; }
@@ -226,8 +231,16 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
         </div>
         <textarea title='Use this code to play the selected sound' id=textarea_code readonly></textarea>
         <div class="code-actions btn-row">
-          <button title='Copy ZzFX code to clipboard' onclick=if(CopyToCliboard(textarea_code.value))PlaySelected()>Copy Sound</button><button title='Load sound from zzfx code' onclick=LoadSound()>Load Sound</button>
+          <button title='Copy ZzFX code to clipboard' onclick=if(CopyToCliboard(textarea_code.value))PlaySelected()>Copy Sound</button><button title='Load one or more sounds from zzfx code' onclick=LoadSound()>Load Sound</button>
         </div>
+        <dialog id=dialog_loadSound>
+          <div class=label>Load Sounds</div>
+          <textarea id=textarea_loadSound placeholder='Paste zzfx code here, one sound per line'></textarea>
+          <div class=btn-row style=justify-content:flex-end>
+            <button onclick=dialog_loadSound.close()>Cancel</button>
+            <button class=btn-primary onclick=LoadSoundsFromCode(textarea_loadSound.value)>Load</button>
+          </div>
+        </dialog>
       </div>
     </div>
 
@@ -1341,46 +1354,64 @@ function GetCode(sound)
         return `zzfx(${code}); // ${sound.name.trim()}`;
 }
 
-function LoadSound()
-{    
-    let code = prompt('Enter zzfx code.');
-    if (!code)
-        return;
-
-    // grab name from trailing comment (js // or lua --)
-    const name = code.split('//')[1] || code.split('--')[1];
-
-    // remove wrapper: js [ or ( , or lua {
-    code = code.split('{')[1] || code.split('[')[1] || code.split('(')[1] || code;
-
-    // drop trailing comment and closing wrapper junk ( ]});  // or -- )
-    code = code.split('//')[0].split('--')[0].replace(/[\s\])};]+$/, '');
-
-    // a gap is an empty entry (js) or nil (lua); both load as undefined (default)
-    const isGap = p => p.trim() == '' || p.trim().toLowerCase() == 'nil';
-
-    // valiadate code
-    let valid = 1;
-    code.split(',').forEach(p=>
+// parse pasted zzfx code into a list of {params, name}, one entry per sound found
+function ParseZzfxCode(text)
+{
+    const sounds = [];
+    for (let line of text.split('\n'))
     {
-        if (!isGap(p) && !Number.isFinite(parseFloat(p)))
-            valid = 0;
-    });
-    if (!valid)
+        // trailing comment (js // or lua --) is the sound name
+        const comment = line.search(/\/\/|--/);
+        let name = '';
+        if (comment >= 0)
+        {
+            name = line.slice(comment+2).trim();
+            line = line.slice(0, comment);
+        }
+
+        // each innermost bracket group holding only numbers and gaps is a sound
+        for (const [, inner] of line.matchAll(/[\[({]([^\[\](){}]*)[\])}]/g))
+        {
+            // a gap is an empty entry (js) or nil (lua); both load as undefined (default)
+            const isGap = p => p == '' || p.toLowerCase() == 'nil';
+            const entries = inner.trim() == '' ? [] : inner.split(',').map(p=>p.trim());
+            if (!entries.every(p=> isGap(p) || Number.isFinite(parseFloat(p))))
+                continue;
+            const params = entries.map(p=> isGap(p) ? undefined : parseFloat(p));
+            sounds.push({params, name});
+        }
+    }
+    return sounds;
+}
+
+// add every sound found in the code to the library, first one on top and selected
+function LoadSoundsFromCode(code)
+{
+    const parsed = ParseZzfxCode(code);
+    if (!parsed.length)
     {
         alert('Invalid zzfx code!');
         return;
     }
+    dialog_loadSound.close();
 
-    // build sound
-    const paramArray = code.split(',').map(p=> isGap(p) ? undefined : parseFloat(p));
-    const sound = BuildSound(...paramArray);
-    sound.name = name || ('Loaded Sound ' + generatedSoundCount++);
-    sound.name = sound.name.trim();
-    AddToList(sound);
+    const newSounds = parsed.map(({params, name})=>
+    {
+        const sound = BuildSound(...params);
+        sound.name = (name || ('Loaded Sound ' + generatedSoundCount++)).trim();
+        return sound;
+    });
+    for (const sound of newSounds.reverse())
+        AddToList(sound);
     LoadSelected();
     UpdateSettings();
     PlaySelected();
+}
+
+function LoadSound()
+{
+    textarea_loadSound.value = '';
+    dialog_loadSound.showModal();
 }
 
 function SaveWave()
