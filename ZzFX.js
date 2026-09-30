@@ -1,6 +1,6 @@
 /*
 
-ZzFX - Zuper Zmall Zound Zynth v1.3.2 by Frank Force
+ZzFX - Zuper Zmall Zound Zynth v1.4.0 by Frank Force
 https://github.com/KilledByAPixel/ZzFX
 
 ZzFX Features
@@ -137,7 +137,7 @@ export const ZZFX =
             crush = 0,     // bit crush offset
             jump = 1,      // pitch jump timer
             length,        // sample length
-            b = [],        // sample buffer
+            b,             // sample buffer
             t = 0,         // sample time
             i = 0,         // sample index 
             s = 0,         // sample value
@@ -164,9 +164,12 @@ export const ZZFX =
         pitchJumpTime *= sampleRate;
         repeatTime = repeatTime * sampleRate | 0;
 
+        // allocate the full sample buffer up front, much faster than growing an array
+        length = attack + decay + sustain + release + delay | 0;
+        b = new Float32Array(length > 0 ? length : 0);
+
         // generate waveform
-        for(length = attack + decay + sustain + release + delay | 0;
-            i < length; b[i++] = s * volume)                   // sample
+        for(; i < length; b[i++] = s * volume)                 // sample
         {
             if (!(++crush%(bitCrush*100|0)))                   // bit crush
             {
@@ -202,7 +205,7 @@ export const ZZFX =
 
             f = (frequency += slide += deltaSlide) *// frequency
                 Math.cos(modulation*modOffset++);   // modulation
-            t += f + f*noise*Math.sin(i**5);        // noise
+            t += f + f*noise*(i*i*PI2%2-1);         // noise
 
             if (jump && ++jump > pitchJumpTime)     // pitch jump
             { 

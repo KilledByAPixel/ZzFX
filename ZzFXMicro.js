@@ -10,7 +10,7 @@
 
 'use strict';
 
-// ZzFXMicro - Zuper Zmall Zound Zynth - v1.3.2 by Frank Force
+// ZzFXMicro - Zuper Zmall Zound Zynth - v1.4.0 by Frank Force
 
 const zzfxV = .3; // volume
 const zzfxX = new AudioContext; // audio context
@@ -122,7 +122,7 @@ const zzfx = // generate samples
 
         f = (frequency += slide += deltaSlide) *// frequency
             Math.cos(modulation*modOffset++);   // modulation
-        t += f + f*noise*Math.sin(i**5);        // noise
+        t += f + f*noise*(i*i*PI2%2-1);         // noise
 
         if (jump && ++jump > pitchJumpTime)     // pitch jump
         { 
