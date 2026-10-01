@@ -4,3 +4,6 @@
 # AI assistant planning docs and local settings, kept out of the repo
 docs/superpowers/
 .claude/
+
+# local dev scripts
+scripts/
