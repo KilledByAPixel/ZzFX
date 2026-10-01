@@ -146,6 +146,8 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
 .param-label{ text-align:right; font-size:13px; color:var(--muted); }
 .param-cell input.setting,.param-cell select.setting{ width:100%; }
 .param-cell{ display:flex; gap:6px; }
+.hz-toggle{ display:flex; align-items:center; gap:3px; font-size:13px; color:var(--muted); cursor:pointer; }
+.hz-toggle input{ width:16px; height:16px; margin:0; accent-color:var(--accent-cyan); }
 
 /* code bar */
 .codebar{ text-align:center; display:flex; flex-direction:column; align-items:center; }
@@ -365,8 +367,9 @@ function Init()
 const SETTING_TYPE_NAME = 1;
 const SETTING_TYPE_SHAPE = 2;
 
-function BuildSetting(step, min, max, name, niceName, help, canMutate=1, type=0)
-{ return {name, step, min, max, niceName, help, type, canMutate}; }
+// hz: this setting is a time in seconds that can also be entered as a rate in Hz
+function BuildSetting(step, min, max, name, niceName, help, canMutate=1, type=0, hz=0)
+{ return {name, step, min, max, niceName, help, type, canMutate, hz}; }
 
 const settings = 
 [
@@ -385,16 +388,77 @@ BuildSetting(.1,-1e9,1e9,'slide','Slide','How much to slide frequency (kHz/s)'),
 BuildSetting(.1,-1e9,1e9,'deltaSlide','Delta Slide','How much to change slide (kHz/s/s)'),
 BuildSetting(50,-1e9,1e9,'pitchJump','Pitch Jump','Frequency of pitch jump (Hz)'),
 BuildSetting(.01,-1e9,1e9,'pitchJumpTime','Pitch Jump Time','Time of pitch jump (seconds)'),
-BuildSetting(.01,-1e9,1e9,'repeatTime','Repeat Time','Resets some parameters periodically (seconds)'),
+BuildSetting(.01,-1e9,1e9,'repeatTime','Repeat Time','Resets some parameters periodically (seconds)',1,0,1),
 BuildSetting(.01,0,1,'tremolo','Tremolo','Trembling effect, rate controlled by repeat time (precent)'),
 BuildSetting(.1,-1e9,1e9,'noise','Noise','How much random noise to add (percent)'),
 BuildSetting(.1,-1e9,1e9,'bitCrush','Bit Crush','Resamples at a lower frequency in (samples*100)'),
-BuildSetting(.01,0,1e9,'delay','Delay','Overlap sound with itself for reverb and flanger effects (seconds)'),
+BuildSetting(.01,0,1e9,'delay','Delay','Overlap sound with itself for reverb and flanger effects (seconds)',1,0,1),
 BuildSetting(1,-1e9,1e9,'modulation','Modulation','Frequency of modulation wave, negative flips phase (Hz)'),
 BuildSetting(1,-1e9,1e9,'filter','Filter','Filter cutoff frequency, positive for HPF, negative for LPF (Hz)'),
 ]
 
 let noteScale;
+
+// which time settings are being edited as a rate in Hz, by setting name
+let hzSettings = {};
+
+// convert a rate in Hz to the shortest time in seconds that lasts the nearest whole number of samples
+function HzToSeconds(hz)
+{
+    if (!hz || !Number.isFinite(hz))
+        return 0;
+
+    const rate = ZZFX.sampleRate;
+    const samples = Math.max(1, Math.round(rate/Math.abs(hz)));
+    let seconds = (samples + .5)/rate;
+    for (let digits = 1; digits < 12; ++digits)
+    {
+        const rounded = parseFloat(seconds.toPrecision(digits));
+        if ((rounded*rate|0) == samples)
+        {
+            seconds = rounded;
+            break;
+        }
+    }
+    return hz < 0 ? -seconds : seconds;
+}
+
+// convert a time in seconds to the rate in Hz of the whole number of samples it lasts
+function SecondsToHz(seconds)
+{
+    if (!seconds || !Number.isFinite(seconds))
+        return 0;
+
+    const rate = ZZFX.sampleRate;
+    const samples = Math.abs(seconds)*rate|0 || 1;
+
+    // use the fewest digits (at least 4) that convert back to the same number of samples
+    let hz = rate/samples;
+    for (let digits = 4; digits < 12; ++digits)
+    {
+        const rounded = parseFloat(hz.toPrecision(digits));
+        if (Math.max(1, Math.round(rate/rounded)) == samples)
+        {
+            hz = rounded;
+            break;
+        }
+    }
+    return seconds < 0 ? -hz : hz;
+}
+
+// a rate was typed, store it as seconds in the real setting input
+function HzWasChanged(settingName)
+{
+    const hz = parseFloat(document.getElementById('input_hzValue_'+settingName).value);
+    document.getElementById('input_'+settingName).value = HzToSeconds(hz);
+    SelectedWasChanged(settingName);
+}
+
+function ToggleHz(settingName)
+{
+    hzSettings[settingName] = document.getElementById('input_hz_'+settingName).checked ? 1 : 0;
+    UpdateSettings();
+}
 
 function BuildSettingsTable()
 {
@@ -448,6 +512,13 @@ function BuildSettingsTable()
             html += `<option value=-1></option>`;
             noteScale.map((note,i)=>html += `<option value=${i}>${note[1]}</option>`);
             html += `</select>`;
+        }
+
+        if (s.hz)
+        {
+            // rate input shown in place of the seconds input while the Hz box is checked
+            html += `<input id=input_hzValue_${s.name} class=setting title='${s.niceName} as a rate, the same as 1 / seconds (Hz)' type=number step=1 oninput=HzWasChanged('${s.name}') onfocusout=UpdateSettings() hidden>`;
+            html += `<label class=hz-toggle title='Edit ${s.niceName} as a rate in Hz instead of seconds'><input id=input_hz_${s.name} type=checkbox oninput=ToggleHz('${s.name}')>Hz</label>`;
         }
 
         html += '</div>';
@@ -561,6 +632,18 @@ function UpdateSettings()
                 const eNote = document.getElementById("input_note");
                 const noteIndex = noteScale.findIndex(e=>e[0] == v);
                 eNote.value = noteIndex;
+            }
+
+            if (s.hz)
+            {
+                // show either the seconds input or the rate input, keeping the rate in sync
+                const isHz = !!hzSettings[s.name];
+                const eHz = document.getElementById("input_hzValue_"+s.name);
+                document.getElementById("input_hz_"+s.name).checked = isHz;
+                element.hidden = isHz;
+                eHz.hidden = !isHz;
+                if (eHz != document.activeElement)
+                    eHz.value = SecondsToHz(parseFloat(v));
             }
             
             const elementReset = document.getElementById("input_reset_"+s.name);
@@ -1492,7 +1575,8 @@ function BuildSaveData()
         sounds,
         generatedSoundCount,
         volume,
-        codeStyle
+        codeStyle,
+        hzSettings
     }
     
     return JSON.stringify(data);
@@ -1515,6 +1599,8 @@ function LoadSaveData(dataJSON)
     // settings
     if (data.volume)
         slider_masterVolume.value = data.volume;
+    if (data.hzSettings)
+        hzSettings = data.hzSettings;
     if (data.codeStyle)
     {
         if (data.codeStyle == 'full')
