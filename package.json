@@ -3,6 +3,12 @@
   "version": "1.4.0",
   "description": "A Tiny JavaScript Sound FX System",
   "main": "ZzFX.js",
+  "files": [
+    "ZzFX.js",
+    "ZzFXMicro.js",
+    "ZzFXMicro.min.js",
+    "wav.js"
+  ],
   "scripts": {
     "test": "zzfx()"
   },
