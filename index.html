@@ -402,42 +402,34 @@ let noteScale;
 // which time settings are being edited as a rate in Hz, by setting name
 let hzSettings = {};
 
-// convert a rate in Hz to the shortest time in seconds that lasts the nearest whole number of samples
+// convert a rate in Hz to a time in seconds, 1 / hz kept to 6 significant digits
 function HzToSeconds(hz)
 {
     if (!hz || !Number.isFinite(hz))
         return 0;
 
-    const rate = ZZFX.sampleRate;
-    const samples = Math.max(1, Math.round(rate/Math.abs(hz)));
-    let seconds = (samples + .5)/rate;
-    for (let digits = 1; digits < 12; ++digits)
-    {
-        const rounded = parseFloat(seconds.toPrecision(digits));
-        if ((rounded*rate|0) == samples)
-        {
-            seconds = rounded;
-            break;
-        }
-    }
+    // at least one sample long so a very high rate does not turn the effect off
+    const exact = Math.max(1/Math.abs(hz), 1/ZZFX.sampleRate);
+
+    // round up (unless it is already a hair above a 6 digit value) so the engine
+    // sees the same whole sample count as the exact time
+    const scale = 10**(5 - Math.floor(Math.log10(exact)));
+    const seconds = parseFloat((Math.ceil(exact*scale*(1 - 1e-7))/scale).toPrecision(6));
     return hz < 0 ? -seconds : seconds;
 }
 
-// convert a time in seconds to the rate in Hz of the whole number of samples it lasts
+// convert a time in seconds to a rate in Hz, the shortest number that converts back to the same time
 function SecondsToHz(seconds)
 {
     if (!seconds || !Number.isFinite(seconds))
         return 0;
 
-    const rate = ZZFX.sampleRate;
-    const samples = Math.abs(seconds)*rate|0 || 1;
-
-    // use the fewest digits (at least 4) that convert back to the same number of samples
-    let hz = rate/samples;
-    for (let digits = 4; digits < 12; ++digits)
+    const time = Math.abs(seconds);
+    let hz = parseFloat((1/time).toPrecision(6));
+    for (let digits = 1; digits < 12; ++digits)
     {
-        const rounded = parseFloat(hz.toPrecision(digits));
-        if (Math.max(1, Math.round(rate/rounded)) == samples)
+        const rounded = parseFloat((1/time).toPrecision(digits));
+        if (HzToSeconds(rounded) == time)
         {
             hz = rounded;
             break;
@@ -1441,28 +1433,57 @@ function GetCode(sound)
 function ParseZzfxCode(text)
 {
     const sounds = [];
+    let nameAbove = ''; // comment on its own line above a sound
     for (let line of text.split('\n'))
     {
         // trailing comment (js // or lua --) is the sound name
         const comment = line.search(/\/\/|--/);
-        let name = '';
+        let nameAfter = '';
         if (comment >= 0)
         {
-            name = line.slice(comment+2).trim();
+            nameAfter = line.slice(comment+2).trim();
             line = line.slice(0, comment);
         }
 
+        // block comment on the same line: /* name */
+        let nameBlock = '';
+        line = line.replace(/\/\*(.*?)\*\//g, (m, c)=> (nameBlock ||= c.trim(), ' '));
+
+        if (!line.trim())
+        {
+            // a comment on its own line can name the sound below, blank lines keep it
+            const name = nameAfter || nameBlock;
+            if (name)
+                nameAbove = /[\[\]{}]/.test(name) ? '' : name;
+            continue;
+        }
+
         // each innermost bracket group holding only numbers and gaps is a sound
-        for (const [, inner] of line.matchAll(/[\[({]([^\[\](){}]*)[\])}]/g))
+        let found = [];
+        for (const match of line.matchAll(/[\[({]([^\[\](){}]*)[\])}]/g))
         {
             // a gap is an empty entry (js) or nil (lua); both load as undefined (default)
             const isGap = p => p == '' || p.toLowerCase() == 'nil';
+            const inner = match[1];
             const entries = inner.trim() == '' ? [] : inner.split(',').map(p=>p.trim());
             if (!entries.every(p=> isGap(p) || Number.isFinite(parseFloat(p))))
                 continue;
             const params = entries.map(p=> isGap(p) ? undefined : parseFloat(p));
-            sounds.push({params, name});
+
+            // the variable or key the sound is assigned to, like  name = ...  or  name: ...
+            const front = line.slice(0, match.index).match(
+                /(?:["']([^"']+)["']|([A-Za-z_$][\w$]*))\s*[=:](?![=>])[^=:,;]*$/);
+            found.push({params, nameFront: front ? front[1] || front[2] : ''});
         }
+
+        // an empty call like .play() is only a sound when it is the only thing on the line
+        if (found.some(s=> s.params.length))
+            found = found.filter(s=> s.params.length);
+
+        // prefer the name after the sound, then names in front: comment, line above, variable
+        found.forEach(({params, nameFront}, i)=>
+            sounds.push({params, name: nameAfter || nameBlock || !i && nameAbove || nameFront}));
+        nameAbove = '';
     }
     return sounds;
 }
