@@ -15,6 +15,9 @@ ZzFX UI Features
 - Sounds can be download as a wave file.
 - Sounds can be marked as favorites to prevent removal.
 - Sounds can be loaded by pasting zzfx code for easy sharing.
+- Share button copies a link that opens with the sound loaded.
+- Loop toggle repeats the selected sound while tweaking it.
+- Library can be filtered to show only favorites.
 - List of sounds can be exported and imported.
 - Supports drag-and-drop of exported files into sound list.
 
@@ -121,6 +124,8 @@ button.large{ padding:8px 12px; }
   border-color:#39506a; color:#eafcff; }
 button.rand{ width:16px; height:16px; padding:0; background:var(--accent-cyan); border:none; }
 button.reset{ width:16px; height:16px; padding:0; background:#3ad16b; border:none; }
+button.on{ border-color:var(--accent-cyan); color:#eafcff;
+  background:rgba(77,243,255,.18); box-shadow:0 0 0 1px rgba(77,243,255,.35); }
 .btn-row{ display:flex; flex-wrap:wrap; gap:6px; }
 .btn-row button{ margin:0; }
 
@@ -146,6 +151,7 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
 .lib-panel{ display:flex; flex-direction:column; }
 .soundSelect{ overflow-x:hidden; flex:1; min-height:200px; width:100%; }
 .lib-actions{ margin-top:10px; padding-top:10px; border-top:1px solid var(--border); }
+.lib-actions button{ flex:1 1 auto; } /* fill each line so a short last row doesn't look orphaned */
 
 /* parameter grid */
 .param-grid{ display:grid; grid-template-columns:104px minmax(0,1fr) auto auto auto; column-gap:8px; row-gap:3px; align-items:center; }
@@ -163,8 +169,15 @@ input[type=range]::-moz-range-thumb{ width:16px; height:16px; border:none; borde
 .col .codebar{ flex:1; }
 .codebar .styles{ display:flex; flex-wrap:wrap; gap:10px 16px; justify-content:center;
   align-items:center; margin-bottom:10px; }
-.codebar textarea{ flex:1; min-height:90px; }
-.code-actions{ margin-top:8px; }
+.code-wrap{ position:relative; display:flex; flex-direction:column; flex:1; width:90%; }
+.codebar textarea{ flex:1; width:100%; min-height:90px; padding-right:36px; }
+.code-copy{ position:absolute; top:6px; right:6px; width:26px; height:26px; padding:4px; margin:0;
+  display:flex; align-items:center; justify-content:center; opacity:.7; }
+.code-copy:hover,.code-copy.copied{ opacity:1; }
+.code-copy svg{ width:16px; height:16px; fill:none; stroke:currentColor; stroke-width:2;
+  stroke-linecap:round; stroke-linejoin:round; }
+.code-copy .check,.code-copy.copied .copy{ display:none; }
+.code-copy.copied .check{ display:block; color:#3ad16b; }
 .codebar label{ cursor:pointer; }
 .footer{ text-align:center; color:var(--muted); margin-top:12px; font-size:13px; }
 
@@ -200,12 +213,16 @@ dialog textarea{ width:100%; height:180px; margin-bottom:10px; white-space:pre; 
       <select id=select_soundList class=soundSelect onclick='loadedSound=0;LoadSelected(1)' onkeyup=LoadSelected(1) size=2></select>
       <div class="lib-actions btn-row">
         <button class=large title='Toggle favorite on current sound [F]' onclick=FavoriteSelected()>Favorite</button><button class=large title='Move selected to top of the list' onclick="SelectedToTop()">Top</button><button class=large title='Copy to the top of the list without changing your selection' onclick=CloneSelected()>Clone</button><button title='Remove selected sound [DEL]' class=large onclick=RemoveSelected()>Remove</button>
-        <button title='Download the selected wave file' onclick=SaveWave()>Save Wav</button>
+        <button id=button_share title='Copy a link to the selected sound' onclick=ShareSelected()>Share</button>
+        <button title='Download the selected wave file, or drag this button into a folder or app' draggable=true ondragstart=DragWave(event) onclick=SaveWave()>Save Wav</button>
+        <button title='Load one or more sounds from zzfx code' onclick=LoadSound()>Load Sound</button>
         <button title='Import all sounds from a text file.' onclick=Import()>Import</button>
         <button title='Export all sounds to a text file.' onclick=Export()>Export</button>
         <button title='Clear non-favorite sounds' onclick=ClearSoundsButton()>Clear</button>
         <button title='Clear all sounds' onclick=ClearSoundsButton(1)>Clear All</button>
         <button title='Sort the library alphabetically by name' onclick=SortSounds()>Sort</button>
+        <button id=button_favoriteFilter title='Show only favorite sounds in the library' onclick=ToggleFavoriteFilter()>Favs Only</button>
+        <button id=button_loop title='Loop the selected sound while tweaking it, turns off when another sound is played [L]' onclick=ToggleLoop()>Loop</button>
       </div>
     </div>
 
@@ -240,9 +257,12 @@ dialog textarea{ width:100%; height:180px; margin-bottom:10px; white-space:pre; 
           <label><input type=radio name=radio_codeStyle id=input_codeStyleLittleJS onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">LittleJS</label>
           <label><input type=radio name=radio_codeStyle id=input_codeStyleLua onchange="SaveLocalStorage();textarea_code.value=GetCode(GetSelectedSound())">Lua</label>
         </div>
-        <textarea title='Use this code to play the selected sound' id=textarea_code readonly></textarea>
-        <div class="code-actions btn-row">
-          <button title='Copy ZzFX code to clipboard' onclick=if(CopyToCliboard(textarea_code.value))PlaySelected()>Copy Sound</button><button title='Load one or more sounds from zzfx code' onclick=LoadSound()>Load Sound</button>
+        <div class=code-wrap>
+          <textarea title='Use this code to play the selected sound' id=textarea_code readonly></textarea>
+          <button id=button_copyCode class=code-copy title='Copy ZzFX code to clipboard' onclick=CopyCode()>
+            <svg class=copy viewBox="0 0 24 24"><rect x=9 y=9 width=12 height=12 rx=2 /><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            <svg class=check viewBox="0 0 24 24"><path d="M4 12.5l5 5L20 6.5"/></svg>
+          </button>
         </div>
         <dialog id=dialog_loadSound>
           <div class=label>Load Sounds</div>
@@ -283,6 +303,9 @@ let sounds = [];
 let generatedSoundCount = 0;
 let loadedSound;
 let lastPlayedSound;
+let loopEnabled = false; // loop toggle state, see SetLoop
+let loopSoundRef; // the sound object the loop toggle was turned on for
+let showFavoritesOnly = false; // library filter, see SetFavoriteFilter
 let defaultSound;
 const favoriteColor = '#f00';
 const waveShapeCount = 6;
@@ -368,6 +391,7 @@ function Init()
     BuildSettingsTable();
     RandomizeLogo();
     LoadLocalStorage();
+    LoadSharedSound();
 }
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -541,23 +565,29 @@ function GetSelectedSound()
     return sounds[index];
 }
 
+// quickly fade a playing source to silence, then stop it
+function FadeOutSound(source)
+{
+    // fade out through the sound's own gain node so master volume still applies
+    try
+    {
+        const gain = source.gainNode.gain;
+        const t = source.context.currentTime;
+        gain.setValueAtTime(gain.value, t);
+        gain.linearRampToValueAtTime(0, t + .1);
+        source.stop(t + .1);
+    }
+    catch (e) { source.stop(); }
+}
+
 function PlaySelected()
 {
-    if (lastPlayedSound)
-    {
-        // fade out through the sound's own gain node so master volume still applies
-        try
-        {
-            const gain = lastPlayedSound.gainNode.gain;
-            const t = lastPlayedSound.context.currentTime;
-            gain.setValueAtTime(gain.value, t);
-            gain.linearRampToValueAtTime(0, t + .1);
-        }
-        catch (e) { lastPlayedSound.stop(); }
-        
-        lastPlayedSound = 0;
-    }
-    
+    // the loop toggle only applies to the sound it was turned on for
+    if (loopEnabled && GetSelectedSound() != loopSoundRef)
+        SetLoop(false);
+
+    StopPlaying();
+
     const sound = BuildSoundFromSettings();
     const params = SoundToArray(sound);
 
@@ -567,8 +597,123 @@ function PlaySelected()
     const samples = ZZFX.buildSamples(...params);
     DrawSoundWave(samples, 1, sound);
     if (ZZFX.volume > 0)
-        lastPlayedSound = ZZFX.playSamples([samples]);
+        lastPlayedSound = ZZFX.playSamples([samples], 1, 1, 0, loopEnabled);
     RandomizeLogo();
+}
+
+// fade out whatever is playing, looping or not
+function StopPlaying()
+{
+    if (!lastPlayedSound)
+        return;
+
+    FadeOutSound(lastPlayedSound);
+    lastPlayedSound = 0;
+}
+
+// loop toggle for testing: while on, every replay of the same sound loops,
+// so tweaking parameters keeps it looping; it turns itself off as soon as
+// a different sound is played, and audio stops whenever the page loses focus
+function SetLoop(enable)
+{
+    loopEnabled = enable;
+    loopSoundRef = enable ? GetSelectedSound() : 0;
+    button_loop.classList.toggle('on', enable);
+}
+
+function ToggleLoop()
+{
+    SetLoop(!loopEnabled);
+    if (loopEnabled)
+        PlaySelected();
+    else
+        StopPlaying();
+}
+
+// never let a loop keep running in the background, the toggle stays on
+// so the next replay picks it back up
+onblur = StopPlaying;
+onpagehide = StopPlaying;
+document.addEventListener('visibilitychange', ()=> document.hidden && StopPlaying());
+
+// briefly swap a button's label to confirm an action
+function FlashButton(button, text, time=1200)
+{
+    if (button.flashTimer)
+        clearTimeout(button.flashTimer);
+    else
+        button.flashLabel = button.innerHTML;
+    button.innerHTML = text;
+    button.flashTimer = setTimeout(()=>
+    {
+        button.innerHTML = button.flashLabel;
+        button.flashTimer = 0;
+    }, time);
+}
+
+// copy the code box to the clipboard and show a check mark on the icon
+function CopyCode()
+{
+    if (!CopyToCliboard(textarea_code.value))
+        return;
+    PlaySelected();
+    button_copyCode.classList.add('copied');
+    clearTimeout(button_copyCode.copiedTimer);
+    button_copyCode.copiedTimer = setTimeout(()=> button_copyCode.classList.remove('copied'), 1200);
+}
+
+// share links carry the sound in the url hash, like  #sound=1.7,,226,.04&name=Jump
+function GetShareURL(sound)
+{
+    const params = SoundToArray(sound);
+    const defaults = SoundToArray(defaultSound);
+    while (params.length && params[params.length-1] == defaults[params.length-1])
+        --params.length; // drop trailing defaults
+    const list = params.map((p,i)=> p == defaults[i] ? '' : p).join(',');
+    const name = encodeURIComponent(sound.name.trim());
+    return location.href.split('#')[0] + '#sound=' + list + (name ? '&name=' + name : '');
+}
+
+function ShareSelected()
+{
+    const sound = GetSelectedSound();
+    if (!sound || !CopyToCliboard(GetShareURL(sound)))
+        return;
+    PlaySelected();
+    FlashButton(button_share, 'Link Copied');
+}
+
+// add the sound from a share link to the library, then clear the hash
+// so reloading the page doesn't add it again
+function LoadSharedSound()
+{
+    const match = location.hash.match(/[#&]sound=([^&]*)/);
+    if (!match)
+        return;
+
+    const params = match[1].split(',').map(p=> p == '' ? undefined : parseFloat(p));
+    const sound = BuildSound(...params);
+    const name = location.hash.match(/[#&]name=([^&]*)/);
+    sound.name = name ? decodeURIComponent(name[1]) : 'Shared Sound ' + generatedSoundCount++;
+    AddToList(sound);
+    LoadSelected();
+    UpdateSettings();
+    SaveLocalStorage();
+    history.replaceState(null, '', location.href.split('#')[0]);
+}
+
+// library filter: hide everything that isn't a favorite
+function SetFavoriteFilter(enable)
+{
+    showFavoritesOnly = enable;
+    button_favoriteFilter.classList.toggle('on', enable);
+    for (const option of select_soundList.options)
+        option.hidden = enable && !sounds[option.value].favorite;
+}
+
+function ToggleFavoriteFilter()
+{
+    SetFavoriteFilter(!showFavoritesOnly);
 }
 
 // size a canvas's backing store to its on-screen size so it renders crisp
@@ -658,6 +803,7 @@ function UpdateSettings()
         
         option.style.color = sound.favorite? favoriteColor : "inherit";
         option.innerHTML = (sound.favorite?'-> ':sound.modified?'* ':'') + sound.name;
+        option.hidden = showFavoritesOnly && !sound.favorite;
         textarea_code.value = GetCode(sound);
     }
     
@@ -1051,6 +1197,10 @@ function AddToList(sound)
     option.innerHTML = (sound.favorite?'-> ':sound.modified?'* ':'') + sound.name;
     select_soundList.add(option, 0);
     select_soundList.selectedIndex = 0;
+
+    // a new non-favorite would be invisible behind the filter, so drop the filter
+    if (showFavoritesOnly && !sound.favorite)
+        SetFavoriteFilter(false);
 }
 
 function SetFrequencyToNote()
@@ -1130,8 +1280,9 @@ function SortSounds()
     if (!confirm('Sort the library alphabetically by name?\nThis reorders the list.'))
         return;
 
-    // remember the selected sound so we can reselect it after sorting
+    // remember the selected sound and filter so we can restore them after sorting
     const selectedSound = GetSelectedSound();
+    const filter = showFavoritesOnly;
 
     // current sounds in display order, sorted alphabetically by name
     const list = [...select_soundList.options].map(o => sounds[o.value]);
@@ -1153,6 +1304,7 @@ function SortSounds()
             select_soundList.selectedIndex = i;
             break;
         }
+    SetFavoriteFilter(filter);
     LoadSelected();
     SaveLocalStorage();
 }
@@ -1173,6 +1325,21 @@ function RemoveSelected(playOnSelect=1)
     
     AddDefaultIfEmpty();
     i = Math.min(i, select_soundList.length-1);
+
+    // with the favorites filter on, land on the nearest visible sound
+    const options = select_soundList.options;
+    if (options[i].hidden)
+    {
+        let j = i;
+        while (j < options.length && options[j].hidden) ++j;
+        if (j == options.length)
+        {
+            j = i;
+            while (j >= 0 && options[j].hidden) --j;
+        }
+        if (j >= 0)
+            i = j;
+    }
     select_soundList.selectedIndex = i;
     LoadSelected(playOnSelect);
 }
@@ -1527,19 +1694,33 @@ function LoadSound()
     dialog_loadSound.showModal();
 }
 
-function SaveWave()
+// render the selected sound to a wav blob url, returns {url, filename}
+function BuildWaveFile()
 {
-    PlaySelected();
     const sound = BuildSoundFromSettings();
     const wavVolume = .5; // export at half scale to leave headroom
     const samples = ZZFX.buildSamples(...SoundToArray(sound)).map(s=>s*wavVolume);
+    const url = buildWavURL([samples], ZZFX.sampleRate);
+    const filename = (sound.name.trim() || 'zzfx') + '.wav';
+    return {url, filename};
+}
 
-    a_downloadLink.href = buildWavURL([samples], ZZFX.sampleRate);
-    name = sound.name.trim();
-    if (!name.length)
-        name = 'zzfx';
-    a_downloadLink.download = name + ".wav";
+function SaveWave()
+{
+    PlaySelected();
+    const {url, filename} = BuildWaveFile();
+    a_downloadLink.href = url;
+    a_downloadLink.download = filename;
     a_downloadLink.click();
+}
+
+// drag the Save Wav button into a folder or another app to drop the file there
+// (DownloadURL is supported by Chromium browsers, elsewhere the drag just does nothing)
+function DragWave(e)
+{
+    const {url, filename} = BuildWaveFile();
+    e.dataTransfer.setData('DownloadURL', 'audio/wav:' + filename + ':' + url);
+    e.dataTransfer.effectAllowed = 'copy';
 }
 
 function DrawSoundWave(b, volume, sound)
@@ -1719,6 +1900,8 @@ onkeydown =e=>
             CopySelected();
         if (e.keyCode == 77) // m
             CopySelected(1);
+        if (e.keyCode == 76) // l
+            ToggleLoop();
     }
 }
 
